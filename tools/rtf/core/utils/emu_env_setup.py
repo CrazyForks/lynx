@@ -121,7 +121,7 @@ class EmulatorEnv:
         if len(images) == 0:
             Log.fatal("No simulator resources found!")
         start_simulator_device_cmd = (
-            f"emulator -no-window -writable-system -avd {images[0]}"
+            f"emulator -no-window -writable-system -avd {images[0]} -partition-size 4096"
         )
         log_file = open(self.device_backend_log, "w")
         self.device_process = subprocess.Popen(
