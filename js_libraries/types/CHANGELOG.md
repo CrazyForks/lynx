@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 3.2.2
+
+### Patch Changes
+
+- Support needVisibleItemInfo for native List
+
 ## 3.2.1
 
 ### Patch Changes
