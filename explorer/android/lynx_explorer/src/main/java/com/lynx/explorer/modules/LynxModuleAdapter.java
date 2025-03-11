@@ -6,6 +6,7 @@ package com.lynx.explorer.modules;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Handler;
 import android.os.Looper;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import com.lynx.devtoolwrapper.LynxDevtoolCardListener;
 import com.lynx.devtoolwrapper.LynxDevtoolGlobalHelper;
+import com.lynx.explorer.LynxViewShellActivity;
 import com.lynx.explorer.scan.QRScanActivity;
 import com.lynx.explorer.shell.TemplateDispatcher;
 import com.lynx.react.bridge.JavaOnlyMap;
@@ -121,6 +123,12 @@ public class LynxModuleAdapter {
   private void startFromUrlSingleTop(String url) {
     TemplateDispatcher.dispatchUrl(
         mContext, url, Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+  }
+
+  public void saveThemePreferences(String theme, String value) {
+    SharedPreferences p =
+        mContext.getSharedPreferences(LynxViewShellActivity.PREFERENCES, Context.MODE_PRIVATE);
+    p.edit().putString(theme, value).apply();
   }
 
   private LynxModuleAdapter() {}

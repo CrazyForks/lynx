@@ -23,7 +23,7 @@ export default class Explorer extends Component<unknown, ContainerPageState> {
       showHomePage: true,
       showSettingsPage: false,
       themes: ['Auto', 'Light', 'Dark'],
-      currentTheme: 'Auto',
+      currentTheme: lynx.__globalProps.preferredTheme || 'Auto',
     };
   }
 
@@ -48,9 +48,15 @@ export default class Explorer extends Component<unknown, ContainerPageState> {
   };
 
   setTheme = (theme: string) => {
+    if (this.state.currentTheme == theme) {
+      return;
+    }
+
     this.setState({
       currentTheme: theme,
     });
+
+    NativeModules.ExplorerModule.saveThemePreferences('preferredTheme', theme);
   };
 
   withTheme = (className: string) => {

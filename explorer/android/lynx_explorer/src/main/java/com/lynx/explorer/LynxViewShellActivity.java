@@ -5,6 +5,7 @@ package com.lynx.explorer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -45,6 +46,7 @@ import java.util.Map;
 
 public class LynxViewShellActivity extends AppCompatActivity {
   public static final String URL_KEY = "url";
+  public static final String PREFERENCES = "ExplorerStorage";
   private static final String URL_PREFIX = "file://lynx?local://";
   private static final String TAG = "LynxViewShellActivity";
   private static final String HOME_PAGE_URL =
@@ -83,6 +85,12 @@ public class LynxViewShellActivity extends AppCompatActivity {
       mLynxView.destroy();
     }
     super.onDestroy();
+  }
+
+  private String getStorageItem(String key) {
+    SharedPreferences p = this.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
+    String value = p.getString(key, null);
+    return value;
   }
 
   private void setTopBarAppearance(String url) {
@@ -148,15 +156,6 @@ public class LynxViewShellActivity extends AppCompatActivity {
       tv.setText(title);
       tv.setTextColor(Color.parseColor(titleColor));
     }
-  }
-
-  @Override
-  public boolean onOptionsItemSelected(MenuItem item) {
-    if (item.getItemId() == android.R.id.home) {
-      onBackPressed();
-      return true;
-    }
-    return super.onOptionsItemSelected(item);
   }
 
   public boolean isNotchScreen() {
@@ -283,6 +282,9 @@ public class LynxViewShellActivity extends AppCompatActivity {
       theme = "Dark";
     }
     globalProps.put("theme", theme);
+
+    String preferredTheme = getStorageItem("preferredTheme");
+    globalProps.put("preferredTheme", preferredTheme);
 
     if (mFrontendTheme == "dark") {
       globalProps.put("frontendTheme", "dark");

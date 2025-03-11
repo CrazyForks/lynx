@@ -27,7 +27,7 @@ public class ExplorerApplication extends Application {
     super.onCreate();
     initLynxService();
     initLynxEnv();
-    installLynxJSModule(); // register js bridge.
+    installLynxJSModule(); // register native module.
     initFresco();
   }
 

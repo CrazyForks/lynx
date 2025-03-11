@@ -11,5 +11,6 @@ declare let NativeModules: {
     getSettingInfo(): any;
     setThreadMode(index: number): void;
     openDevtoolSwitchPage(): void;
+    saveThemePreferences(key: string, value: string): void;
   };
 };

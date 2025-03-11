@@ -55,4 +55,9 @@ public class ExplorerModule extends LynxModule {
   public void openDevtoolSwitchPage() {
     LynxModuleAdapter.getInstance().openSchema(DEVTOOL_SWITCH_ASSETS);
   }
+
+  @LynxMethod
+  public void saveThemePreferences(String theme, String value) {
+    LynxModuleAdapter.getInstance().saveThemePreferences(theme, value);
+  }
 }
