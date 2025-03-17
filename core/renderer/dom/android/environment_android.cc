@@ -20,7 +20,9 @@ std::string EnvironmentAndroid::GetCacheDir() {
     lynx::base::android::ScopedLocalJavaRef<jstring> dir =
         Java_EnvUtils_getCacheDir(env);
     const char* str = env->GetStringUTFChars(dir.Get(), JNI_FALSE);
-    s_cache_dir_ = std::string(str);
+    if (str) {
+      s_cache_dir_ = std::string(str);
+    }
     env->ReleaseStringUTFChars(dir.Get(), str);
   }
   return s_cache_dir_;
