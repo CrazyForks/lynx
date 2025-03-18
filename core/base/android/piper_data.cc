@@ -115,17 +115,16 @@ std::optional<piper::Value> jsonValueToJSValue(
 bool PiperData::RegisterJni(JNIEnv* env) { return RegisterNativesImpl(env); }
 
 std::optional<piper::Value> PiperData::jsObjectFromPiperData(
-    JNIEnv* env, piper::Runtime* rt,
-    android::ScopedLocalJavaRef<jobject> piper_data) {
+    JNIEnv* env, piper::Runtime* rt, jobject piper_data) {
   // Notice: You should make sure Java object `PiperData` alive when you
   // call JNI method `getNativePtr`. Otherwise Java object may be dealloc in
   // other thread and the raw native ptr will be free in other thread. Use
   // ScopedLocalJavaRef to ensure `PiperData` alive here.
   std::optional<lynx::piper::Value> ret = piper::Value();
-  PiperDataType data_type = static_cast<PiperDataType>(
-      Java_PiperData_getDataType(env, piper_data.Get()));
+  PiperDataType data_type =
+      static_cast<PiperDataType>(Java_PiperData_getDataType(env, piper_data));
   if (data_type == String) {
-    jlong json_data = Java_PiperData_getNativePtr(env, piper_data.Get());
+    jlong json_data = Java_PiperData_getNativePtr(env, piper_data);
     if (!json_data) {
       return piper::Value();
     }
@@ -134,12 +133,12 @@ std::optional<piper::Value> PiperData::jsObjectFromPiperData(
   }
 
   if (data_type == Map) {
-    size_t len = static_cast<size_t>(
-        Java_PiperData_getBufferPosition(env, piper_data.Get()));
+    size_t len =
+        static_cast<size_t>(Java_PiperData_getBufferPosition(env, piper_data));
     if (len == 0) {
       return piper::Value();
     }
-    auto buffer = Java_PiperData_getBuffer(env, piper_data.Get());
+    auto buffer = Java_PiperData_getBuffer(env, piper_data);
 
     char* message_data =
         static_cast<char*>(env->GetDirectBufferAddress(buffer.Get()));
@@ -149,7 +148,7 @@ std::optional<piper::Value> PiperData::jsObjectFromPiperData(
 
   // If piper data is disposable, recycle it immediately.
   if (data_type != Empty) {
-    Java_PiperData_recycleIfIsDisposable(env, piper_data.Get());
+    Java_PiperData_recycleIfIsDisposable(env, piper_data);
   }
   return ret;
 }

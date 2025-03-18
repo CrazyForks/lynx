@@ -122,6 +122,10 @@ class ValueImplAndroid : public pub::Value {
     return backend_value_;
   }
 
+  bool IsTransfer() const override { return backend_value_.IsTransfer(); }
+  std::unique_ptr<pub::Value> ParseTransferValue(
+      std::shared_ptr<PubValueFactory> value_factory) const override;
+
  private:
   base::android::JavaValue backend_value_;
 };

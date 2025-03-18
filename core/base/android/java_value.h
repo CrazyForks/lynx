@@ -56,6 +56,8 @@ class JavaValue {
     ByteArray,
     Array,
     Map,
+    // Only use for Java returnType:piperdata
+    Transfer
   };
 
   JavaValue() : type_(JavaValueType::Null) {}
@@ -73,6 +75,9 @@ class JavaValue {
 
   JavaValue(std::shared_ptr<base::android::JavaOnlyMap>&& value)
       : type_(JavaValueType::Map), j_variant_value_(std::move(value)) {}
+
+  JavaValue(ScopedGlobalJavaRef<jobject>&& value, JavaValueType type)
+      : type_(type), j_variant_value_(std::move(value)) {}
 
   JavaValue(const JavaValue&) = default;
   JavaValue& operator=(const JavaValue&) = default;
@@ -101,6 +106,7 @@ class JavaValue {
   bool IsArray() const { return type_ == JavaValueType::Array; }
   bool IsArrayBuffer() const { return type_ == JavaValueType::ByteArray; }
   bool IsMap() const { return type_ == JavaValueType::Map; }
+  bool IsTransfer() const { return type_ == JavaValueType::Transfer; }
 
   bool Bool() const;
   int32_t Int32() const;
@@ -126,6 +132,12 @@ class JavaValue {
     return static_cast<jstring>(
         std::get<base::android::ScopedGlobalJavaRef<jobject>>(j_variant_value_)
             .Get());
+  }
+
+  jobject TransferData() const {
+    return std::get<base::android::ScopedGlobalJavaRef<jobject>>(
+               j_variant_value_)
+        .Get();
   }
 
   // Map Getter

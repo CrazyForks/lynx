@@ -147,7 +147,7 @@ std::optional<piper::Object> jsObjectFromJavaOnlyMap(JNIEnv* env, jobject map,
         base::android::ScopedLocalJavaRef<jobject> piper_data =
             Java_JavaOnlyMap_getPiperData(env, map, keyJString.Get());
         auto js_object_opt = base::android::PiperData::jsObjectFromPiperData(
-            env, rt, std::move(piper_data));
+            env, rt, piper_data.Get());
         if (!js_object_opt) {
           return std::optional<piper::Object>();
         }

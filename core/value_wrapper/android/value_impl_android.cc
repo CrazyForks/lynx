@@ -7,8 +7,10 @@
 #include <memory>
 
 #include "core/base/android/java_value.h"
+#include "core/base/android/piper_data.h"
 #include "core/base/js_constants.h"
 #include "core/runtime/common/utils.h"
+#include "core/value_wrapper/value_impl_piper.h"
 
 namespace lynx {
 namespace pub {
@@ -299,6 +301,23 @@ std::unique_ptr<Value> ValueImplAndroid::GetValueAtIndex(uint32_t idx) const {
   auto result =
       std::make_unique<ValueImplAndroid>(backend_value_.GetValueForIndex(idx));
   return std::move(result);
+}
+
+std::unique_ptr<Value> ValueImplAndroid::ParseTransferValue(
+    std::shared_ptr<PubValueFactory> value_factory) const {
+  if (value_factory->GetFactoryType() == PubValueFactory::FactoryType::kPiper) {
+    piper::Runtime* runtime =
+        reinterpret_cast<PiperValueFactory*>(value_factory.get())->GetRuntime();
+    piper::Scope scope(*runtime);
+    JNIEnv* env = base::android::AttachCurrentThread();
+    auto piper_value = base::android::PiperData::jsObjectFromPiperData(
+        env, runtime, backend_value_.TransferData());
+    if (piper_value.has_value()) {
+      return std::make_unique<ValueImplPiper>(*runtime,
+                                              std::move(piper_value.value()));
+    }
+  }
+  return nullptr;
 }
 
 base::android::JavaValue ValueUtilsAndroid::ConvertValueToJavaValue(

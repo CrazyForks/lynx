@@ -952,7 +952,7 @@ base::expected<piper::Value, JSINativeException> MethodInvoker::Fire(
       }
       // TODO(liyanbo): change return type to base::expected.
       auto opt_value = base::android::PiperData::jsObjectFromPiperData(
-          env, rt, std::move(json_data));
+          env, rt, json_data.Get());
       if (opt_value) {
         return base::ok(std::move(*opt_value));
       } else {
