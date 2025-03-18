@@ -54,14 +54,6 @@ public class ForegroundColorSpan extends MetricAffectingSpan {
 
   @Override
   public void updateDrawState(TextPaint tp) {
-    if (!mDrawStroke) {
-      tp.setStyle(Paint.Style.FILL);
-      tp.setColor(mColor);
-    } else {
-      tp.setStyle(Paint.Style.STROKE);
-      tp.setStrokeWidth(mStrokeWidth);
-      tp.setColor(mStrokeColor);
-      tp.bgColor = Color.TRANSPARENT;
-    }
+    TextHelper.updateTextPaintColor(tp, mDrawStroke, mColor, mStrokeColor, mStrokeWidth);
   }
 }

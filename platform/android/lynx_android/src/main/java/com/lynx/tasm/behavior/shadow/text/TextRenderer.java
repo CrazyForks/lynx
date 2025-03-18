@@ -824,6 +824,10 @@ public class TextRenderer {
       return false;
     }
 
+    if (mKey.getAttributes().getFontStyle() == Typeface.ITALIC) {
+      return true;
+    }
+
     int visibleTextLength = mTextLayout.getLineEnd(getLineCount() - 1);
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
       CustomStyleSpan[] spans = ((SpannableStringBuilder) mKey.getSpan())

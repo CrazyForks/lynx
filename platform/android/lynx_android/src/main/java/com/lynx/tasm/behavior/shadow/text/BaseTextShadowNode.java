@@ -128,6 +128,10 @@ public class BaseTextShadowNode extends ShadowNode {
         Math.round(PixelUtils.dipToPx(14, getContext().getScreenMetrics().density)));
   }
 
+  protected boolean isParagraph() {
+    return false;
+  }
+
   public TextAttributes getTextAttributes() {
     return mTextAttributes;
   }
@@ -677,9 +681,15 @@ public class BaseTextShadowNode extends ShadowNode {
     // Do not do this as it will slow down layout.draw(), do it by TextPaint
     // instead.
     // You can do it with span while you want some effect like rich text.
-    if (getTextAttributes().mFontColor != null) {
-      ForegroundColorSpan foregroundColorSpan =
-          new ForegroundColorSpan(getTextAttributes().mFontColor);
+    if ((!isParagraph() && getTextAttributes().mFontColor != null)
+        || getTextAttributes().mTextStrokeWidth > 0.f) {
+      // Text stroke will be handled independently when draw text.
+      // There should be no judgment on whether the font color is null here.Because inline text
+      // should use the default color when CSS inheritance is not enabled, and it should not inherit
+      // the color of the parent node.
+      int color =
+          getTextAttributes().mFontColor == null ? Color.BLACK : getTextAttributes().mFontColor;
+      ForegroundColorSpan foregroundColorSpan = new ForegroundColorSpan(color);
       configTextStroke(foregroundColorSpan);
       ops.add(new SetSpanOperation(start, end, foregroundColorSpan));
     }
@@ -736,11 +746,14 @@ public class BaseTextShadowNode extends ShadowNode {
 
     // Set text font weight and font style
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && !mForceFakeBold) {
-      ops.add(new SetSpanOperation(start, end,
-          new CustomStyleSpan(getTextAttributes().mFontStyle, getTextAttributes().mFontWeight,
-              getTextAttributes().mFontFamily)));
+      if (!isParagraph()) {
+        ops.add(new SetSpanOperation(start, end,
+            new CustomStyleSpan(getTextAttributes().mFontStyle, getTextAttributes().mFontWeight,
+                getTextAttributes().mFontFamily)));
+      }
     } else {
-      // fallback to lower level api
+      // FIXME(zhouzhuangzhuang):delete judge condition to avoid normal not take effect on inline
+      // text. fallback to lower level api
       if (getTextAttributes().mFontStyle == Typeface.BOLD
           || getTextAttributes().mFontStyle == Typeface.ITALIC
           || getTypefaceStyle() == Typeface.BOLD) {

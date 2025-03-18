@@ -4,8 +4,11 @@
 package com.lynx.tasm.behavior.shadow.text;
 
 import static android.text.Layout.DIR_RIGHT_TO_LEFT;
+import static com.lynx.tasm.behavior.AutoGenStyleConstants.FONTWEIGHT_BOLD;
+import static com.lynx.tasm.behavior.AutoGenStyleConstants.FONTWEIGHT_NORMAL;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -57,6 +60,13 @@ public class TextHelper {
       textPaint.setTypeface(typefaceCache);
     } else {
       textPaint.setTypeface(DeviceUtils.getDefaultTypeface());
+    }
+    if (attributes.mFontColor != null) {
+      textPaint.setColor(attributes.mFontColor);
+    }
+    if (attributes.mFontStyle != Typeface.NORMAL || attributes.mFontWeight != FONTWEIGHT_NORMAL) {
+      updateTextPaintTypeFace(
+          textPaint, attributes.mFontFamily, attributes.mFontStyle, attributes.mFontWeight);
     }
 
     if (attributes.mLetterSpacing != MeasureUtils.UNDEFINED
@@ -827,5 +837,54 @@ public class TextHelper {
       }
     }
     return formatDoubleToString(num);
+  }
+
+  public static void updateTextPaintColor(
+      TextPaint textPaint, boolean isDrawStroke, int color, int strokeColor, float strokeWidth) {
+    if (isDrawStroke) {
+      textPaint.setStyle(Paint.Style.STROKE);
+      textPaint.setStrokeWidth(strokeWidth);
+      textPaint.setColor(strokeColor);
+      textPaint.bgColor = Color.TRANSPARENT;
+    } else {
+      textPaint.setStyle(Paint.Style.FILL);
+      textPaint.setColor(color);
+    }
+  }
+
+  public static void updateTextPaintTypeFace(
+      TextPaint textPaint, String fontFamily, int style, int weight) {
+    Typeface originTypeface = textPaint.getTypeface();
+    Typeface newTypeface;
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      newTypeface =
+          Typeface.create(originTypeface, getStyleWeight(weight), style == Typeface.ITALIC);
+    } else {
+      int originStyle = originTypeface == null ? 0 : originTypeface.getStyle();
+      int newStyle = originStyle | style;
+      newTypeface = originTypeface == null ? Typeface.defaultFromStyle(newStyle)
+                                           : Typeface.create(originTypeface, newStyle);
+    }
+    textPaint.setTypeface(newTypeface);
+
+    if (style > 0 && TextUtils.isEmpty(fontFamily)) {
+      // no font-family set, do fake bold&italic when needed
+      int typefaceStyle = newTypeface != null ? newTypeface.getStyle() : 0;
+      int need = style & ~typefaceStyle;
+      textPaint.setFakeBoldText(((need & Typeface.BOLD) != 0) && (weight == FONTWEIGHT_BOLD));
+      if ((need & Typeface.ITALIC) != 0) {
+        textPaint.setTextSkewX(-0.25f);
+      }
+    }
+  }
+
+  private static int getStyleWeight(int weight) {
+    if (weight == FONTWEIGHT_BOLD) {
+      return 700;
+    } else if (weight == FONTWEIGHT_NORMAL) {
+      return 400;
+    } else {
+      return (weight - 1) * 100;
+    }
   }
 }
