@@ -21,27 +21,27 @@
 #include "core/shell/lynx_shell.h"
 #include "core/value_wrapper/value_impl_lepus.h"
 
+#import <Lynx/AbsLynxUIScroller.h>
+#import <Lynx/LynxContext.h>
+#import <Lynx/LynxEnv.h>
+#import <Lynx/LynxError.h>
+#import <Lynx/LynxEventHandler.h>
+#import <Lynx/LynxLog.h>
+#import <Lynx/LynxNewGestureDelegate.h>
+#import <Lynx/LynxShadowNodeOwner.h>
+#import <Lynx/LynxUI+Internal.h>
+#import <Lynx/LynxUIImage.h>
+#import <Lynx/LynxUIMethodProcessor.h>
+#import <Lynx/LynxUIView.h>
+#import <Lynx/UIDevice+Lynx.h>
 #import "LynxCallStackUtil.h"
-#import "LynxContext.h"
 #import "LynxEnv+Internal.h"
-#import "LynxEnv.h"
-#import "LynxError.h"
-#import "LynxEventHandler.h"
-#import "LynxLog.h"
-#import "LynxNewGestureDelegate.h"
-#import "LynxShadowNodeOwner.h"
 #import "LynxTemplateData+Converter.h"
 #import "LynxTimingConstants.h"
 #import "LynxTouchHandler+Internal.h"
 #import "LynxUI+Gesture.h"
-#import "LynxUI+Internal.h"
 #import "LynxUI+Private.h"
-#import "LynxUIImage.h"
-#import "LynxUIMethodProcessor.h"
 #import "LynxUIOwner+Private.h"
-#import "LynxUIView.h"
-#import "darwin/ios/lynx/public/base/UIDevice+Lynx.h"
-#import "darwin/ios/lynx/public/ui/scroll_view/AbsLynxUIScroller.h"
 
 namespace lynx {
 namespace tasm {

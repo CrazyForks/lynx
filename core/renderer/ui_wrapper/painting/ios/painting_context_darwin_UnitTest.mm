@@ -3,10 +3,10 @@
 // LICENSE file in the root directory of this source tree.
 
 #import "core/renderer/ui_wrapper/painting/ios/painting_context_darwin.h"
+#import <Lynx/LynxTemplateRender.h>
+#import <Lynx/LynxUIOwner.h>
 #import <OCMock/OCMock.h>
 #import <XCTest/XCTest.h>
-#import "LynxTemplateRender.h"
-#import "LynxUIOwner.h"
 
 @interface painting_context_darwin_UnitTest : XCTestCase {
   std::unique_ptr<lynx::tasm::PaintingContextDarwin> paintingContext;

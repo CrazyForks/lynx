@@ -3,12 +3,12 @@
 // LICENSE file in the root directory of this source tree.
 
 #import "core/shell/ios/native_facade_darwin.h"
-#import "LynxError.h"
-#import "LynxLog.h"
-#import "LynxPerformance.h"
+#import <Lynx/LynxError.h>
+#import <Lynx/LynxLog.h>
+#import <Lynx/LynxPerformance.h>
+#import <Lynx/LynxTemplateBundle.h>
+#import <Lynx/LynxTheme.h>
 #import "LynxTemplateBundle+Converter.h"
-#import "LynxTemplateBundle.h"
-#import "LynxTheme.h"
 
 #include "base/include/float_comparison.h"
 #include "base/include/string/string_utils.h"

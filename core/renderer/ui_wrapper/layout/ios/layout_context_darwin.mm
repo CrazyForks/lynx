@@ -7,7 +7,7 @@
 #include "core/renderer/ui_wrapper/common/ios/platform_extra_bundle_darwin.h"
 #include "core/renderer/ui_wrapper/common/ios/prop_bundle_darwin.h"
 
-#import "LynxFontFaceManager.h"
+#import <Lynx/LynxFontFaceManager.h>
 #include "base/include/debug/lynx_assert.h"
 
 namespace lynx {

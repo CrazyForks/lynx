@@ -5,13 +5,13 @@
 #define CORE_RENDERER_UI_WRAPPER_PAINTING_IOS_PAINTING_CONTEXT_DARWIN_H_
 
 #import <Foundation/Foundation.h>
+#import <Lynx/LynxUIOwner.h>
 
 #import <atomic>
 #include <memory>
 #include <string>
 #include <vector>
 
-#import "LynxUIOwner.h"
 #include "core/public/prop_bundle.h"
 #include "core/renderer/ui_wrapper/painting/painting_context.h"
 #include "core/shell/dynamic_ui_operation_queue.h"

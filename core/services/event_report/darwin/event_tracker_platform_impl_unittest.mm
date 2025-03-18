@@ -7,8 +7,8 @@
 #import <XCTest/XCTest.h>
 #import <objc/runtime.h>
 
-#import "LynxEventReporter.h"
-#import "LynxVersion.h"
+#import <Lynx/LynxEventReporter.h>
+#import <Lynx/LynxVersion.h>
 
 static void UnitTestLynxClassSwizzle(Class clazz, SEL originalSelector, SEL swizzledSelector) {
   Class metaClass = object_getClass(clazz);

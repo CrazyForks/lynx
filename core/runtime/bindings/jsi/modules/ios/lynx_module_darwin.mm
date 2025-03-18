@@ -10,7 +10,7 @@
 #include <memory>
 #include <optional>
 
-#import "LynxLog.h"
+#import <Lynx/LynxLog.h>
 #include "base/include/timer/time_utils.h"
 #include "base/trace/native/trace_event.h"
 #include "core/base/darwin/lynx_env_darwin.h"

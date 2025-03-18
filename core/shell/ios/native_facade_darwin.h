@@ -6,13 +6,13 @@
 #define CORE_SHELL_IOS_NATIVE_FACADE_DARWIN_H_
 
 #import <Foundation/Foundation.h>
+#import <Lynx/LynxView.h>
 
 #include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
-#import "LynxView.h"
 #include "core/shell/native_facade.h"
 #import "darwin/common/lynx/TemplateRenderCallbackProtocol.h"
 

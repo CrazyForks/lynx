@@ -5,12 +5,12 @@
 #ifndef CORE_SERVICES_RECORDER_IOS_TEMPLATE_ASSEMBLER_RECORDER_DARWIN_H_
 #define CORE_SERVICES_RECORDER_IOS_TEMPLATE_ASSEMBLER_RECORDER_DARWIN_H_
 
+#import <Lynx/LynxView.h>
 #import <UIKit/UIKit.h>
 
 #include <string>
 #include <vector>
 
-#import "LynxView.h"
 #include "core/services/recorder/template_assembler_recorder.h"
 
 namespace lynx {
