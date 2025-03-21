@@ -22,6 +22,7 @@
 #include "core/renderer/dom/element_vsync_proxy.h"
 #include "core/renderer/dom/fiber/component_element.h"
 #include "core/renderer/dom/fiber/fiber_element.h"
+#include "core/renderer/dom/fiber/frame_element.h"
 #include "core/renderer/dom/fiber/image_element.h"
 #include "core/renderer/dom/fiber/list_element.h"
 #include "core/renderer/dom/fiber/none_element.h"
@@ -1134,6 +1135,11 @@ fml::RefPtr<NoneElement> ElementManager::CreateFiberNoneElement() {
 
 fml::RefPtr<WrapperElement> ElementManager::CreateFiberWrapperElement() {
   auto res = fml::AdoptRef<WrapperElement>(new WrapperElement(this));
+  return res;
+}
+
+fml::RefPtr<FrameElement> ElementManager::CreateFiberFrame() {
+  auto res = fml::AdoptRef<FrameElement>(new FrameElement(this));
   return res;
 }
 

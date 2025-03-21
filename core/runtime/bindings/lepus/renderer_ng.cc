@@ -281,6 +281,7 @@ void Renderer::RegisterNGBuiltinForFiber(lepus::Context* context) {
       {kCFunctionCreateNonElement, &RendererFunctions::FiberCreateNonElement},
       {kCFunctionCreateWrapperElement,
        &RendererFunctions::FiberCreateWrapperElement},
+      {kCFunctionCreateFrame, &RendererFunctions::FiberCreateFrame},
       {kCFunctionAppendElement, &RendererFunctions::FiberAppendElement},
       {kCFunctionRemoveElement, &RendererFunctions::FiberRemoveElement},
       {kCFunctionInsertElementBefore,

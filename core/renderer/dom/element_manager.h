@@ -27,6 +27,7 @@
 #include "core/renderer/dom/element.h"
 #include "core/renderer/dom/element_container.h"
 #include "core/renderer/dom/element_vsync_proxy.h"
+#include "core/renderer/dom/fiber/frame_element.h"
 #include "core/renderer/dom/fiber/page_element.h"
 #include "core/renderer/dom/vdom/radon/radon_element.h"
 #include "core/renderer/dom/vdom/radon/radon_types.h"
@@ -58,6 +59,7 @@ class TextElement;
 class RawTextElement;
 class ViewElement;
 class WrapperElement;
+class FrameElement;
 class Catalyzer;
 class ElementCache;
 class LynxEnvConfig;
@@ -908,6 +910,12 @@ class ElementManager {
    * @return the refCounted type
    */
   fml::RefPtr<WrapperElement> CreateFiberWrapperElement();
+
+  /**
+   * create Frame
+   * @return the refCounted type
+   */
+  fml::RefPtr<FrameElement> CreateFiberFrame();
 
   BASE_EXPORT_FOR_DEVTOOL void OnPatchFinish(PipelineOptions &option,
                                              Element *root = nullptr);

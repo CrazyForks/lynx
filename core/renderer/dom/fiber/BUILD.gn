@@ -16,6 +16,8 @@ fiber_shared_sources = [
   "fiber_node_info.h",
   "for_element.cc",
   "for_element.h",
+  "frame_element.cc",
+  "frame_element.h",
   "if_element.cc",
   "if_element.h",
   "image_element.cc",

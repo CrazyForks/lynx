@@ -4893,6 +4893,31 @@ RENDERER_FUNCTION_CC(LoadLepusChunk) {
   RETURN(lepus::Value(is_success));
 }
 
+RENDERER_FUNCTION_CC(FiberCreateFrame) {
+  TRACE_EVENT(LYNX_TRACE_CATEGORY, "FiberCreateFrame");
+  // parameter size >= 1
+  // [0] Number -> parent component/page's unique id
+  // [1] Object|Undefined -> optional info, not used now
+  CHECK_ARGC_GE(FiberCreateView, 1);
+  CONVERT_ARG_AND_CHECK_FOR_ELEMENT_API(arg0, 0, Number, FiberCreateFrame);
+
+  auto element =
+      GET_TASM_POINTER()->page_proxy()->element_manager()->CreateFiberFrame();
+  element->SetParentComponentUniqueIdForFiber(
+      static_cast<int64_t>(arg0->Number()));
+
+  if (argc > 1) {
+    CONVERT_ARG(arg1, 1);
+    const auto& nid = arg1->GetProperty(BASE_STATIC_STRING(kNodeIndex));
+    if (nid.IsNumber()) {
+      element->SetNodeIndex(nid.Number());
+    }
+  }
+
+  ON_NODE_CREATE(element);
+  RETURN(lepus::Value(std::move(element)));
+}
+
 RENDERER_FUNCTION_CC(FiberCreateElementWithProperties) {
   TRACE_EVENT(LYNX_TRACE_CATEGORY, "FiberCreateElementWithProperties");
   // parameter description

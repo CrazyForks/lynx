@@ -509,6 +509,8 @@ void Renderer::RegisterBuiltinForFiber(lepus::Context* context) {
   /* 100 */ lepus::RegisterCFunction(context, kCFunctionOnCleanUp,
                                      &FiberOnCleanUp);
   /* 101 */ lepus::RegisterCFunction(context, kCFunctionUnTrack, &FiberUnTrack);
+  /* 102 */ lepus::RegisterCFunction(context, kCFunctionCreateFrame,
+                                     &FiberCreateFrame);
 }
 
 void Renderer::RegisterBuiltinForAir(lepus::Context* context) {

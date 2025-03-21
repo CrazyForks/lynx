@@ -72,6 +72,7 @@
   V(FiberCreateImage)                 \
   V(FiberCreateRawText)               \
   V(FiberCreateNonElement)            \
+  V(FiberCreateFrame)                 \
   V(FiberCreateWrapperElement)        \
   V(FiberAppendElement)               \
   V(FiberRemoveElement)               \

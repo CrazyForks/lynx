@@ -132,6 +132,7 @@ static const char* kCFunctionQuerySelectorAll = "__QuerySelectorAll";
 static const char* kCFunctionCreateIf = "__CreateIf";
 static const char* kCFunctionCreateFor = "__CreateFor";
 static const char* kCFunctionCreateBlock = "__CreateBlock";
+static const char* kCFunctionCreateFrame = "__CreateFrame";
 // Element Tree
 static const char* kCFunctionAppendElement = "__AppendElement";
 static const char* kCFunctionRemoveElement = "__RemoveElement";
