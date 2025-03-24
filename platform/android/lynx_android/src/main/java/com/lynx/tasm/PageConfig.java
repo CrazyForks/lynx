@@ -9,6 +9,7 @@ import androidx.annotation.RestrictTo;
 import com.lynx.react.bridge.ReadableMap;
 import com.lynx.tasm.LynxEnv;
 import com.lynx.tasm.base.LLog;
+import com.lynx.tasm.behavior.TouchEventDispatcher;
 
 /**
  * class hold part of config in c++ PageConfig
@@ -92,7 +93,7 @@ public class PageConfig {
   private String targetSdkVersion;
   private String lepusVersion;
   private boolean enableLepusNG = true;
-  private String mTapSlop;
+  private String mTapSlop = TouchEventDispatcher.mTapSlopDefault;
   private boolean mEnableCreateViewAsync = true;
   private boolean mEnableVsyncAlignedFlush;
   private boolean mCssAlignWithLegacyW3c;

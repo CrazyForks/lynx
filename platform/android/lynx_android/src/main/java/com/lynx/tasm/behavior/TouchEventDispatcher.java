@@ -98,6 +98,8 @@ public class TouchEventDispatcher {
   private boolean mCanConsumeSlideEvent = false;
   private PointF mDownPoint;
   private float mTapSlop;
+  public static final String mTapSlopDefault = "50px";
+  public static final float mTapSlopFloatDefault = 50;
 
   private boolean mTouchMoved;
   private boolean mTouchMoving;
@@ -143,7 +145,7 @@ public class TouchEventDispatcher {
     // fix, when LynxOverlayView creates TouchEventDispatcher, the TouchEventDispatcher's setTapSlop
     // and other set-methods will be called. And E2E test case will be added in future.
     // TODO(songshourui.null): Add E2E test case.
-    mTapSlop = PixelUtils.dipToPx(50);
+    mTapSlop = PixelUtils.dipToPx(mTapSlopFloatDefault);
     mMoveSlop = 0;
     mShouldCheckMove = true;
     mGestureRecognizedUISet = new HashSet<>();

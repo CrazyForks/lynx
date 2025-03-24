@@ -205,10 +205,18 @@ public class LynxUIRenderer implements ILynxUIRenderer {
   public void onPageConfigDecoded(PageConfig config) {
     if (mEventDispatcher != null) {
       LynxContext lynxContext = (mLynxContext != null) ? mLynxContext.get() : null;
-      mEventDispatcher.setTapSlop(
-          UnitUtils.toPxWithDisplayMetrics(config.getTapSlop(), 0, 0, 0, 0, 0, 0,
-              lynxContext != null ? lynxContext.getScreenMetrics()
-                                  : DisplayMetricsHolder.getScreenDisplayMetrics()));
+      // c++ layer will send tapSlop = "50px" by default,
+      // and TouchEventDispatcher has default tapSlop = PixelUtils.dipToPx(50);
+      // which results the same float when calls toPxWithDisplayMetrics("50px")
+      // therefore add default value comparison to avoid redundant toPxWithDisplayMetrics call
+      if (config.getTapSlop() != null
+          && !config.getTapSlop().equals(mEventDispatcher.mTapSlopDefault)) {
+        mEventDispatcher.setTapSlop(
+            UnitUtils.toPxWithDisplayMetrics(config.getTapSlop(), 0, 0, 0, 0, 0, 0,
+                lynxContext != null ? lynxContext.getScreenMetrics()
+                                    : DisplayMetricsHolder.getScreenDisplayMetrics()));
+      }
+
       // Enable touch pseudo if it is fiber arch.
       mEventDispatcher.setHasTouchPseudo(config.getEnableFiberArc());
       // Enable support multi-finger events.
