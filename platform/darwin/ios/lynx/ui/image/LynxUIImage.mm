@@ -483,7 +483,7 @@ UIEdgeInsets LynxRoundInsetsToPixel(UIEdgeInsets edgeInsets) {
 }
 
 - (BOOL)shouldUseNewImage {
-  if ([self getTrailUseNewImage]) {
+  if ([self getTrailUseNewImage] || [self enableGenericFetcher]) {
     return true;
   }
   if ([self getSetUseNewImage] && [self getPageConfigEnableNewImage] && _useNewImage) {
