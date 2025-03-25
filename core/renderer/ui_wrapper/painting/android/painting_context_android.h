@@ -37,7 +37,6 @@ class PaintingContextAndroidRef : public PaintingCtxPlatformRef {
                           bool is_move) override;
   void DestroyPaintingNode(int parent, int child, int index) override;
 
-  void OnCollectExtraUpdates(int32_t id) override;
   void UpdateScrollInfo(int32_t container_id, bool smooth,
                         float estimated_offset, bool scrolling) override;
 

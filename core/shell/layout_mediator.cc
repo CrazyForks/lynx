@@ -80,14 +80,6 @@ void LayoutMediator::OnLayoutUpdate(
 #endif
 }
 
-void LayoutMediator::OnNodeLayoutAfter(int32_t id) {
-  operation_queue_->EnqueueOperation([catalyzer = catalyzer_, id]() {
-    if (catalyzer != nullptr) {
-      catalyzer->painting_context()->OnCollectExtraUpdates(id);
-    }
-  });
-}
-
 void LayoutMediator::OnLayoutAfter(
     const tasm::PipelineOptions &options,
     std::unique_ptr<tasm::PlatformExtraBundleHolder> holder, bool has_layout) {

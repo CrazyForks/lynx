@@ -418,11 +418,6 @@ public final class PaintingContext {
   }
 
   @CalledByNative
-  public void onCollectExtraUpdates(int signature) {
-    // this method can be removed
-  }
-
-  @CalledByNative
   public void updateExtraData(int signature, Object data) {
     mUIOwner.updateViewExtraData(signature, data);
   }

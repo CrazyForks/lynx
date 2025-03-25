@@ -191,8 +191,6 @@ class PaintingContext {
   void SetUIOperationQueue(
       const std::shared_ptr<shell::DynamicUIOperationQueue>& queue);
 
-  void OnCollectExtraUpdates(int32_t id);
-
   void UpdateScrollInfo(int32_t container_id, bool smooth,
                         float estimated_offset, bool scrolling);
 

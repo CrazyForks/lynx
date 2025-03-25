@@ -26,7 +26,6 @@ class MockLayoutDelegate : public LayoutContext::Delegate {
                       const std::array<float, 4>& borders,
                       const std::array<float, 4>* sticky_positions,
                       float max_height) override {}
-  void OnNodeLayoutAfter(int32_t id) override{};
   void PostPlatformExtraBundle(
       int32_t id, std::unique_ptr<tasm::PlatformExtraBundle> bundle) override {}
   void OnCalculatedViewportChanged(const CalculatedViewport& viewport,

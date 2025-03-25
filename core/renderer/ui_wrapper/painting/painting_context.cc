@@ -103,13 +103,6 @@ void PaintingContext::UpdateNodeReloadPatching() {
   patching_node_reload_ids_.clear();
 }
 
-void PaintingContext::OnCollectExtraUpdates(int32_t id) {
-  // Remove this funciton later.
-  Enqueue([platform_ref = platform_impl_->GetPlatformRef(), id]() {
-    platform_ref->OnCollectExtraUpdates(id);
-  });
-}
-
 void PaintingContext::UpdateScrollInfo(int32_t container_id, bool smooth,
                                        float estimated_offset, bool scrolling) {
   Enqueue([platform_ref = platform_impl_->GetPlatformRef(), container_id,

@@ -66,7 +66,6 @@ class LayoutContext : public std::enable_shared_from_this<LayoutContext>,
     virtual void OnLayoutAfter(
         const PipelineOptions& options,
         std::unique_ptr<PlatformExtraBundleHolder> holder, bool has_layout) = 0;
-    virtual void OnNodeLayoutAfter(int32_t id) = 0;
     virtual void PostPlatformExtraBundle(
         int32_t id, std::unique_ptr<tasm::PlatformExtraBundle> bundle) = 0;
     virtual void OnCalculatedViewportChanged(const CalculatedViewport& viewport,

@@ -930,7 +930,6 @@ void LayoutContext::UpdateLayoutInfo(LayoutNode* node) {
     // Dispatch OnLayoutAfter to those nodes that have custom measure
     platform_impl_->OnLayout(node->id(), left, top, width, height, paddings,
                              borders);
-    delegate_->OnNodeLayoutAfter(node->id());
 
     // if node has custom measure function, it may by need pass some bundle to
     auto bundle = platform_impl_->GetPlatformExtraBundle(node->id());

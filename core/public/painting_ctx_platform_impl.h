@@ -33,7 +33,6 @@ class PaintingCtxPlatformRef {
                                   bool is_move) {}
   virtual void DestroyPaintingNode(int parent, int child, int index) {}
 
-  virtual void OnCollectExtraUpdates(int32_t id) {}
   // update the data of the method of "scrolling"
   virtual void UpdateScrollInfo(int32_t container_id, bool smooth,
                                 float estimated_offset, bool scrolling) {}

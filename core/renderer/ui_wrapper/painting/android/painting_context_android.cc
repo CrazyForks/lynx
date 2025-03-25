@@ -61,16 +61,6 @@ bool PaintingContextAndroidRef::RegisterJNI(JNIEnv* env) {
 PaintingContextAndroidRef::PaintingContextAndroidRef(JNIEnv* env, jobject impl)
     : java_ref_(base::android::ScopedWeakGlobalJavaRef<jobject>(env, impl)) {}
 
-void PaintingContextAndroidRef::OnCollectExtraUpdates(int32_t id) {
-  base::android::ScopedLocalJavaRef<jobject> local_ref(java_ref_);
-  if (local_ref.IsNull()) {
-    return;
-  }
-
-  JNIEnv* env = base::android::AttachCurrentThread();
-  Java_PaintingContext_onCollectExtraUpdates(env, local_ref.Get(), id);
-}
-
 void PaintingContextAndroidRef::InsertPaintingNode(int parent, int child,
                                                    int index) {
   TRACE_EVENT(LYNX_TRACE_CATEGORY, "UIOperationQueue::InsertPaintingNodeTask");

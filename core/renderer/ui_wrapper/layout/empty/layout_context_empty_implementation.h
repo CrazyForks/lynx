@@ -27,7 +27,6 @@ class DelegateEmptyImpl : public LayoutContext::Delegate {
   virtual void OnLayoutAfter(const PipelineOptions& options,
                              std::unique_ptr<PlatformExtraBundleHolder> holder,
                              bool has_layout) override {}
-  virtual void OnNodeLayoutAfter(int32_t id) override {}
   virtual void PostPlatformExtraBundle(
       int32_t id, std::unique_ptr<tasm::PlatformExtraBundle> bundle) override {}
   virtual void OnCalculatedViewportChanged(const CalculatedViewport& viewport,
