@@ -133,6 +133,11 @@ void TemplateEntry::SetTemplateBundle(LynxTemplateBundle template_bundle) {
   css_manager->CopyFrom(*template_bundle_.css_style_manager_);
   template_bundle_.css_style_manager_ = std::move(css_manager);
 
+  // CSSLazyImport should be false when preloading.
+  if (template_bundle_.page_configs_) {
+    template_bundle_.page_configs_->SetEnableCSSLazyImport(
+        TernaryBool::FALSE_VALUE);
+  }
   is_template_bundle_complete_ = true;
 }
 
