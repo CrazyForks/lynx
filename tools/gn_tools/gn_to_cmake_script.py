@@ -87,6 +87,8 @@ cmake_link_flags_tags = {
   'static_library': 'CMAKE_STATIC_LINKER_FLAGS',
 }
 
+SCRIPT_TARGETS = ['copy', 'action', 'action_foreach']
+
 source_file_types = {
   '.cc': 'cxx',
   '.cpp': 'cxx',
@@ -206,7 +208,7 @@ class Target:
       all_deps_source_targets.add(self)
     for dep in self.deps:
       dep_target = Target(dep, project)
-      if dep_target.gn_type == 'action':
+      if dep_target.gn_type in SCRIPT_TARGETS:
         self.dep_actions.add(dep_target.cmake_name)
       self.recursive_find_dependent_targets(project, dep_target, all_deps_source_targets, all_deps_binary_targets, has_checked_targets)
       self.dep_actions = self.dep_actions.union(dep_target.dep_actions)
@@ -233,7 +235,7 @@ class Target:
         self.add_deps_packages(main_target)
     for dep in main_target.deps:
       dep_target = Target(dep, project)
-      if dep_target.gn_type == 'action':
+      if dep_target.gn_type in SCRIPT_TARGETS:
         main_target.dep_actions.add(dep_target.cmake_name)
       r = self.recursive_find_dependent_targets(project, dep_target, all_deps_source_targets, all_deps_binary_targets, has_checked_targets)
       main_target.dep_actions = main_target.dep_actions.union(dep_target.dep_actions)
@@ -346,28 +348,16 @@ class Writer:
   def write_enable_asm(self):
     self.out.write('enable_language(ASM)\n\n')
 
-  def write_prebuild_action(self, target, project):
+  def write_script_target(self, script, arguments, target, project):
     if type(target) != Target:
       return -1
-    arguments = target.args
-    if target.response_file_contents != []:
-      response_file_dir = os.path.join(project.build_path, 'rsp_files')
-      response_file_path = os.path.join(response_file_dir, target.cmake_name + '.rsp')
-      if not os.path.exists(response_file_dir):
-        os.makedirs(response_file_dir, exist_ok=True)
-      with open(response_file_path, 'w+') as response_file:
-        for content in target.response_file_contents:
-          response_file.write(f"{content}\n")
-      response_file.close()
-      if '{{response_file_name}}' in arguments:
-        index = arguments.index('{{response_file_name}}')
-        arguments[index] = response_file_path
-    self.write_single_variable('set', 'action_target', target.cmake_name)
+    script_target_temp_name = target.gn_type + '_target'
+    self.write_single_variable('set', script_target_temp_name, target.cmake_name)
     sources_path = []
     for source in target.sources:
       source_abs_path = project.instead_source_path_prefix(source)
       sources_path.append(source_abs_path)
-    source_target_name =  '${action_target}__sources'
+    source_target_name =  '${%s}__sources' % script_target_temp_name
     self.write_variable_list('set', source_target_name, sources_path)
 
     outputs = []
@@ -378,7 +368,7 @@ class Writer:
       output_directory = os.path.dirname(output_abs_path)
       if output_directory:
         output_directories.add(output_directory)
-    outputs_name = '${action_target}__output'
+    outputs_name = '${%s}__output' % script_target_temp_name
     self.write_variable_list('set', outputs_name, outputs)
     self.out.write('add_custom_command(OUTPUT ')
     self.write_cmake_variable(outputs_name)
@@ -387,8 +377,7 @@ class Writer:
       self.out.write('  COMMAND ${CMAKE_COMMAND} -E make_directory "')
       self.out.write('" "'.join([cmake_string_escape(d) for d in output_directories]))
       self.out.write('"\n')
-    
-    script = project.instead_source_path_prefix(target.script)
+
     self.out.write('  COMMAND python3 "')
     self.out.write(cmake_string_escape(script))
     self.out.write('"')
@@ -404,14 +393,13 @@ class Writer:
     self.out.write('  WORKING_DIRECTORY "')
     self.out.write(cmake_string_escape(build_path))
     self.out.write('"\n')
-    self.out.write('  COMMENT "Action: ${action_target}"\n')
+    self.out.write('  COMMENT "%s: ${%s}"\n' % (target.gn_type, script_target_temp_name))
     self.out.write('  VERBATIM)\n')
     self.out.write(target.cmake_type.command)
-    self.out.write('(${action_target}')
+    self.out.write('(${%s}' % script_target_temp_name)
     if target.cmake_type.modifier is not None:
       self.out.write(' ')
       self.out.write(target.cmake_type.modifier)
-    source_target_name =  '${action_target}__sources'
     self.write_cmake_variable(source_target_name, ' ')
     self.out.write(' DEPENDS')
     self.write_cmake_variable(outputs_name, ' ')
@@ -428,7 +416,7 @@ class Writer:
         if not target.cmake_type.is_linkable:
           other_libraries.add(cmake_dependency_name)
     if other_libraries:
-      self.out.write('add_dependencies("${action_target}"')
+      self.out.write('add_dependencies("${%s}"' % script_target_temp_name)
       for other_library in other_libraries:
         self.out.write('\n  "')
         self.out.write(other_library)
@@ -437,6 +425,41 @@ class Writer:
     self.out.write('\n')
     
     return target.cmake_name
+
+  def write_action_target(self, target, project):
+    if type(target) != Target:
+      return -1
+    arguments = target.args
+    if target.response_file_contents != []:
+      response_file_dir = os.path.join(project.build_path, 'rsp_files')
+      response_file_path = os.path.join(response_file_dir, target.cmake_name + '.rsp')
+      if not os.path.exists(response_file_dir):
+        os.makedirs(response_file_dir, exist_ok=True)
+      with open(response_file_path, 'w+') as response_file:
+        for content in target.response_file_contents:
+          response_file.write(f"{content}\n")
+      response_file.close()
+      if '{{response_file_name}}' in arguments:
+        index = arguments.index('{{response_file_name}}')
+        arguments[index] = response_file_path
+
+    script = project.instead_source_path_prefix(target.script)
+
+    return self.write_script_target(script, arguments, target, project)
+
+  def write_copy_target(self, target, project):
+    if type(target) != Target:
+      return -1
+    if target.sources == [] or target.outputs == []:
+      return -1
+
+    sources_paths = project.instead_source_path_prefix_list(target.sources)
+    outputs = project.instead_source_path_prefix_list(target.outputs)
+    arguments = ['--sources'] + sources_paths + ['--destinations'] + outputs
+    copy_script_path = os.path.join(os.path.dirname(__file__), 'copy_files.py')
+    script = project.instead_source_path_prefix(copy_script_path)
+
+    return self.write_script_target(script, arguments, target, project)
 
   def write_target_sources(self, target, project):
     if len(target.sources) > 0:
@@ -475,7 +498,9 @@ class Writer:
 
   def write_target(self, target, project):
     if target.gn_type == 'action':
-      self.write_prebuild_action(target, project)
+      self.write_action_target(target, project)
+    elif target.gn_type == 'copy':
+      self.write_copy_target(target, project)
     elif len(target.sources) > 0 :
       self.write_source_target(target, project)
 
@@ -489,7 +514,7 @@ class Writer:
     self.out.write('\n  ')
     if len(deps_source_targets) > 0:
       for target in deps_source_targets:
-        if target.gn_type != 'action':
+        if target.gn_type not in SCRIPT_TARGETS:
           self.out.write('\n  $<TARGET_OBJECTS:%s>' % target.cmake_name)
           self.out.write('\n  ')
     self.out.write(')\n\n')

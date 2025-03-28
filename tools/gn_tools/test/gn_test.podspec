@@ -9,10 +9,10 @@ Pod::Spec.new do |p|
   p.author                      = "Lynx"
   p.compiler_flags              = "-Wall", "-Wextra", "-Wno-unused-parameter", "-Wshorten-64-to-32", "-fno-rtti"
   p.default_subspec             = "Framework"
-  p.homepage                    = "https://xxx.xxx.xxx/lynx/Test"
-  p.ios.deployment_target       = "9.0"
+  p.homepage                    = "https://github.com/lynx-family/lynx"
+  p.ios.deployment_target       = "10.0"
   p.ios.framework               = "WebKit", "AudioToolbox"
-  p.license                     = "MIT"
+  p.license                     = "Apache 2.0"
   p.name                        = "gnToPodspecTest"
   p.pod_target_xcconfig         = {
     "CLANG_CXX_LANGUAGE_STANDARD" => "gnu++17",
@@ -26,7 +26,7 @@ Pod::Spec.new do |p|
   CMD
   p.requires_arc                = true
   p.source                      = {
-    :git => "git@xxx.xxx.xxx:lynx/Test.git"
+    :git => "https://github.com/lynx-family/lynx.git"
   }
   p.summary                     = "The framework of gnToPodspecTest."
   p.version                     = "1.4.22"
@@ -42,18 +42,19 @@ Pod::Spec.new do |p|
 
     sp.public_header_files        = "tools/gn_tools/test/gn_test_shared.h"
 
-    sp.private_header_files       = "tools/gn_tools/**/*.{h,hpp}", 
-                                    "tools/gn_tools/test/*.{h,hpp}", 
-                                    "tools/gn_tools/test/gn_test_source.h"
+    sp.private_header_files       = "lynx/tools/gn_tools/test/gn_test_shared.h", 
+                                    "lynx/tools/gn_tools/test/gn_test_source.h", 
+                                    "lynx/tools/gn_tools/test/gn_test_source_flatten_subspec.h", 
+                                    "tools/gn_tools/**/*.h"
 
-    sp.source_files               = "tools/gn_tools/**/*.h", 
-                                    "tools/gn_tools/test/**/*.m", 
-                                    "tools/gn_tools/test/gn_test_shared.cc", 
-                                    "tools/gn_tools/test/gn_test_shared.h", 
-                                    "tools/gn_tools/test/gn_test_source.cc", 
-                                    "tools/gn_tools/test/gn_test_source.h", 
-                                    "tools/gn_tools/test/gn_test_source_flatten_subspec.cc", 
-                                    "tools/gn_tools/test/gn_test_source_flatten_subspec.h"
+    sp.source_files               = "lynx/tools/gn_tools/test/**/*.m", 
+                                    "lynx/tools/gn_tools/test/gn_test_shared.cc", 
+                                    "lynx/tools/gn_tools/test/gn_test_shared.h", 
+                                    "lynx/tools/gn_tools/test/gn_test_source.cc", 
+                                    "lynx/tools/gn_tools/test/gn_test_source.h", 
+                                    "lynx/tools/gn_tools/test/gn_test_source_flatten_subspec.cc", 
+                                    "lynx/tools/gn_tools/test/gn_test_source_flatten_subspec.h", 
+                                    "tools/gn_tools/**/*.h"
 
     sp.exclude_files              = "tools/to/file/**/*"
 
@@ -73,10 +74,10 @@ Pod::Spec.new do |p|
     sp.dependency                 "test_dep/SubspecNative"
     if $is_debug==1
     sp.subspec "test_subspec_condition_subspec" do |ssp|
-      ssp.private_header_files      = "tools/gn_tools/test/*.{h,hpp}"
+      ssp.private_header_files      = "lynx/tools/gn_tools/test/gn_test_source_condition_subspec.h"
 
-      ssp.source_files              = "tools/gn_tools/test/gn_test_source_condition_subspec.cc", 
-                                      "tools/gn_tools/test/gn_test_source_condition_subspec.h"
+      ssp.source_files              = "lynx/tools/gn_tools/test/gn_test_source_condition_subspec.cc", 
+                                      "lynx/tools/gn_tools/test/gn_test_source_condition_subspec.h"
 
       ssp.pod_target_xcconfig       = {
         "GCC_PREPROCESSOR_DEFINITIONS" => "IS_DEBUG=#{$is_debug}",
@@ -86,10 +87,10 @@ Pod::Spec.new do |p|
     end
 
     sp.subspec "test_subspec_subspec" do |ssp|
-      ssp.private_header_files      = "tools/gn_tools/test/*.{h,hpp}"
+      ssp.private_header_files      = "lynx/tools/gn_tools/test/gn_test_source_subspec.h"
 
-      ssp.source_files              = "tools/gn_tools/test/gn_test_source_subspec.cc", 
-                                      "tools/gn_tools/test/gn_test_source_subspec.h"
+      ssp.source_files              = "lynx/tools/gn_tools/test/gn_test_source_subspec.cc", 
+                                      "lynx/tools/gn_tools/test/gn_test_source_subspec.h"
 
       ssp.pod_target_xcconfig       = {
         "CLANG_CXX_LANGUAGE_STANDARD" => "gnu++17",
@@ -105,10 +106,10 @@ Pod::Spec.new do |p|
   end
   if $is_debug==1
   p.subspec "ConditionSub" do |sp|
-    sp.private_header_files       = "tools/gn_tools/test/*.{h,hpp}"
+    sp.private_header_files       = "lynx/tools/gn_tools/test/gn_test_source_flatten_subspec_top.h"
 
-    sp.source_files               = "tools/gn_tools/test/gn_test_source_flatten_subspec_top.cc", 
-                                    "tools/gn_tools/test/gn_test_source_flatten_subspec_top.h"
+    sp.source_files               = "lynx/tools/gn_tools/test/gn_test_source_flatten_subspec_top.cc", 
+                                    "lynx/tools/gn_tools/test/gn_test_source_flatten_subspec_top.h"
 
     sp.pod_target_xcconfig        = {
       "GCC_PREPROCESSOR_DEFINITIONS" => "IS_FLATTEN=false",

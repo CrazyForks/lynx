@@ -91,14 +91,57 @@ test_source_set("gn_test_source") {
     exclude_configs = [ "$sdk_configs" ]
   }
 
-  public_deps = [ ":gn_test_action" ]
+  public_deps = [
+    ":copy_test",
+    ":gn_test_action",
+  ]
 }
 
 action("gn_test_action") {
   script = "//lynx/tools/gn_tools/test/gn_test_action.py"
   sources = []
   outputs = [ "$target_gen_dir/action.txt" ]
-  args = []
+  response_file_contents = [
+    "response_file_contents_test1.cc",
+    "response_file_contents_test2.cc",
+    "response_file_contents_test3.cc",
+    "response_file_contents_test4.cc",
+  ]
+  args = [
+    "--enable-foo",
+    "--file-list={{response_file_name}}",
+  ]
+}
+
+group("copy_test") {
+  deps = [
+    ":copy_test_dirs_to_dir",
+    ":copy_test_file_to_file",
+    ":copy_test_files_to_dir",
+  ]
+}
+copy("copy_test_file_to_file") {
+  sources = [ "copy/file/to/file/sources.cc" ]
+
+  outputs = [ "$root_gen_dir/copy/file/to/file/destination.cc" ]
+}
+copy("copy_test_files_to_dir") {
+  sources = [
+    "copy/files/to/dir/sources1.cc",
+    "copy/files/to/dir/sources2.cc",
+    "copy/files/to/dir/sources3.cc",
+  ]
+
+  outputs = [ "$root_gen_dir/copy/files/to/dir/{{source_file_part}}" ]
+}
+copy("copy_test_dirs_to_dir") {
+  sources = [
+    "copy/dirs/to/dir/sources1",
+    "copy/dirs/to/dir/sources2",
+  ]
+
+  outputs = [ "$target_gen_dir/{{source_file_part}}" ]
+  deps = [ ":copy_test_files_to_dir" ]
 }
 
 #### podspec_target template test ####
