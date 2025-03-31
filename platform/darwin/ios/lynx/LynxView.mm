@@ -647,7 +647,7 @@
 }
 
 - (void)setResourceFetcher:(nullable id<LynxResourceFetcher>)resourceFetcher {
-  RUN_RENDER_SAFELY(_templateRender.resourceFetcher = resourceFetcher;);
+  RUN_RENDER_SAFELY([_templateRender setResourceFetcherInUIOwner:resourceFetcher];);
 }
 
 - (void)setIntrinsicContentSize:(CGSize)size {
