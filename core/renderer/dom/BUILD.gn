@@ -12,6 +12,7 @@ lynx_core_source_set("dom_headers") {
   sources = [
     "element.h",
     "element_manager.h",
+    "element_manager_delegate.h",
     "element_property.h",
     "snapshot_element.h",
   ]

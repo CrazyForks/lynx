@@ -10,6 +10,8 @@ import("//lynx/oliver/oliver.gni")
 lynx_tasm_shared_sources = [
                              "//lynx/core/services/replay/replay_controller.cc",
                              "//lynx/core/services/replay/replay_controller.h",
+                             "element_manager_delegate_impl.cc",
+                             "element_manager_delegate_impl.h",
                              "js_bundle_holder_impl.cc",
                              "js_bundle_holder_impl.h",
                              "lynx_env_config.cc",

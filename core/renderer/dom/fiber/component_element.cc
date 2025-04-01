@@ -86,7 +86,7 @@ void ComponentElement::AttachToElementManager(
 }
 
 ComponentElement::~ComponentElement() {
-  if (!will_destroy_ && element_manager()) {
+  if (ShouldDestroy()) {
     element_manager()->EraseComponentRecord(component_id().str(), this);
   }
 }

@@ -22,6 +22,7 @@
 #include "core/inspector/observer/inspector_lepus_observer.h"
 #include "core/public/pipeline_option.h"
 #include "core/renderer/data/template_data.h"
+#include "core/renderer/element_manager_delegate_impl.h"
 #include "core/renderer/events/touch_event_handler.h"
 #include "core/renderer/page_proxy.h"
 #include "core/renderer/signal/signal_context.h"
@@ -885,6 +886,9 @@ class TemplateAssembler final
           runtime::ContextProxy::Type::kUnknown)] = {nullptr};
 
   SignalContext signal_context_;
+
+  // Called by ElementManager
+  ElementManagerDelegateImpl element_manager_delegate_{};
 };
 }  // namespace tasm
 }  // namespace lynx

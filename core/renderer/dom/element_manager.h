@@ -26,6 +26,7 @@
 #include "core/renderer/dom/css_patching.h"
 #include "core/renderer/dom/element.h"
 #include "core/renderer/dom/element_container.h"
+#include "core/renderer/dom/element_manager_delegate.h"
 #include "core/renderer/dom/element_vsync_proxy.h"
 #include "core/renderer/dom/fiber/frame_element.h"
 #include "core/renderer/dom/fiber/page_element.h"
@@ -1048,6 +1049,14 @@ class ElementManager {
 
   inline int32_t GetTaskWaitTimeout() { return task_wait_timeout_; }
 
+  void SetElementManagerDelegate(ElementManagerDelegate *delegate) {
+    element_manager_delegate_ = delegate;
+  }
+
+  ElementManagerDelegate *element_manager_delegate() {
+    return element_manager_delegate_;
+  }
+
  protected:
   /**
    * call this function to request layout
@@ -1184,6 +1193,8 @@ class ElementManager {
   ALLOW_UNUSED_TYPE std::map<lynx::devtool::DevToolFunction,
                              std::function<void(const base::any &)>>
       devtool_func_map_;
+
+  ElementManagerDelegate *element_manager_delegate_{nullptr};
 
  public:
   // fixed node attached to the page node.

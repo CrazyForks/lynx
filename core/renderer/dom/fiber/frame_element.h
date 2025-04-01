@@ -5,24 +5,36 @@
 #ifndef CORE_RENDERER_DOM_FIBER_FRAME_ELEMENT_H_
 #define CORE_RENDERER_DOM_FIBER_FRAME_ELEMENT_H_
 
-#include <memory>
-#include <optional>
 #include <string>
-#include <utility>
-#include <vector>
 
 #include "core/renderer/dom/element_manager.h"
 #include "core/renderer/dom/fiber/fiber_element.h"
+#include "core/template_bundle/lynx_template_bundle.h"
 
 namespace lynx {
 namespace tasm {
 class FrameElement : public FiberElement {
  public:
-  FrameElement(ElementManager* manager);
-  ~FrameElement() override = default;
+  explicit FrameElement(ElementManager* element_manager);
+  ~FrameElement() override;
+
+  void SetAttribute(const base::String& key, const lepus::Value& value,
+                    bool need_update_data_model = true) override;
+
+  bool DidBundleLoaded(const std::string& src,
+                       const LynxTemplateBundle& bundle);
 
  protected:
   void OnNodeAdded(FiberElement* child) override;
+
+ private:
+  // post bundle to UI node
+  void PostBundle(const LynxTemplateBundle& bundle);
+
+  // load bundle if src is set
+  void OnSetSrc(const base::String& key, const lepus::Value& value);
+
+  std::string src_{};
 };
 }  // namespace tasm
 }  // namespace lynx

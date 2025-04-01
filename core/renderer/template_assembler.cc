@@ -220,6 +220,8 @@ TemplateAssembler::TemplateAssembler(Delegate& delegate,
       font_scale_(1.0),
       component_loader_(nullptr) {
   TRACE_EVENT(LYNX_TRACE_CATEGORY, "TemplateAssembler::TemplateAssembler");
+  page_proxy()->element_manager()->SetElementManagerDelegate(
+      &element_manager_delegate_);
   auto card = std::make_shared<TemplateEntry>();
   InsertEntry(DEFAULT_ENTRY_NAME, std::move(card));
 }

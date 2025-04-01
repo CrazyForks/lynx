@@ -193,8 +193,12 @@ void FiberElement::OnNodeAdded(FiberElement *child) {
   UpdateRenderRootElementIfNecessary(child);
 }
 
+bool FiberElement::ShouldDestroy() const {
+  return !will_destroy_ && element_manager();
+}
+
 FiberElement::~FiberElement() {
-  if (!will_destroy_ && element_manager()) {
+  if (ShouldDestroy()) {
     element_manager_->EraseGlobalBindElementId(global_bind_event_map(),
                                                impl_id());
     element_manager()->NotifyElementDestroy(this);

@@ -888,6 +888,8 @@ class FiberElement : public Element, public SelectorItem {
 
   const AttrUMap& updated_attr_map() const { return updated_attr_map_; }
 
+  bool ShouldDestroy() const;
+
  private:
   friend class WrapperElement;
   friend class ComponentElement;
