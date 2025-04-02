@@ -109,9 +109,7 @@ def attribute_context(interface, attribute, interfaces, component_info):
     # [ReflectOnly]
     reflect_only = extended_attribute_value_as_list(attribute, 'ReflectOnly')
     if reflect_only:
-        reflect_only = map(
-            lambda v: cpp_content_attribute_value_name(interface, v),
-            reflect_only)
+        reflect_only = [cpp_content_attribute_value_name(interface, v) for v in reflect_only]
     # [PerWorldBindings]
     if 'PerWorldBindings' in extended_attributes:
         assert idl_type.is_wrapper_type or 'LogActivity' in \
@@ -182,12 +180,23 @@ def attribute_context(interface, attribute, interfaces, component_info):
     if idl_type.is_explicit_nullable:
         cpp_type = v8_types.cpp_template_type('base::Optional', cpp_type)
 
+    from functools import cmp_to_key
+    def compare_dicts(d1, d2):
+        if len(d1) != len(d2):
+            return -1 if len(d1) < len(d2) else 1
+        for key in sorted(d1):
+            if key not in d2:
+                return -1
+            if d1[key] != d2[key]:
+                return -1 if d1[key] < d2[key] else 1
+        return 0
+
     union_types = []
     if idl_type.is_union_type:
         union_types = sorted([
             napi_types.process_union_type(union_type)
             for union_type in idl_type.flattened_member_types
-        ])
+        ], key=cmp_to_key(compare_dicts))
 
     idl_type_name, native_value_traits_support, raises_exception = napi_types.native_value_traits_idl_type(idl_type)
 

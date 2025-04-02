@@ -192,12 +192,24 @@ def member_context(_, member, component_info):
     getter_name = getter_name_for_dictionary_member(member)
     runtime_features = component_info['runtime_enabled_features']
     idl_type_name, native_value_traits_support, raises_exception = napi_types.native_value_traits_idl_type(idl_type)
+
+    from functools import cmp_to_key
+    def compare_dicts(d1, d2):
+        if len(d1) != len(d2):
+            return -1 if len(d1) < len(d2) else 1
+        for key in sorted(d1):
+            if key not in d2:
+                return -1
+            if d1[key] != d2[key]:
+                return -1 if d1[key] < d2[key] else 1
+        return 0
+
     union_types = []
     if idl_type.is_union_type:
         union_types = sorted([
             napi_types.process_union_type(union_type)
             for union_type in idl_type.flattened_member_types
-        ])
+        ], key=cmp_to_key(compare_dicts))
 
     return {
         'cpp_default_value':

@@ -256,12 +256,12 @@ class CodeGeneratorNapi(CodeGeneratorNapiBase):
                 'interface_name': class_name,
                 'parent_name': parent_name,
                 # For methods we need to keep the shared base impl to have consistent index with native side.
-                'methods': filter(
-                lambda method: method['class_name'] == class_name or method['class_name'] == parent_name, template_context['methods']),
-                'remote_methods': filter(
-                lambda method: method['class_name'] == class_name or method['class_name'] == parent_name, template_context['remote_methods']),
+                'methods': list(filter(
+                lambda method: method['class_name'] == class_name or method['class_name'] == parent_name, template_context['methods'])),
+                'remote_methods': list(filter(
+                lambda method: method['class_name'] == class_name or method['class_name'] == parent_name, template_context['remote_methods'])),
                 # For constants just use the inherited for simplicity.
-                'constants': filter(lambda constant: constant['class_name'] == class_name, template_context['constants']),
+                'constants': list(filter(lambda constant: constant['class_name'] == class_name, template_context['constants'])),
                 'overloads_child_only': js_class['overloads_child_only'],
                 'async_classes': template_context.get('async_classes', []),
                 'partial_data_opt_prefix': self.hardcoded_includes.get(template_context['component'], {}).get('partial_data_opt_prefix', '0'),

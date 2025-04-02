@@ -10,7 +10,12 @@
 """
 import operator
 import re
-from collections import Mapping
+try:
+    # using Python 3.10+
+    from collections.abc import Mapping
+except ImportError:
+    # using Python 3.10-
+    from collections import Mapping
 from jinja2.runtime import Undefined
 from jinja2._compat import text_type, string_types, integer_types
 import decimal

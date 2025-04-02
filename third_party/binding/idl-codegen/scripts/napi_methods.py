@@ -436,12 +436,23 @@ def argument_context(interface, method, argument, index, interfaces_info={}, is_
         used_as_variadic_argument=argument.is_variadic)
     snake_case_name = NameStyleConverter(argument.name).to_snake_case()
 
+    from functools import cmp_to_key
+    def compare_dicts(d1, d2):
+        if len(d1) != len(d2):
+            return -1 if len(d1) < len(d2) else 1
+        for key in sorted(d1):
+            if key not in d2:
+                return -1
+            if d1[key] != d2[key]:
+                return -1 if d1[key] < d2[key] else 1
+        return 0
+
     union_types = []
     if idl_type.is_union_type:
         union_types = sorted([
             napi_types.process_union_type(union_type)
             for union_type in idl_type.flattened_member_types
-        ])
+        ], key=cmp_to_key(compare_dicts))
 
     sequence_element_type = None
     if idl_type.is_sequence_type:

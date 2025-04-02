@@ -78,11 +78,10 @@ def parse_options():
     return options, idl_filename
 
 
-class IdlCompiler(object):
+class IdlCompiler(object, metaclass=abc.ABCMeta):
     """The IDL Compiler.
 
     """
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self,
                  output_directory,
@@ -108,17 +107,9 @@ class IdlCompiler(object):
             self.info_provider, self.cache_directory, self.output_directory, hardcoded_includes)
 
     def compile_and_write(self, idl_filename):
-        # print '- compiling:', idl_filename, 'component:', self.target_component
         definitions = self.reader.read_idl_definitions(idl_filename)
         target_definitions = definitions[self.target_component]
-        # print '- callback_functions', target_definitions.callback_functions
-        # print '- dictionaries', target_definitions.dictionaries
-        # print '- enumerations', target_definitions.enumerations
-        # print '- interfaces', target_definitions.interfaces
-        # print '- includes', target_definitions.includes
-        # print '- typedefs', target_definitions.typedefs
         interface_name = target_definitions.first_name
-        # print '- interface_name', interface_name
         # printer = Printer()
         # target_definitions.accept(printer)
         output_code_list = self.code_generator.generate_code(
@@ -129,8 +120,6 @@ class IdlCompiler(object):
             return
 
         for output_path, output_code in output_code_list:
-            # print '- writing:', output_path
-            # print output_code
             write_file(output_code, output_path)
 
     def compile_file(self, idl_filename):
@@ -154,47 +143,47 @@ class IdlCompiler(object):
 from idl_definitions import Visitor
 class Printer(Visitor):
     def visit_definitions(self, definitions):
-        print '- definitions:', definitions
+        print('- definitions:', definitions)
 
     def visit_typed_object(self, typed_object):
-        print '-- typed_object:', typed_object
+        print('-- typed_object:', typed_object)
 
     def visit_callback_function(self, callback_function):
-        print '-- callback_function:', callback_function
+        print('-- callback_function:', callback_function)
 
     def visit_dictionary(self, dictionary):
-        print '-- dictionary:', dictionary
+        print('-- dictionary:', dictionary)
 
     def visit_dictionary_member(self, member):
-        print '-- member:', member
+        print('-- member:', member)
 
     def visit_enumeration(self, enumeration):
-        print '-- enumeration:', enumeration
+        print('-- enumeration:', enumeration)
 
     def visit_include(self, include):
-        print '-- include:', include
+        print('-- include:', include)
 
     def visit_interface(self, interface):
-        print '-- interface:', interface
+        print('-- interface:', interface)
 
     def visit_typedef(self, typedef):
-        print '-- typedef:', typedef
+        print('-- typedef:', typedef)
 
     def visit_attribute(self, attribute):
-        print '-- attribute:', attribute
-        print '--- is_read_only:', attribute.is_read_only
-        print '--- is_static:', attribute.is_static
-        print '--- name:', attribute.name
-        print '--- idl_type:', attribute.idl_type
+        print('-- attribute:', attribute)
+        print('--- is_read_only:', attribute.is_read_only)
+        print('--- is_static:', attribute.is_static)
+        print('--- name:', attribute.name)
+        print('--- idl_type:', attribute.idl_type)
         # print '--- extended_attributes:', attribute.extended_attributes
         # print '--- defined_in:', attribute.defined_in
 
     def visit_constant(self, constant):
-        print '-- constant:', constant
+        print('-- constant:', constant)
 
     def visit_operation(self, operation):
-        print '-- operation:', operation
-        print '--- arguments:', operation.arguments
+        print('-- operation:', operation)
+        print('--- arguments:', operation.arguments)
         # print '--- extended_attributes:', operation.extended_attributes
         # print '--- specials:', operation.specials
         # print '--- is_constructor:', operation.is_constructor
@@ -202,16 +191,16 @@ class Printer(Visitor):
         # print '--- idl_type:', operation.idl_type
 
     def visit_argument(self, argument):
-        print '-- argument:', argument
+        print('-- argument:', argument)
 
     def visit_iterable(self, iterable):
-        print '-- iterable:', iterable
+        print('-- iterable:', iterable)
 
     def visit_maplike(self, maplike):
-        print '-- maplike:', maplike
+        print('-- maplike:', maplike)
 
     def visit_setlike(self, setlike):
-        print '-- setlike:', setlike
+        print('-- setlike:', setlike)
 
 
 def generate_bindings(code_generator_class, info_provider, options,

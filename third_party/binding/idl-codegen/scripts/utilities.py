@@ -15,7 +15,7 @@ import sys
 from known_modules import MODULES
 
 if sys.version_info.major == 2:
-    import cPickle as pickle
+    import pickle as pickle
 else:
     import pickle
 
@@ -23,8 +23,8 @@ sys.path.append(
     os.path.join(os.path.dirname(__file__), '..', '..', 'build', 'scripts'))
 from blinkbuild.name_style_converter import NameStyleConverter
 
-KNOWN_COMPONENTS = frozenset(MODULES.keys())
-KNOWN_COMPONENTS_WITH_TESTING = frozenset(['testing'] + MODULES.keys())
+KNOWN_COMPONENTS = frozenset(list(MODULES.keys()))
+KNOWN_COMPONENTS_WITH_TESTING = frozenset(['testing'] + list(MODULES.keys()))
 
 
 def idl_filename_to_basename(idl_filename):
@@ -264,7 +264,7 @@ def merge_dict_recursively(target, diff):
     |target| will be updated with |diff|.  Part of |diff| may be re-used in
     |target|.
     """
-    for key, value in diff.items():
+    for key, value in list(diff.items()):
         if key not in target:
             target[key] = value
         elif type(value) == dict:
@@ -478,7 +478,7 @@ def get_interface_extended_attributes_from_idl(file_contents):
         if parences < 0 or square_brackets < 0:
             raise ValueError('You have more close braces than open braces.')
         if parences == 0 and square_brackets == 0:
-            name, _, value = map(str.strip, concatenated.partition('='))
+            name, _, value = list(map(str.strip, concatenated.partition('=')))
             extended_attributes[name] = value
             concatenated = None
     return extended_attributes

@@ -78,7 +78,7 @@ DEPENDENCY_IDL_FILES = frozenset([
     'test_interface_2_partial_2.idl',
 ])
 
-COMPONENT_DIRECTORY = frozenset(MODULES.keys()) #frozenset(['core', 'modules'])
+COMPONENT_DIRECTORY = frozenset(list(MODULES.keys())) #frozenset(['core', 'modules'])
 #TEST_INPUT_DIRECTORY = os.path.dirname(SOURCE_PATH)
 REFERENCE_DIRECTORY = os.path.join(SOURCE_PATH, 'tools', 'tests', 'results')
 
@@ -126,7 +126,7 @@ def generate_interface_dependencies(runtime_enabled_features):
     def collect_interfaces_info(idl_path_list):
         info_collector = InterfaceInfoCollector()
         for idl_path in idl_path_list:
-            print 'Found idl file:', idl_path
+            print('Found idl file:', idl_path)
             info_collector.collect_info(idl_path)
         info = info_collector.get_info_as_dict()
         # TestDictionary.{h,cpp} are placed under
@@ -135,7 +135,7 @@ def generate_interface_dependencies(runtime_enabled_features):
         # So the files will be generated under
         # output_dir/core/bindings/tests/idls/core.
         # To avoid this issue, we need to clear relative_dir here.
-        for value in info['interfaces_info'].itervalues():
+        for value in info['interfaces_info'].values():
             value['relative_dir'] = ''
         component_info = info_collector.get_component_info_as_dict(
             runtime_enabled_features)
@@ -168,7 +168,7 @@ def generate_interface_dependencies(runtime_enabled_features):
         non_test_idl_paths)
     test_interfaces_info = {}
     test_component_info = {}
-    for component, paths in test_idl_paths.iteritems():
+    for component, paths in test_idl_paths.items():
         paths.sort() # SharedImpl needs stable iteration order (hence stable method index).
         test_interfaces_info[component], test_component_info[component] = \
             collect_interfaces_info(paths)
@@ -176,7 +176,7 @@ def generate_interface_dependencies(runtime_enabled_features):
     # they have the same interface name, process the test IDL files after the
     # non-test IDL files.
     info_individuals = [non_test_interfaces_info] + \
-        test_interfaces_info.values()
+        list(test_interfaces_info.values())
     compute_interfaces_info_overall(info_individuals)
     # Add typedefs which are specified in the actual IDL files to the testing
     # component info.
@@ -240,22 +240,22 @@ def bindings_tests(output_directory, verbose, suppress_diff, hardcoded_includes=
         reference_basename = os.path.basename(reference_filename)
 
         if not os.path.isfile(reference_filename):
-            print 'Missing reference file!'
-            print '(if adding new test, update reference files)'
-            print reference_basename
-            print
+            print('Missing reference file!')
+            print('(if adding new test, update reference files)')
+            print(reference_basename)
+            print()
             return False
 
         if not filecmp.cmp(reference_filename, output_filename):
             # cmp is much faster than diff, and usual case is "no difference",
             # so only run diff if cmp detects a difference
-            print 'FAIL: %s' % reference_basename
+            print('FAIL: %s' % reference_basename)
             if not suppress_diff:
-                print diff(reference_filename, output_filename)
+                print(diff(reference_filename, output_filename))
             return False
 
         if verbose:
-            print 'PASS: %s' % reference_basename
+            print('PASS: %s' % reference_basename)
         return True
 
     def identical_output_files(output_files):
@@ -282,9 +282,9 @@ def bindings_tests(output_directory, verbose, suppress_diff, hardcoded_includes=
             if relpath not in generated_files:
                 excess_files.append(relpath)
         if excess_files:
-            print('Excess reference files! '
+            print(('Excess reference files! '
                   '(probably cruft from renaming or deleting):\n' +
-                  '\n'.join(excess_files))
+                  '\n'.join(excess_files)))
             return False
         return True
 
@@ -389,14 +389,14 @@ def bindings_tests(output_directory, verbose, suppress_diff, hardcoded_includes=
     # print
     # print FAIL_MESSAGE
     # return 1
-    print 'Done'
+    print('Done')
 
 
 def run_bindings_tests(reset_results, verbose, suppress_diff):
     # Generate output into the reference directory if resetting results, or
     # a temp directory if not.
     if reset_results:
-        print 'Resetting results'
+        print('Resetting results')
         return bindings_tests(REFERENCE_DIRECTORY, verbose, suppress_diff)
     with TemporaryDirectory() as temp_dir:
         # TODO(peria): Remove this hack.
