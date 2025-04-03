@@ -181,7 +181,9 @@ void EventTracker::Flush(int32_t instance_id) {
              instance->tracker_event_builder_stack_.front())]() mutable {
           MoveOnlyEvent event;
           builder(event);
-          EventTrackerPlatformImpl::OnEvent(instance_id, std::move(event));
+          if (!event.GetName().empty()) {
+            EventTrackerPlatformImpl::OnEvent(instance_id, std::move(event));
+          }
         });
     // tracker_event_builder_stack_'s buffer and capacity is not affected.
     instance->tracker_event_builder_stack_.clear();
@@ -193,6 +195,9 @@ void EventTracker::Flush(int32_t instance_id) {
           stack.reserve(builder_stack.size());
           for (const auto& builder : builder_stack) {
             builder(stack.emplace_back());
+            if (stack.back().GetName().empty()) {
+              stack.pop_back();
+            }
           }
           EventTrackerPlatformImpl::OnEvents(instance_id, std::move(stack));
         });
