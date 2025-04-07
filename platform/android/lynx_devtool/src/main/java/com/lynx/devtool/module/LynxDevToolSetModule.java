@@ -5,8 +5,8 @@
 package com.lynx.devtool.module;
 
 import com.lynx.devtool.LynxDevtoolEnv;
+import com.lynx.devtoolwrapper.CDPResultCallback;
 import com.lynx.devtoolwrapper.LynxBaseInspectorOwner;
-import com.lynx.devtoolwrapper.LynxBaseInspectorOwnerNG;
 import com.lynx.jsbridge.LynxContextModule;
 import com.lynx.jsbridge.LynxMethod;
 import com.lynx.react.bridge.Callback;
@@ -149,5 +149,27 @@ public class LynxDevToolSetModule extends LynxContextModule {
   @LynxMethod
   public boolean isQuickjsDebugEnabled() {
     return LynxDevtoolEnv.inst().isQuickjsDebugEnabled();
+  }
+
+  @LynxMethod
+  public void invokeCdp(String message, Callback callback) {
+    LynxBaseInspectorOwner owner = mLynxContext.getBaseInspectorOwner();
+    if (owner == null) {
+      return;
+    }
+    owner.invokeCDPFromSDK(message, new CDPResultCallback() {
+      @Override
+      public void onResult(String result) {
+        if (mLynxContext == null || callback == null) {
+          return;
+        }
+        mLynxContext.runOnJSThread(new Runnable() {
+          @Override
+          public void run() {
+            callback.invoke(result);
+          }
+        });
+      }
+    });
   }
 }

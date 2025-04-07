@@ -40,6 +40,7 @@
     @"isLongPressMenuEnabled" : NSStringFromSelector(@selector(isLongPressMenuEnabled)),
     @"switchLongPressMenu" : NSStringFromSelector(@selector(switchLongPressMenu:)),
 #endif
+    @"invokeCdp" : NSStringFromSelector(@selector(invokeCdp:callback:)),
   };
 }
 
@@ -124,5 +125,25 @@
   LynxEnv.sharedInstance.highlightTouchEnabled = arg;
 }
 #endif
+
+- (void)invokeCdp:(NSString *)message callback:(LynxCallbackBlock)callback {
+  if (context_ == nil || context_.lynxView == nil) {
+    return;
+  }
+  id<LynxBaseInspectorOwner> owner = context_.lynxView.baseInspectorOwner;
+  if (owner == nil) {
+    return;
+  }
+  [owner invokeCDPFromSDK:message
+             withCallback:^(NSString *response) {
+               __strong typeof(context_) strongContext = context_;
+               if (strongContext == nil || callback == nil) {
+                 return;
+               }
+               [strongContext runOnJSThread:^() {
+                 callback(response);
+               }];
+             }];
+}
 
 @end
