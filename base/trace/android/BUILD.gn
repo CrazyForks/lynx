@@ -22,21 +22,19 @@ config("trace_android_private_config") {
       [ "-Wl,--version-script," + rebase_path("lynx_trace_export_symbol.map") ]
 }
 
-if (build_lynx_dylib) {
-  cmake_target("LynxTrace") {
-    cmake_version = "3.4.1"
-    target_type = "shared_library"
-    output_name = "lynxtrace"
+cmake_target("LynxTrace") {
+  cmake_version = "3.4.1"
+  target_type = "shared_library"
+  output_name = "lynxtrace"
 
-    deps = [
-      ":trace_jni",
-      "//lynx/base/trace/native:trace",
-    ]
+  deps = [
+    ":trace_jni",
+    "//lynx/base/trace/native:trace",
+  ]
 
-    libs = [ "log" ]
+  libs = [ "log" ]
 
-    configs = [ ":trace_android_private_config" ]
-  }
+  configs = [ ":trace_android_private_config" ]
 }
 
 source_set("trace_jni") {

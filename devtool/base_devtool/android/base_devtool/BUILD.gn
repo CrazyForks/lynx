@@ -5,25 +5,23 @@
 import("//lynx/platform/android/Android.gni")
 import("//lynx/tools/gn_tools/cmake_target_template.gni")
 
-if (build_lynx_dylib) {
-  cmake_target("base_devtool") {
-    cmake_version = "3.4.1"
-    target_type = "shared_library"
-    output_name = "basedevtool"
-    deps = [ "//lynx/devtool/base_devtool/native:base_devtool_lib" ]
-    libs = [
-      "android",
-      "dl",
-      "log",
-    ]
+cmake_target("base_devtool") {
+  cmake_version = "3.4.1"
+  target_type = "shared_library"
+  output_name = "basedevtool"
+  deps = [ "//lynx/devtool/base_devtool/native:base_devtool_lib" ]
+  libs = [
+    "android",
+    "dl",
+    "log",
+  ]
 
-    configs = [
-      ":devtool_common_defines",
-      ":devtool_flag_config",
-      ":devtool_ldflag_config",
-      "//lynx/platform/android:16kb_page",
-    ]
-  }
+  configs = [
+    ":devtool_common_defines",
+    ":devtool_flag_config",
+    ":devtool_ldflag_config",
+    "//lynx/platform/android:16kb_page",
+  ]
 }
 
 config("devtool_common_defines") {

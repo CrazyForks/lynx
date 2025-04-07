@@ -8,50 +8,45 @@ import("//lynx/platform/android/lynx_devtool/lynx_devtool.gni")
 import("//lynx/tools/gn_tools/cmake_target_template.gni")
 
 group("LynxDevtool") {
-  deps = []
-  if (build_lynx_dylib) {
-    deps = [ ":lynxdevtool" ]
-  }
+  deps = [ ":lynxdevtool" ]
 }
 
-if (build_lynx_dylib) {
-  cmake_target("lynxdevtool") {
-    cmake_version = "3.4.1"
-    target_type = "shared_library"
-    output_name = "lynxdevtool"
-    deps = [
-      ":lynxdevtool_lib",
-      "//lynx/base/trace/android:LynxTrace",
-      "//lynx/devtool/base_devtool/android/base_devtool:base_devtool",
-      "//lynx/platform/android/lynx_android:lynx_android",
-    ]
+cmake_target("lynxdevtool") {
+  cmake_version = "3.4.1"
+  target_type = "shared_library"
+  output_name = "lynxdevtool"
+  deps = [
+    ":lynxdevtool_lib",
+    "//lynx/base/trace/android:LynxTrace",
+    "//lynx/devtool/base_devtool/android/base_devtool:base_devtool",
+    "//lynx/platform/android/lynx_android:lynx_android",
+  ]
 
-    lib_dirs = [
-      "${primjs_native_lib_dir}",
-      "${v8_native_lib_dir}",
-    ]
-    libs = [
-      "android",
-      "dl",
-      "log",
-      "quick",
-      "v8_libfull.cr",
-    ]
+  lib_dirs = [
+    "${primjs_native_lib_dir}",
+    "${v8_native_lib_dir}",
+  ]
+  libs = [
+    "android",
+    "dl",
+    "log",
+    "quick",
+    "v8_libfull.cr",
+  ]
 
-    if (enable_napi_binding) {
-      libs += [
-        "napi",
-        "napi_v8",
-      ]
-    }
-
-    configs = [
-      ":devtool_common_defines",
-      ":devtool_flag_config",
-      ":devtool_ldflag_config",
-      "//lynx/platform/android:16kb_page",
+  if (enable_napi_binding) {
+    libs += [
+      "napi",
+      "napi_v8",
     ]
   }
+
+  configs = [
+    ":devtool_common_defines",
+    ":devtool_flag_config",
+    ":devtool_ldflag_config",
+    "//lynx/platform/android:16kb_page",
+  ]
 }
 
 group("lynxdevtool_lib") {

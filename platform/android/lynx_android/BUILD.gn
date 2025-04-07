@@ -10,32 +10,29 @@ assert(is_android)
 
 group("LynxAndroid") {
   deps = []
-  if (build_lynx_dylib) {
-    deps += [ ":lynx_android" ]
-    if (!enable_lite) {
-      deps += [ "//lynx/core/runtime/jsi/v8:lynx_v8_bridge" ]
-    }
+  deps += [ ":lynx_android" ]
+  if (!enable_lite) {
+    deps += [ "//lynx/core/runtime/jsi/v8:lynx_v8_bridge" ]
   }
 }
-if (build_lynx_dylib) {
-  cmake_target("lynx_android") {
-    cmake_version = "3.4.1"
-    target_type = "shared_library"
-    output_name = "lynx"
-    deps = [
-      "//lynx/base/trace/android:LynxTrace",
-      "//lynx/core/build:build",
-      "//lynx/core/shell:shell",
-      "//lynx/platform/android/lynx_android:lynx_android_lib",
-      "//lynx/platform/android/lynx_android/src:lynx_jni_on_load",
-    ]
-    configs = [
-      "//lynx/platform/android/lynx_android:lynx_android_public_config",
-      "//lynx/platform/android/lynx_android:lynx_android_private_config",
-    ]
-    if (!enable_lite) {
-      sub_cmake_target = [ "//lynx/core/runtime/jsi/v8:lynx_v8_bridge" ]
-    }
+
+cmake_target("lynx_android") {
+  cmake_version = "3.4.1"
+  target_type = "shared_library"
+  output_name = "lynx"
+  deps = [
+    "//lynx/base/trace/android:LynxTrace",
+    "//lynx/core/build:build",
+    "//lynx/core/shell:shell",
+    "//lynx/platform/android/lynx_android:lynx_android_lib",
+    "//lynx/platform/android/lynx_android/src:lynx_jni_on_load",
+  ]
+  configs = [
+    "//lynx/platform/android/lynx_android:lynx_android_public_config",
+    "//lynx/platform/android/lynx_android:lynx_android_private_config",
+  ]
+  if (!enable_lite) {
+    sub_cmake_target = [ "//lynx/core/runtime/jsi/v8:lynx_v8_bridge" ]
   }
 }
 

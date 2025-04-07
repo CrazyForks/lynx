@@ -2,6 +2,8 @@
 # Licensed under the Apache License Version 2.0 that can be found in the
 # LICENSE file in the root directory of this source tree.
 
+import("register_custom_targets.gni")
+
 # Declare an CMake target to generate CMake script.
 #
 # This target will be converted to a corresponding CMake script.
@@ -202,6 +204,15 @@ template("cmake_target") {
     project_name_ += invoker.project_name
   }
 
+  current_target_full_name =
+      string_replace(rebase_path(":$target_name"), rebase_path("//"), "//")
+  current_target_name = string_replace(current_target_full_name, "/:", ":")
+  should_register =
+      filter_exclude([ "$current_target_name" ], target_exclude_patterns)
+  if (should_register == []) {
+    output_name_ = "${output_name_}_tmp"
+  }
+
   target("$target_type", "$target_name") {
     output_name = output_name_
     configs += configs_
@@ -230,14 +241,7 @@ template("cmake_target") {
   }
 
   # write cmake_target's name to file
-  out_gen_path = "cmake_targets"
-  current_target_full_name =
-      string_replace(rebase_path(":$target_name"), rebase_path("//"), "//")
-  current_target_name = string_replace(current_target_full_name, "/:", ":")
-  lines = [ "$current_target_name" ]
-  out_file_name =
-      string_replace(string_replace(current_target_name, "/", "_"), ":", "_")
-  out_file_path =
-      rebase_path("$root_build_dir/${out_gen_path}/$out_file_name.txt")
-  write_file("$out_file_path", lines, "list lines")
+  regitser_custom_target("$target_name") {
+    register_dir = "cmake_targets"
+  }
 }

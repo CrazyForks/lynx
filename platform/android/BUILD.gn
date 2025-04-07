@@ -18,11 +18,9 @@ config("16kb_page") {
 }
 
 group("Android") {
-  if (build_lynx_dylib) {
-    deps = [
-      "//lynx/base/trace/android:LynxTrace",
-      "//lynx/platform/android/lynx_android",
-      "//lynx/platform/android/lynx_devtool:LynxDevtool",
-    ]
-  }
+  deps = [
+    "//lynx/base/trace/android:LynxTrace",
+    "//lynx/platform/android/lynx_android",
+    "//lynx/platform/android/lynx_devtool:LynxDevtool",
+  ]
 }

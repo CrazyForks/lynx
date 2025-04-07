@@ -24,9 +24,6 @@ declare_args() {
   # Whether to enable unit tests
   enable_unittests = false
 
-  # Whether to build lynx shared library
-  build_lynx_dylib = false
-
   build_lynx_lepus_node = false
 
   enable_fuzzertests = false

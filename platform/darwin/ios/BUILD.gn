@@ -7,7 +7,5 @@ assert(is_ios)
 import("//lynx/core/Lynx.gni")
 
 group("iOS") {
-  if (build_lynx_dylib) {
-    deps = [ "//lynx/platform/darwin/ios/lynx:lynx_podspec" ]
-  }
+  deps = [ "//lynx/platform/darwin/ios/lynx:lynx_podspec" ]
 }

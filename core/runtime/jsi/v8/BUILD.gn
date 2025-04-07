@@ -40,25 +40,23 @@ if (is_android) {
     }
   }
 
-  if (build_lynx_dylib) {
-    cmake_target("lynx_v8_bridge") {
-      target_type = "shared_library"
-      output_name = "lynx_v8_bridge"
-      deps = [
-        ":js_v8_bridge",
-        "//lynx/platform/android/lynx_android:lynx_android",
+  cmake_target("lynx_v8_bridge") {
+    target_type = "shared_library"
+    output_name = "lynx_v8_bridge"
+    deps = [
+      ":js_v8_bridge",
+      "//lynx/platform/android/lynx_android:lynx_android",
+    ]
+    lib_dirs = [ "${v8_native_lib_dir}" ]
+    libs = [ "v8_libfull.cr" ]
+    if (enable_napi_binding) {
+      lib_dirs += [ "${primjs_native_lib_dir}" ]
+      libs += [
+        "napi",
+        "napi_v8",
       ]
-      lib_dirs = [ "${v8_native_lib_dir}" ]
-      libs = [ "v8_libfull.cr" ]
-      if (enable_napi_binding) {
-        lib_dirs += [ "${primjs_native_lib_dir}" ]
-        libs += [
-          "napi",
-          "napi_v8",
-        ]
-      }
-      configs = [ ":private_config" ]
     }
+    configs = [ ":private_config" ]
   }
 
   lynx_core_source_set("js_v8_bridge") {

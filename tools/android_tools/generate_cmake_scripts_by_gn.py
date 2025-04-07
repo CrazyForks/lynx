@@ -68,16 +68,18 @@ def clean_all_products(root_dir):
       cmake_targets.append(target)
       cmake_target_path = os.path.join(cmake_targets_dir, target)
       with open(cmake_target_path, 'r') as file:
-        cmake_target = file.readlines()[0].replace('\n', '')
-        CMakeLists_impl_dir = cmake_target.split(':')[0][2:]
-        CMakeLists_impl_path = os.path.join(root_dir, CMakeLists_impl_dir, 'CMakeLists_impl')
-        if os.path.exists(CMakeLists_impl_path):
-          shutil.rmtree(CMakeLists_impl_path)
+        contents = file.readlines()
+        if len(contents) > 0:
+          cmake_target = contents[0].replace('\n', '')
+          CMakeLists_impl_dir = cmake_target.split(':')[0][2:]
+          CMakeLists_impl_path = os.path.join(root_dir, CMakeLists_impl_dir, 'CMakeLists_impl')
+          if os.path.exists(CMakeLists_impl_path):
+            shutil.rmtree(CMakeLists_impl_path)
         file.close()
   shutil.rmtree(gn_out_dir)
   return 0
 
-def run_gn_script(args, root_dir, build_lynx_dylib=False):
+def run_gn_script(args, root_dir, target_exclude_patterns:list=None):
   target = args.target
   is_clean = args.clean
   if is_clean:
@@ -105,8 +107,11 @@ def run_gn_script(args, root_dir, build_lynx_dylib=False):
     gn_args += ' target_os=\\\"android\\\"'
     gn_args += ' use_ndk_cxx=true'
     gn_args += ' android_full_debug=true'
-    if build_lynx_dylib:
-      gn_args += ' build_lynx_dylib=true'
+    if target_exclude_patterns is not None:
+      patterns = []
+      for pattern in target_exclude_patterns:
+        patterns.append(f'\\\"{pattern}\\\"')
+      gn_args +=' target_exclude_patterns=[%s]' % (','.join(patterns))
     gn_out_path = os.path.join(gn_out_dir, project_name, gn_args_key)
     if os.path.exists(gn_out_path) and os.path.isdir(gn_out_path):
       clean_gn_project_json_file(gn_out_path)
@@ -123,7 +128,7 @@ def main():
   parser.add_argument('--clean', action='store_true', required=False, help='Delete all products.')
   args, unknown = parser.parse_known_args()
   root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-  return run_gn_script(args, root_dir, build_lynx_dylib=True)
+  return run_gn_script(args, root_dir)
 
 if __name__ == "__main__":
   sys.exit(main())
