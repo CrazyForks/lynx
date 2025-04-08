@@ -39,7 +39,7 @@ def loadJson(file_path):
 def loadCSSDefinesJson(folder_path):
   # Get all json files in the folder.
   json_files = [file for file in os.listdir(folder_path) if file.endswith('.json') and file != 'property_index.json']
-  
+
   result = [{"count": len(json_files)}]
 
   for json_file in json_files:
@@ -53,7 +53,7 @@ def loadCSSDefinesJson(folder_path):
 
   # Sort by id in positive order.
   result = [result[0]] + sorted(result[1:], key=lambda x: x['id'])
-  
+
   return result
 
 def check_and_get_defines():
@@ -93,7 +93,7 @@ def check_and_get_defines():
 
     # Return combined_data
     combined_data = []
-    
+
     for json_file in os.listdir('./css_defines'):
       file_path = os.path.join('./css_defines', json_file)
       if os.path.isfile(file_path) and json_file.endswith('.json'):
@@ -133,7 +133,7 @@ def genSource(sorted_css_objects):
 
   # enum type
   enum_css_generator.genHandler("enum_handler.cc", sorted_css_objects['enum'])
-  
+
   # color type
   utils.genSimpleTypeHandler(utils.getRawParserPath() + "color_handler.h", sorted_css_objects['color'], "color")
 
@@ -155,7 +155,7 @@ def genSource(sorted_css_objects):
   # border-width type
   utils.genSimpleTypeHandler(utils.getRawParserPath() + "border_width_handler.h",
                         sorted_css_objects['border-width'], "border-width")
-  
+
   # border-style type
   utils.genSimpleTypeHandler(utils.getRawParserPath() + "border_style_handler.h",
                         sorted_css_objects['border-style'], "border-style")
@@ -193,23 +193,23 @@ def main_generator(json_obj):
 
 def generate_files(json_obj):
   # TODO(wangyifei.20010605): waiting for python env.
-  # checkJsonFileFormat() 
+  # checkJsonFileFormat()
   main_generator(json_obj)
 
 # start execute:
+script_dir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(os.path.split(os.path.abspath(__file__))[0])
 json_obj = check_and_get_defines()
 
 string_content = json.dumps(json_obj, sort_keys=True)
 new_hash = hashlib.sha256(string_content.encode()).hexdigest()
-script_dir = os.path.dirname(os.path.abspath(__file__))
 hash_define_file = os.path.join(script_dir, 'css_defines_sha256.txt')
 # Check if the hash file exists.
 # If the hash file does not exist, the hash file is generated and then executed the generate logic.
 if not os.path.exists(hash_define_file):
   with open(hash_define_file, 'w') as file:
       file.write(new_hash)
-  print("First generate!")    
+  print("First generate!")
   generate_files(json_obj)
 else:
   with open(hash_define_file, 'r') as file:
