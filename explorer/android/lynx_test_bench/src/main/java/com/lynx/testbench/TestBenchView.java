@@ -24,11 +24,9 @@ public class TestBenchView extends RelativeLayout {
 
   private TestBenchActionManager mActionManager;
   private LynxView mLynxView;
-  private TestBenchReplayStateView mStateView;
 
   public TestBenchView(Context context) {
     super(context);
-    mStateView = new TestBenchReplayStateView(this.getContext());
   }
 
   public void reload() {
@@ -51,9 +49,8 @@ public class TestBenchView extends RelativeLayout {
   }
 
   public void loadPageWithPoint(String url, int[] point, Intent intent) {
-    this.addView(mStateView);
     mPoint = Arrays.copyOf(point, point.length);
-    mActionManager = new TestBenchActionManager(intent, this.getContext(), this, mStateView, null);
+    mActionManager = new TestBenchActionManager(intent, this.getContext(), this, null);
     mActionManager.registerCallback(new TestBenchActionCallback() {
       @Override
       public void onLynxViewDidBuild(@NonNull LynxView kitView, @NonNull Intent intent,

@@ -27,6 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property(nonatomic, readonly) BOOL enableAirStrictMode;
 
+@property(nonatomic, readonly) BOOL createWhenReload;
+
 // Record file and source file requestCachePolicy, default is
 // NSURLRequestReloadIgnoringLocalCacheData
 @property(nonatomic) NSURLRequestCachePolicy requestCachePolicy;

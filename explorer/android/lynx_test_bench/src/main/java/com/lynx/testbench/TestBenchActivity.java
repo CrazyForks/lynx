@@ -78,11 +78,9 @@ public class TestBenchActivity
       setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     }
     mContainerView = findViewById(R.id.container);
-    TestBenchReplayStateView stateView = new TestBenchReplayStateView(this);
-    mContainerView.addView(stateView);
     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING);
     LynxGroup group = null;
-    mActionManager = new TestBenchActionManager(intent, this, mContainerView, stateView, null);
+    mActionManager = new TestBenchActionManager(intent, this, mContainerView, null);
     TestBenchPageManager.getInstance().initLynxGroup(intent.getStringExtra("groupName"), this);
     TestBenchPageManager.getInstance().registerActivity(intent.getStringExtra("pageName"), this);
     if (mLifecycleRegistry == null) {

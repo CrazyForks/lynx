@@ -154,15 +154,48 @@ static const int kVirtual = 1 << 2;
   [self.actionCallbacks addObject:callback];
 }
 
+- (void)create {
+  if (_lynxView != nil) {
+    [self.lynxView removeFromSuperview];
+    self.lynxView = nil;
+  }
+  [self.stateView setReplayState:DOWNLOAD_JSON_FILE];
+  [self.parentUI addSubview:_stateView];
+
+  if ([self.replayConfig sourceUrl] != nil) {
+    NSURLSessionConfiguration* configuration =
+        [NSURLSessionConfiguration defaultSessionConfiguration];
+    configuration.requestCachePolicy = self.replayConfig.requestCachePolicy;
+    NSURLSession* session = [NSURLSession sessionWithConfiguration:configuration];
+    __weak typeof(self) _self = self;
+    NSURLSessionDataTask* dataTask =
+        [session dataTaskWithURL:[NSURL URLWithString:[self.replayConfig sourceUrl]]
+               completionHandler:^(NSData* _Nullable data, NSURLResponse* _Nullable response,
+                                   NSError* _Nullable error) {
+                 if (error != nil) {
+                   NSLog(@"[TestBench] Template.js(%@) is unavailable!: %@",
+                         [[error userInfo] objectForKey:@"NSErrorFailingURLKey"],
+                         [[error userInfo] objectForKey:@"NSLocalizedDescription"]);
+                   return;
+                 }
+                 __strong typeof(_self) strongSelf = _self;
+                 [strongSelf setPreloadedSource:data];
+                 [strongSelf downloadRecordFile];
+               }];
+    [dataTask resume];
+  } else {
+    [self downloadRecordFile];
+  }
+}
+
 - (void)startWithUrl:(NSString*)url
               inView:(UIView*)parentView
           withOrigin:(CGPoint)point
-           stateView:(nonnull TestBenchStateReplayView*)stateView
         replayConfig:(TestBenchReplayConfig*)replayConfig {
   [self setReplayConfig:replayConfig];
   _parentUI = parentView;
   _origin = point;
-  _stateView = stateView;
+  _stateView = [[TestBenchStateReplayView alloc] init];
   _startTime = 0;
   _hasLoadTemplate = NO;
 
@@ -180,21 +213,9 @@ static const int kVirtual = 1 << 2;
 
   _loadTemplateUrl = nil;
   _loadTemplateInitData = nil;
-  [_stateView setReplayState:DOWNLOAD_JSON_FILE];
   _dynamicComponentFetcher = [[TestBenchDynamicComponentFetcher alloc] init];
 
-  if ([self.replayConfig sourceUrl] != nil) {
-    __weak typeof(self) _self = self;
-    [self getSourceAndContinue:[self.replayConfig sourceUrl]
-                   cachePolicy:self.replayConfig.requestCachePolicy
-                 continueBlock:^(NSData* data) {
-                   __strong typeof(_self) strongSelf = _self;
-                   [strongSelf setPreloadedSource:data];
-                   [strongSelf downloadRecordFile];
-                 }];
-  } else {
-    [self downloadRecordFile];
-  }
+  [self create];
 }
 
 - (void)downloadRecordFile {
@@ -642,7 +663,6 @@ static const int kVirtual = 1 << 2;
   }
   if (_stateView != nil) {
     [_stateView removeFromSuperview];
-    _stateView = nil;
   }
   NSString* source = params[@"source"];
   NSDictionary* initDict = params[@"templateData"];
@@ -696,7 +716,6 @@ static const int kVirtual = 1 << 2;
   }
   if (_stateView != nil) {
     [_stateView removeFromSuperview];
-    _stateView = nil;
   }
   NSString* source = params[@"source"];
   NSDictionary* initDict = params[@"templateData"];
@@ -846,23 +865,27 @@ static const int kVirtual = 1 << 2;
 }
 
 - (void)reload {
-  _loadTemplateInitData = [_loadTemplateInitData deepClone];
-  if ([self.replayConfig sourceUrl] != nil) {
-    __weak typeof(self) _self = self;
-    [self getSourceAndContinue:[self.replayConfig sourceUrl]
-                   cachePolicy:self.replayConfig.requestCachePolicy
-                 continueBlock:^(NSData* data) {
-                   dispatch_async(dispatch_get_main_queue(), ^{
-                     if (_self) {
-                       __strong typeof(_self) strongSelf = _self;
-                       [strongSelf.lynxView loadTemplate:data
-                                                 withURL:strongSelf.loadTemplateUrl
-                                                initData:strongSelf.loadTemplateInitData];
-                     }
-                   });
-                 }];
+  if ([self.replayConfig createWhenReload]) {
+    [self create];
   } else {
-    [_lynxView loadTemplate:_source withURL:_loadTemplateUrl initData:_loadTemplateInitData];
+    _loadTemplateInitData = [_loadTemplateInitData deepClone];
+    if ([self.replayConfig sourceUrl] != nil) {
+      __weak typeof(self) _self = self;
+      [self getSourceAndContinue:[self.replayConfig sourceUrl]
+                     cachePolicy:self.replayConfig.requestCachePolicy
+                   continueBlock:^(NSData* data) {
+                     dispatch_async(dispatch_get_main_queue(), ^{
+                       if (_self) {
+                         __strong typeof(_self) strongSelf = _self;
+                         [strongSelf.lynxView loadTemplate:data
+                                                   withURL:strongSelf.loadTemplateUrl
+                                                  initData:strongSelf.loadTemplateInitData];
+                       }
+                     });
+                   }];
+    } else {
+      [_lynxView loadTemplate:_source withURL:_loadTemplateUrl initData:_loadTemplateInitData];
+    }
   }
 }
 

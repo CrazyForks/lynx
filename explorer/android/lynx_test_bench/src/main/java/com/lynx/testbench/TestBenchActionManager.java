@@ -167,6 +167,7 @@ public class TestBenchActionManager {
   private LynxView mLynxView;
   private boolean mSSRLoaded;
   private boolean mDisableUpdateViewport;
+  private boolean mCreateWhenReload;
   private boolean mLandScape;
   private boolean mEnableAirStrictMode;
   private LynxGroup mLynxGroup;
@@ -302,8 +303,7 @@ public class TestBenchActionManager {
   }
 
   public TestBenchActionManager(@NonNull Intent intent, @NonNull Context context,
-      @NonNull ViewGroup viewGroup, TestBenchReplayStateView stateView,
-      @Nullable LynxGroup lynxGroup) {
+      @NonNull ViewGroup viewGroup, @Nullable LynxGroup lynxGroup) {
     mStartTime = 0;
     mContext = context;
     mLynxView = null;
@@ -327,7 +327,7 @@ public class TestBenchActionManager {
     mReplayGesture = false;
     mPreDecode = false;
     mThreadMode = -1;
-    mStateView = stateView;
+    mStateView = new TestBenchReplayStateView(context);
     mDelayEndInterval = 3500;
     mRawFontScale = -1;
     mDynamicFetcher = new TestBenchFetcher();
@@ -465,7 +465,21 @@ public class TestBenchActionManager {
 
     mDisableUpdateViewport = queryMap.getBoolean("disableUpdateViewport", false);
 
+    mCreateWhenReload = queryMap.getBoolean("createWhenReload", false);
+
+    create();
+  }
+
+  private void create() {
+    destroy();
+    if (mLynxView != null) {
+      mViewGroup.removeView(mLynxView);
+      mLynxView = null;
+    }
+
     mStateView.setReplayState(TestBenchReplayStateView.DOWNLOAD_JSON_FILE);
+    mViewGroup.addView(mStateView);
+
     if (null != mSourceURL) {
       LynxEnv.inst().getTemplateProvider().loadTemplate(
           mSourceURL, new AbsTemplateProvider.Callback() {
@@ -1067,25 +1081,30 @@ public class TestBenchActionManager {
   }
 
   public void load() {
-    if (mLoadTemplateURL != null && mLoadTemplateData != null) {
-      TemplateData old_data = mLoadTemplateData;
-      mLoadTemplateData = mLoadTemplateData.deepClone();
-      old_data.recycle();
-      if (null != mSourceURL) {
-        LynxEnv.inst().getTemplateProvider().loadTemplate(
-            mSourceURL, new AbsTemplateProvider.Callback() {
-              @Override
-              public void onSuccess(byte[] template) {
-                mLynxView.renderTemplateWithBaseUrl(template, mLoadTemplateData, mLoadTemplateURL);
-              }
+    if (mCreateWhenReload) {
+      create();
+    } else {
+      if (mLoadTemplateURL != null && mLoadTemplateData != null) {
+        TemplateData old_data = mLoadTemplateData;
+        mLoadTemplateData = mLoadTemplateData.deepClone();
+        old_data.recycle();
+        if (null != mSourceURL) {
+          LynxEnv.inst().getTemplateProvider().loadTemplate(
+              mSourceURL, new AbsTemplateProvider.Callback() {
+                @Override
+                public void onSuccess(byte[] template) {
+                  mLynxView.renderTemplateWithBaseUrl(
+                      template, mLoadTemplateData, mLoadTemplateURL);
+                }
 
-              @Override
-              public void onFailed(String msg) {
-                Log.e(TAG, "Load source template js fail!");
-              }
-            });
-      } else {
-        mLynxView.renderTemplateWithBaseUrl(templateSource, mLoadTemplateData, mLoadTemplateURL);
+                @Override
+                public void onFailed(String msg) {
+                  Log.e(TAG, "Load source template js fail!");
+                }
+              });
+        } else {
+          mLynxView.renderTemplateWithBaseUrl(templateSource, mLoadTemplateData, mLoadTemplateURL);
+        }
       }
     }
   }

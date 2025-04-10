@@ -30,7 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)startWithUrl:(NSString *)url
               inView:(UIView *)parentView
           withOrigin:(CGPoint)point
-           stateView:(TestBenchStateReplayView *)stateView
         replayConfig:(TestBenchReplayConfig *)replayConfig;
 - (void)reload;
 - (void)reloadAction;

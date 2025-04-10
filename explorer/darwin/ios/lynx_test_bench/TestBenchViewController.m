@@ -16,7 +16,6 @@
 @property LynxView *lynxView;
 @property LynxGroup *group;
 @property TestBenchActionManager *manager;
-@property TestBenchStateReplayView *stateView;
 @property NSArray *pages;
 @property NSMutableArray *pageInstances;
 @property UIScrollView *scrollContainer;
@@ -149,12 +148,9 @@
 }
 
 - (void)createArkActionManager {
-  _stateView = [[TestBenchStateReplayView alloc] init];
-  [self.view addSubview:_stateView];
   [_manager startWithUrl:_url
                   inView:self.view
               withOrigin:CGPointMake(0, 0)
-               stateView:_stateView
             replayConfig:[[TestBenchReplayConfig alloc] initWithProductUrl:_url]];
 }
 

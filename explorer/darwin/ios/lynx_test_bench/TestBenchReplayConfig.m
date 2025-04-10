@@ -26,6 +26,9 @@
     _enableAirStrictMode = [TestBenchURLAnalyzer getQueryBooleanParameter:baseURL
                                                                    forKey:@"enableAirStrict"
                                                              defaultValue:NO];
+    _createWhenReload = [TestBenchURLAnalyzer getQueryBooleanParameter:baseURL
+                                                                forKey:@"createWhenReload"
+                                                          defaultValue:NO];
 
     NSString* threadModeStr = [TestBenchURLAnalyzer getQueryStringParameter:baseURL
                                                                      forKey:@"thread_mode"];

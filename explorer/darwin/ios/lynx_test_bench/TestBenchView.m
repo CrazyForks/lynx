@@ -10,7 +10,6 @@
 @interface TestBenchView ()
 
 @property TestBenchActionManager *actionManager;
-@property TestBenchStateReplayView *stateView;
 @property __weak UIScrollView *scrollContainer;
 
 @end
@@ -52,16 +51,13 @@
 - (void)loadPageWithPoint:(NSString *)url
                     point:(CGPoint)point
           scrollContainer:(nonnull UIScrollView *)scrollContainer {
-  _stateView = [[TestBenchStateReplayView alloc] init];
   _scrollContainer = scrollContainer;
   CGRect frame = self.frame;
   frame.origin = point;
   self.frame = frame;
-  [self addSubview:_stateView];
   [_actionManager startWithUrl:url
                         inView:self
                     withOrigin:CGPointMake(0, 0)
-                     stateView:_stateView
                   replayConfig:[[TestBenchReplayConfig alloc] initWithProductUrl:url]];
 }
 
