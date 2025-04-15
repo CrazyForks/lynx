@@ -168,6 +168,16 @@ void ComponentElement::MarkHasLayoutOnlyPropsIfNecessary(
   }
 }
 
+void ComponentElement::MarkAsWrapperComponent() {
+  // MarkAsWrapperComponent can only be called before creating ComponentElement
+  // and resolving it. It does not support dynamic switching between wrapper and
+  // non-wrapper ComponentElement.
+  if (dirty_ & kDirtyCreated) {
+    is_layout_only_ = true;
+    is_wrapper_component_ = true;
+  }
+}
+
 bool ComponentElement::CanBeLayoutOnly() const {
   return enable_component_layout_only_ && FiberElement::CanBeLayoutOnly();
 }

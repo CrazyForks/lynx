@@ -4634,6 +4634,12 @@ RENDERER_FUNCTION_CC(FiberUpdateComponentInfo) {
       // corresponding to `cssID` will not change to avoid causing a break.
       fml::static_ref_ptr_cast<ComponentElement>(component)->SetComponentCSSID(
           value.Number());
+    } else if (key_str == kElementConfig) {
+      if (value.GetProperty(BASE_STATIC_STRING(kRemoveComponentElement))
+              .IsTrue()) {
+        component->MarkAsWrapperComponent();
+      }
+      component->SetConfig(value.ToLepusValue());
     }
   });
   RETURN_UNDEFINED();

@@ -59,10 +59,7 @@ class ComponentElement : public WrapperElement, public BaseComponent {
 
   void set_component_entry(const base::String& entry) { entry_name_ = entry; }
 
-  void MarkAsWrapperComponent() {
-    is_layout_only_ = true;
-    is_wrapper_component_ = true;
-  }
+  void MarkAsWrapperComponent();
 
   virtual bool CanBeLayoutOnly() const override;
 
