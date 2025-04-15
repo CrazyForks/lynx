@@ -1035,6 +1035,13 @@ bool TouchEventHandler::HandleEventInternal(
   if (manager->GetGlobalBindElementIds(event_name).size() > 0) {
     for (const auto &id : manager->GetGlobalBindElementIds(event_name)) {
       Element *cur_target = node_manager_->Get(id);
+      if (cur_target == nullptr) {
+        LOGI(
+            "TouchEventHandler::HandleEventInternal global bind current target "
+            "is null, id is "
+            << id);
+        continue;
+      }
       auto set = cur_target->GlobalBindTarget();
       if (set.empty()) {
         // if set is empty, means the target is all other elements

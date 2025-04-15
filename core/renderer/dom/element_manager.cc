@@ -944,9 +944,6 @@ void ElementManager::SetGlobalBindElementId(const base::String &name,
 
 void ElementManager::EraseGlobalBindElementId(const EventMap &global_event_map,
                                               const int node_id) {
-  if (global_event_map.empty()) {
-    return;
-  }
   auto &map = global_bind_name_to_ids_;
   for ([[maybe_unused]] auto &[key, event] : map) {
     event.erase(node_id);
