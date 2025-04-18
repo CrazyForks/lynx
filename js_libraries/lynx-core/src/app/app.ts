@@ -45,6 +45,7 @@ import { CachedFunctionProxy } from '../util/cachedFunctionProxy';
 import { getPromiseMaybePolyfill } from '../util/setup-promise';
 import { createResponseClass, createRequestClass } from '../modules/fetch';
 import { MessageEventType, MessageEvent } from '../lynx';
+import { TraceEventDef } from '../util/TraceEventDef';
 
 export abstract class BaseApp<
   NativeAppProxy extends NativeApp = NativeApp,
@@ -464,7 +465,7 @@ export abstract class BaseApp<
       );
     }
     try {
-      this.lynx.performance.profileStart('executeLoadedScript', {
+      this.lynx.performance.profileStart(TraceEventDef.EXECUTE_LOADED_SCRIPT, {
         args: { path },
       });
       const ret = factory<T>({ tt: this });
