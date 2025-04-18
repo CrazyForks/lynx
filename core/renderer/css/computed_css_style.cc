@@ -12,6 +12,7 @@
 #include "base/include/debug/lynx_assert.h"
 #include "base/include/string/string_number_convert.h"
 #include "base/include/string/string_utils.h"
+#include "base/include/vector.h"
 #include "core/build/gen/lynx_sub_error_code.h"
 #include "core/renderer/css/css_debug_msg.h"
 #include "core/renderer/css/css_style_utils.h"
@@ -114,7 +115,7 @@ bool CalculateCSSValueToFloat(const tasm::CSSValue& value, float& result,
   return true;
 }
 
-lepus::Value ShadowDataToLepus(std::vector<ShadowData> shadows) {
+lepus::Value ShadowDataToLepus(const base::Vector<ShadowData>& shadows) {
   auto group = lepus::CArray::Create();
   for (const auto& shadow_data : shadows) {
     auto item = lepus::CArray::Create();
@@ -207,7 +208,7 @@ lepus_value LayoutAnimationTimingFunctionToLepusHelper(
   return lepus_value(std::move(array));
 }
 
-bool SetBackgroundOrMaskImage(std::optional<BackgroundData>& data,
+bool SetBackgroundOrMaskImage(base::flex_optional<BackgroundData>& data,
                               const tasm::CSSValue& value, bool reset) {
   CSSStyleUtils::PrepareOptional(data);
   auto old_value = data->image;
@@ -229,7 +230,7 @@ bool SetBackgroundOrMaskImage(std::optional<BackgroundData>& data,
   return old_value != data->image;
 }
 
-bool SetBackgroundOrMaskPosition(std::optional<BackgroundData>& data,
+bool SetBackgroundOrMaskPosition(base::flex_optional<BackgroundData>& data,
                                  const tasm::CssMeasureContext& context,
                                  const tasm::CSSParserConfigs& configs,
                                  const tasm::CSSValue& value, bool reset) {
@@ -289,7 +290,7 @@ bool SetBackgroundOrMaskPosition(std::optional<BackgroundData>& data,
   return old_value != data->position;
 }
 
-bool SetBackgroundOrMaskSize(std::optional<BackgroundData>& data,
+bool SetBackgroundOrMaskSize(base::flex_optional<BackgroundData>& data,
                              const tasm::CssMeasureContext& context,
                              const tasm::CSSParserConfigs& configs,
                              const tasm::CSSValue& value, bool reset) {
@@ -322,7 +323,7 @@ bool SetBackgroundOrMaskSize(std::optional<BackgroundData>& data,
   return old_value != data->size;
 }
 
-bool SetBackgroundOrMaskClip(std::optional<BackgroundData>& data,
+bool SetBackgroundOrMaskClip(base::flex_optional<BackgroundData>& data,
                              const tasm::CSSValue& value, bool reset) {
   CSSStyleUtils::PrepareOptional(data);
   auto old_value = data->clip;
@@ -340,7 +341,7 @@ bool SetBackgroundOrMaskClip(std::optional<BackgroundData>& data,
   return old_value != data->clip;
 }
 
-bool SetBackgroundOrMaskOrigin(std::optional<BackgroundData>& data,
+bool SetBackgroundOrMaskOrigin(base::flex_optional<BackgroundData>& data,
                                const tasm::CSSValue& value, const bool reset) {
   CSSStyleUtils::PrepareOptional(data);
   auto old_value = data->origin;
@@ -358,7 +359,7 @@ bool SetBackgroundOrMaskOrigin(std::optional<BackgroundData>& data,
   return old_value != data->origin;
 }
 
-bool SetBackgroundOrMaskRepeat(std::optional<BackgroundData>& data,
+bool SetBackgroundOrMaskRepeat(base::flex_optional<BackgroundData>& data,
                                const tasm::CSSValue& value, const bool reset) {
   CSSStyleUtils::PrepareOptional(data);
   auto old_value = data->repeat;
@@ -383,7 +384,7 @@ bool SetBackgroundOrMaskRepeat(std::optional<BackgroundData>& data,
 }  // namespace
 
 lepus::Value ComputedCSSStyleUtilsMethod::BackgroundOrMaskClipToLepus(
-    const std::optional<BackgroundData>& data) {
+    const base::flex_optional<BackgroundData>& data) {
   if (data && !data->clip.empty()) {
     auto array = lepus::CArray::Create();
     for (const auto& clip : data->clip) {
@@ -396,7 +397,7 @@ lepus::Value ComputedCSSStyleUtilsMethod::BackgroundOrMaskClipToLepus(
 }
 
 lepus::Value ComputedCSSStyleUtilsMethod::BackgroundOrMaskImageToLepus(
-    const std::optional<BackgroundData>& data,
+    const base::flex_optional<BackgroundData>& data,
     const tasm::CssMeasureContext& context,
     const tasm::CSSParserConfigs& configs) {
   if (data && data->image.IsArray()) {
@@ -421,7 +422,7 @@ lepus::Value ComputedCSSStyleUtilsMethod::BackgroundOrMaskImageToLepus(
 }
 
 lepus::Value ComputedCSSStyleUtilsMethod::BackgroundOrMaskOriginToLepus(
-    const std::optional<BackgroundData>& data) {
+    const base::flex_optional<BackgroundData>& data) {
   if (data && !data->origin.empty()) {
     auto array = lepus::CArray::Create();
     for (const auto& origin : data->origin) {
@@ -434,7 +435,7 @@ lepus::Value ComputedCSSStyleUtilsMethod::BackgroundOrMaskOriginToLepus(
 }
 
 lepus::Value ComputedCSSStyleUtilsMethod::BackgroundOrMaskPositionToLepus(
-    const std::optional<BackgroundData>& data) {
+    const base::flex_optional<BackgroundData>& data) {
   if (data && !data->position.empty()) {
     auto array = lepus::CArray::Create();
     for (const auto& pos : data->position) {
@@ -446,7 +447,7 @@ lepus::Value ComputedCSSStyleUtilsMethod::BackgroundOrMaskPositionToLepus(
 }
 
 lepus::Value ComputedCSSStyleUtilsMethod::BackgroundOrMaskRepeatToLepus(
-    const std::optional<BackgroundData>& data) {
+    const base::flex_optional<BackgroundData>& data) {
   if (data && !data->repeat.empty()) {
     auto array = lepus::CArray::Create();
     for (const auto& repeat : data->repeat) {
@@ -459,7 +460,7 @@ lepus::Value ComputedCSSStyleUtilsMethod::BackgroundOrMaskRepeatToLepus(
 }
 
 lepus::Value ComputedCSSStyleUtilsMethod::BackgroundOrMaskSizeToLepus(
-    const std::optional<BackgroundData>& data) {
+    const base::flex_optional<BackgroundData>& data) {
   if (data && !data->size.empty()) {
     auto array = lepus::CArray::Create();
     for (const auto& size : data->size) {
@@ -1530,7 +1531,7 @@ bool ComputedCSSStyle::SetXAutoFontSizePresetSizes(const tasm::CSSValue& value,
                                 .c_str(),
                             arr->size())
 
-    std::vector<float> dest;
+    base::InlineVector<float, 4> dest;
     for (size_t i = 0; i < arr->size() / 2; i++) {
       float preset_size;
       if (UNLIKELY(!CalculateCSSValueToFloat(
@@ -1656,7 +1657,7 @@ bool ComputedCSSStyle::SetAnimation(const tasm::CSSValue& value,
         tasm::ARRAY_OR_MAP_TYPE)
 
     if (!animation_data_) {
-      animation_data_ = std::vector<AnimationData>();
+      animation_data_.emplace();
     }
     animation_data_->clear();
     if (value.IsArray()) {
@@ -1911,7 +1912,7 @@ bool ComputedCSSStyle::SetTransition(const tasm::CSSValue& value,
         tasm::ARRAY_TYPE)
 
     if (!transition_data_) {
-      transition_data_ = std::vector<TransitionData>();
+      transition_data_.emplace();
     }
     transition_data_->clear();
     auto group = value.GetValue().Array();

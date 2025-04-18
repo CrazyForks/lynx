@@ -26,7 +26,7 @@ class CSSTransitionManager : public CSSKeyframeManager {
   ~CSSTransitionManager() = default;
 
   void setTransitionData(
-      std::vector<starlight::TransitionData>& transition_data);
+      const base::Vector<starlight::TransitionData>& transition_data);
 
   tasm::CSSKeyframesContent& GetKeyframesStyleMap(
       const std::string& animation_name) override;

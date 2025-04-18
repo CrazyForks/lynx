@@ -58,7 +58,7 @@ class CSSKeyframeManager : public AnimationDelegate {
   ~CSSKeyframeManager() = default;
 
   void SetAnimationDataAndPlay(
-      std::vector<starlight::AnimationData>& anim_data);
+      base::Vector<starlight::AnimationData>& anim_data);
 
   virtual void TickAllAnimation(fml::TimePoint& time);
 
@@ -99,7 +99,7 @@ class CSSKeyframeManager : public AnimationDelegate {
  protected:
   std::shared_ptr<Animation> CreateAnimation(starlight::AnimationData& data);
 
-  std::vector<starlight::AnimationData> animation_data_;
+  base::InlineVector<starlight::AnimationData, 1> animation_data_;
   // animations of css style
   std::unordered_map<base::String, std::shared_ptr<Animation>> animations_map_;
   // save active animations for play and clear

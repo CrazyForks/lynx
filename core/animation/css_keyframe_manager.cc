@@ -143,7 +143,7 @@ void CSSKeyframeManager::TickAllAnimation(fml::TimePoint& frame_time) {
 }
 
 void CSSKeyframeManager::SetAnimationDataAndPlay(
-    std::vector<starlight::AnimationData>& anim_data) {
+    base::Vector<starlight::AnimationData>& anim_data) {
   if (anim_data.size() == animation_data_.size() &&
       std::equal(anim_data.begin(), anim_data.end(), animation_data_.begin())) {
     return;

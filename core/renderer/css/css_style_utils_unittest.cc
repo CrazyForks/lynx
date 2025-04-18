@@ -14,7 +14,7 @@ TEST(CssStyleUtils, ComputeFilter) {
   ComputedCSSStyle computedCssStyle(1.f, 1.f);
   tasm::CSSParserConfigs configs;
   tasm::CssMeasureContext length_context = computedCssStyle.GetMeasureContext();
-  std::optional<FilterData> output;
+  base::flex_optional<FilterData> output;
   auto arr = lepus::CArray::Create();
   bool ret = false;
   // CSSValue to data

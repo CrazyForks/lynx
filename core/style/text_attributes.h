@@ -8,6 +8,8 @@
 #include <tuple>
 #include <vector>
 
+#include "base/include/flex_optional.h"
+#include "base/include/vector.h"
 #include "core/renderer/starlight/style/css_type.h"
 #include "core/renderer/starlight/types/nlength.h"
 #include "core/runtime/vm/lepus/lepus_value.h"
@@ -70,7 +72,7 @@ class TextAttributes {
   uint32_t text_decoration_style;
   float text_stroke_width;
   unsigned int text_stroke_color;
-  std::optional<std::vector<ShadowData>> text_shadow;
+  base::flex_optional<base::InlineVector<ShadowData, 1>> text_shadow;
   starlight::VerticalAlignType vertical_align;
   double vertical_align_length;
   NLength text_indent;
@@ -78,7 +80,7 @@ class TextAttributes {
   float auto_font_size_min_size;
   float auto_font_size_max_size;
   float auto_font_size_step_granularity;
-  std::optional<std::vector<float>> auto_font_size_preset_sizes;
+  base::flex_optional<base::InlineVector<float, 4>> auto_font_size_preset_sizes;
   starlight::HyphensType hyphens;
 
   void Reset() {}

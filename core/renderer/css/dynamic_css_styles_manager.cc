@@ -346,7 +346,7 @@ void DynamicCSSStylesManager::ApplyFontSizeUpdateResolvingData(
   const auto& lynx_env = element_->element_manager()->GetLynxEnvConfig();
   if (!font_size_.IsEmpty()) {
     if (font_size_need_update_ || (current_updates & font_size_flags_)) {
-      std::optional<float> resolved_font_size;
+      base::flex_optional<float> resolved_font_size;
       auto& configs = element_->element_manager()->GetCSSParserConfigs();
       const auto& vw_base =
           configs_.unify_vw_vh_behavior_

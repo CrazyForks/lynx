@@ -28,7 +28,7 @@ class MockCSSTransitionManager : public CSSTransitionManager {
     return transition_data_;
   }
 
-  std::vector<starlight::AnimationData>& animation_data() {
+  base::Vector<starlight::AnimationData>& animation_data() {
     return animation_data_;
   }
 

@@ -18,13 +18,27 @@ TEST_F(PropBundleStyleWriterTest, TestWriterImpl) {
   PropBundleMock bundle;
   starlight::ComputedCSSStyle style(1, 1);
 
-  style.animation_data_ = std::vector<starlight::AnimationData>();
+  style.animation_data_.emplace();
   style.animation_data_->push_back(starlight::AnimationData());
 
-  style.enter_transition_data_ = starlight::AnimationData();
-  style.exit_transition_data_ = starlight::AnimationData();
-  style.pause_transition_data_ = starlight::AnimationData();
-  style.resume_transition_data_ = starlight::AnimationData();
+  style.transform_origin_.emplace();
+  style.layout_animation_data_.emplace();
+  style.enter_transition_data_.emplace();
+  style.exit_transition_data_.emplace();
+  style.pause_transition_data_.emplace();
+  style.resume_transition_data_.emplace();
+  style.background_data_.emplace();
+  style.mask_data_.emplace();
+  style.layout_animation_data_.emplace();
+  style.outline_.emplace();
+  style.transform_raw_.emplace();
+  style.transition_data_.emplace();
+  style.box_shadow_.emplace();
+  style.text_attributes_.emplace(0);
+  style.transform_origin_.emplace();
+  style.filter_.emplace();
+  style.perspective_data_.emplace();
+  style.cursor_.emplace();
 
 #define CALL_STYLE_WRITER(name) \
   PropBundleStyleWriter::Write##name(&bundle, &style);

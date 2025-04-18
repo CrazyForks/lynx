@@ -12,7 +12,9 @@
 #include <unordered_map>
 #include <vector>
 
+#include "base/include/flex_optional.h"
 #include "base/include/string/string_utils.h"
+#include "base/include/vector.h"
 #include "core/renderer/css/css_property.h"
 #include "core/renderer/css/css_style_utils.h"
 #include "core/renderer/css/measure_context.h"
@@ -50,19 +52,19 @@ namespace starlight {
 class ComputedCSSStyleUtilsMethod {
  public:
   static lepus::Value BackgroundOrMaskClipToLepus(
-      const std::optional<starlight::BackgroundData>& data);
+      const base::flex_optional<starlight::BackgroundData>& data);
   static lepus::Value BackgroundOrMaskImageToLepus(
-      const std::optional<BackgroundData>& data,
+      const base::flex_optional<BackgroundData>& data,
       const tasm::CssMeasureContext& context,
       const tasm::CSSParserConfigs& configs);
   static lepus::Value BackgroundOrMaskOriginToLepus(
-      const std::optional<BackgroundData>& data);
+      const base::flex_optional<BackgroundData>& data);
   static lepus::Value BackgroundOrMaskPositionToLepus(
-      const std::optional<BackgroundData>& data);
+      const base::flex_optional<BackgroundData>& data);
   static lepus::Value BackgroundOrMaskRepeatToLepus(
-      const std::optional<BackgroundData>& data);
+      const base::flex_optional<BackgroundData>& data);
   static lepus::Value BackgroundOrMaskSizeToLepus(
-      const std::optional<BackgroundData>& data);
+      const base::flex_optional<BackgroundData>& data);
 };
 
 class ComputedCSSStyle {
@@ -133,7 +135,7 @@ class ComputedCSSStyle {
 
   bool HasAnimation() const { return animation_data_.has_value(); }
 
-  std::vector<AnimationData>& animation_data() {
+  base::Vector<AnimationData>& animation_data() {
     CSSStyleUtils::PrepareOptional(animation_data_);
     return *animation_data_;
   }
@@ -164,7 +166,7 @@ class ComputedCSSStyle {
                 ->radius_y_bottom_left.GetRawValue()) > 0;
   }
 
-  std::vector<TransitionData>& transition_data() {
+  base::Vector<TransitionData>& transition_data() {
     CSSStyleUtils::PrepareOptional(transition_data_);
     return *transition_data_;
   }
@@ -193,69 +195,61 @@ class ComputedCSSStyle {
 
   OverflowType GetOverflowY() const { return overflow_y_; }
 
-  std::optional<TextAttributes>& GetTextAttributes() {
+  base::flex_optional<TextAttributes>& GetTextAttributes() {
     return text_attributes_;
   }
 
-  std::optional<BackgroundData>& GetBackgroundData() {
+  base::flex_optional<BackgroundData>& GetBackgroundData() {
     return background_data_;
   }
 
-  std::optional<FilterData>& GetFilterData() { return filter_; }
+  base::flex_optional<FilterData>& GetFilterData() { return filter_; }
 
-  std::optional<BackgroundData>& GetMaskData() { return mask_data_; }
+  base::flex_optional<BackgroundData>& GetMaskData() { return mask_data_; }
 
-  std::optional<std::vector<TransformRawData>>& GetTransformData() {
-    return transform_raw_;
-  }
+  auto& GetTransformData() { return transform_raw_; }
 
-  std::optional<TransformOriginData>& GetTransformOriginData() {
+  base::flex_optional<TransformOriginData>& GetTransformOriginData() {
     return transform_origin_;
   }
 
-  std::optional<std::vector<AnimationData>>& GetAnimationData() {
-    return animation_data_;
-  }
+  auto& GetAnimationData() { return animation_data_; }
 
-  std::optional<LayoutAnimationData>& GetLayoutAnimationData() {
+  base::flex_optional<LayoutAnimationData>& GetLayoutAnimationData() {
     return layout_animation_data_;
   }
 
-  std::optional<std::vector<TransitionData>>& GetTransitionData() {
-    return transition_data_;
-  }
+  auto& GetTransitionData() { return transition_data_; }
 
-  std::optional<AnimationData>& GetEnterTransitionData() {
+  base::flex_optional<AnimationData>& GetEnterTransitionData() {
     return enter_transition_data_;
   }
 
-  std::optional<AnimationData>& GetExitTransitionData() {
+  base::flex_optional<AnimationData>& GetExitTransitionData() {
     return exit_transition_data_;
   }
 
-  std::optional<AnimationData>& GetPauseTransitionData() {
+  base::flex_optional<AnimationData>& GetPauseTransitionData() {
     return pause_transition_data_;
   }
 
-  std::optional<AnimationData>& GetResumeTransitionData() {
+  base::flex_optional<AnimationData>& GetResumeTransitionData() {
     return resume_transition_data_;
   }
 
   VisibilityType GetVisibilityData() { return visibility_; }
 
-  std::optional<OutLineData>& GetOutLineData() { return outline_; }
+  base::flex_optional<OutLineData>& GetOutLineData() { return outline_; }
 
-  std::optional<std::vector<ShadowData>>& GetBoxShadowData() {
-    return box_shadow_;
-  }
+  auto& GetBoxShadowData() { return box_shadow_; }
 
   base::String& GetCaretColor() { return caret_color_; }
 
-  std::optional<PerspectiveData>& GetPerspectiveData() {
+  base::flex_optional<PerspectiveData>& GetPerspectiveData() {
     return perspective_data_;
   }
 
-  std::optional<lepus::Value>& GetCursor() { return cursor_; }
+  base::flex_optional<lepus::Value>& GetCursor() { return cursor_; }
 
   fml::RefPtr<lepus::CArray>& GetClipPath() { return clip_path_; }
 
@@ -318,24 +312,24 @@ class ComputedCSSStyle {
   OverflowType overflow_y_{DefaultComputedStyle::DEFAULT_OVERFLOW};
   VisibilityType visibility_{DefaultComputedStyle::DEFAULT_VISIBILITY};
 
-  std::optional<AnimationData> enter_transition_data_;
-  std::optional<AnimationData> exit_transition_data_;
-  std::optional<AnimationData> pause_transition_data_;
-  std::optional<AnimationData> resume_transition_data_;
-  std::optional<BackgroundData> background_data_;
-  std::optional<BackgroundData> mask_data_;
-  std::optional<LayoutAnimationData> layout_animation_data_;
-  std::optional<OutLineData> outline_;
-  std::optional<std::vector<AnimationData>> animation_data_;
-  std::optional<std::vector<TransformRawData>> transform_raw_;
-  std::optional<std::vector<TransitionData>> transition_data_;
-  std::optional<std::vector<ShadowData>> box_shadow_;
-  std::optional<TextAttributes> text_attributes_;
-  std::optional<TransformOriginData> transform_origin_;
-  std::optional<FilterData> filter_;
-  std::optional<PerspectiveData> perspective_data_;
+  base::flex_optional<AnimationData> enter_transition_data_;
+  base::flex_optional<AnimationData> exit_transition_data_;
+  base::flex_optional<AnimationData> pause_transition_data_;
+  base::flex_optional<AnimationData> resume_transition_data_;
+  base::flex_optional<BackgroundData> background_data_;
+  base::flex_optional<BackgroundData> mask_data_;
+  base::flex_optional<LayoutAnimationData> layout_animation_data_;
+  base::flex_optional<OutLineData> outline_;
+  base::flex_optional<base::InlineVector<AnimationData, 1>> animation_data_;
+  base::flex_optional<base::InlineVector<TransformRawData, 1>> transform_raw_;
+  base::flex_optional<base::InlineVector<TransitionData, 1>> transition_data_;
+  base::flex_optional<base::InlineVector<ShadowData, 1>> box_shadow_;
+  base::flex_optional<TextAttributes> text_attributes_;
+  base::flex_optional<TransformOriginData> transform_origin_;
+  base::flex_optional<FilterData> filter_;
+  base::flex_optional<PerspectiveData> perspective_data_;
   // [type, [url, x, y], type, keyword ]
-  std::optional<lepus_value> cursor_;
+  base::flex_optional<lepus_value> cursor_;
   // clip-path array [type, args..]
   fml::RefPtr<lepus::CArray> clip_path_{nullptr};
   ImageRenderingType image_rendering_ = ImageRenderingType::kAuto;

@@ -112,7 +112,7 @@ std::string ConvertAnimationPropertyTypeToString(
 }
 
 void CSSTransitionManager::setTransitionData(
-    std::vector<starlight::TransitionData>& transition_data) {
+    const base::Vector<starlight::TransitionData>& transition_data) {
   transition_data_.clear();
   property_types_.clear();
   std::unordered_map<base::String, std::shared_ptr<Animation>>

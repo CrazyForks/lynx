@@ -83,7 +83,7 @@ class CSSTransitionManagerTest : public ::testing::Test {
 TEST_F(CSSTransitionManagerTest, setTransitionData) {
   auto test_element = InitElement();
   auto test_manager = InitTestTransitionManager(test_element.get());
-  std::vector<starlight::TransitionData> transition_data;
+  base::Vector<starlight::TransitionData> transition_data;
   transition_data.emplace_back(
       InitTransitionData(starlight::AnimationPropertyType::kOpacity, 2000, 100,
                          starlight::TimingFunctionData()));
@@ -132,7 +132,7 @@ TEST_F(CSSTransitionManagerTest, setTransitionData) {
 TEST_F(CSSTransitionManagerTest, NoNeedUpdateExistingAnimator) {
   auto test_element = InitElement();
   auto test_manager = InitTestTransitionManager(test_element.get());
-  std::vector<starlight::TransitionData> transition_data;
+  base::Vector<starlight::TransitionData> transition_data;
   transition_data.emplace_back(
       InitTransitionData(starlight::AnimationPropertyType::kOpacity, 2000, 0,
                          starlight::TimingFunctionData()));
@@ -171,7 +171,7 @@ TEST_F(CSSTransitionManagerTest, NoNeedUpdateExistingAnimator) {
 TEST_F(CSSTransitionManagerTest, HasTwoSameAnimation) {
   auto test_element = InitElement();
   auto test_manager = InitTestTransitionManager(test_element.get());
-  std::vector<starlight::TransitionData> transition_data;
+  base::Vector<starlight::TransitionData> transition_data;
   transition_data.emplace_back(
       InitTransitionData(starlight::AnimationPropertyType::kOpacity, 2000, 0,
                          starlight::TimingFunctionData()));
@@ -209,7 +209,7 @@ TEST_F(CSSTransitionManagerTest, ClearEffect) {
     // #1
     auto test_element = InitElement();
     auto test_manager = InitTestTransitionManager(test_element.get());
-    std::vector<starlight::TransitionData> transition_data;
+    base::Vector<starlight::TransitionData> transition_data;
     transition_data.emplace_back(
         InitTransitionData(starlight::AnimationPropertyType::kOpacity, 2000, 0,
                            starlight::TimingFunctionData()));
@@ -230,7 +230,7 @@ TEST_F(CSSTransitionManagerTest, ClearEffect) {
     // #2
     auto test_element = InitElement();
     auto test_manager = InitTestTransitionManager(test_element.get());
-    std::vector<starlight::TransitionData> transition_data;
+    base::Vector<starlight::TransitionData> transition_data;
     transition_data.emplace_back(
         InitTransitionData(starlight::AnimationPropertyType::kOpacity, 2000, 0,
                            starlight::TimingFunctionData()));
@@ -256,7 +256,7 @@ TEST_F(CSSTransitionManagerTest, ClearEffect) {
     // #3
     auto test_element = InitElement();
     auto test_manager = InitTestTransitionManager(test_element.get());
-    std::vector<starlight::TransitionData> transition_data;
+    base::Vector<starlight::TransitionData> transition_data;
     transition_data.emplace_back(
         InitTransitionData(starlight::AnimationPropertyType::kLeft, 2000, 0,
                            starlight::TimingFunctionData()));

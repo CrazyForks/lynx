@@ -5,6 +5,7 @@
 #include "core/renderer/css/css_style_utils.h"
 
 #include <cmath>
+#include <vector>
 
 #include "base/include/compiler_specific.h"
 #include "base/include/debug/lynx_assert.h"
@@ -312,8 +313,6 @@ std::pair<NLength, bool> TryMakeCalcNLength(
     return std::pair<NLength, bool>(NLength::MakeAutoNLength(), false);
   }
 
-  std::optional<NLength> calc_length;
-
   // FIXME(zhixuan): calc(0%) should behave differrent from calc(0)
   if (!base::FloatsEqual(data_stack.top().per_value, 0.0f)) {
     return std::pair<NLength, bool>(
@@ -448,7 +447,7 @@ std::pair<NLength, bool> CSSStyleUtils::ToLength(
   }
 }
 
-std::optional<float> CSSStyleUtils::ResolveFontSize(
+base::flex_optional<float> CSSStyleUtils::ResolveFontSize(
     const tasm::CSSValue& value, const tasm::LynxEnvConfig& env_config,
     const starlight::LayoutUnit& vw_base, const starlight::LayoutUnit& vh_base,
     double cur_node_font_size, double root_node_font_size,
@@ -459,7 +458,7 @@ std::optional<float> CSSStyleUtils::ResolveFontSize(
   css_context.viewport_height_ = vh_base;
   css_context.font_scale_sp_only_ = env_config.FontScaleSpOnly();
 
-  std::optional<float> result;
+  base::flex_optional<float> result;
   const auto resolved_result = ToLength(value, css_context, configs, true);
 
   if (resolved_result.second) {
@@ -498,11 +497,11 @@ lepus::Value CSSStyleUtils::ResolveCSSKeyframesStyle(
       dict->SetValue(tasm::CSSProperty::GetPropertyName(key), opacity);
     } else if (key == tasm::kPropertyIDTransform) {
       // transform
-      std::optional<std::vector<TransformRawData>> raw =
-          std::vector<TransformRawData>();
+      auto raw =
+          base::make_flex_optional(base::InlineVector<TransformRawData, 1>());
       ComputeTransform(value, false, raw, context, configs);
       dict->SetValue(tasm::CSSProperty::GetPropertyName(key),
-                     TransformToLepus(raw));
+                     TransformToLepus(*raw));
     } else if (key == tasm::kPropertyIDLeft || key == tasm::kPropertyIDTop ||
                key == tasm::kPropertyIDWidth ||
                key == tasm::kPropertyIDHeight) {
@@ -739,7 +738,7 @@ void GetLengthData(NLength& length, const lepus_value& value,
 }
 
 bool CSSStyleUtils::ComputeFilter(const tasm::CSSValue& value, bool reset,
-                                  std::optional<FilterData>& filter,
+                                  base::flex_optional<FilterData>& filter,
                                   const tasm::CssMeasureContext context,
                                   const tasm::CSSParserConfigs& configs) {
   auto last_filter = filter;
@@ -815,7 +814,7 @@ void GetTransformMatrix(TransformType matrix_type,
 
 bool CSSStyleUtils::ComputeTransform(
     const tasm::CSSValue& value, bool reset,
-    std::optional<std::vector<TransformRawData>>& raw,
+    base::flex_optional<base::InlineVector<TransformRawData, 1>>& raw,
     const tasm::CssMeasureContext& context,
     const tasm::CSSParserConfigs& configs) {
   auto old_raw = raw;
@@ -939,7 +938,8 @@ bool CSSStyleUtils::ComputeTransform(
 /// - Returns: A lepus array, [int, double, int], indicates [FilterType, Amount,
 /// Unit]. Empty if `filter` is nullopt, which typically occurs when the value
 /// is reset.
-lepus_value CSSStyleUtils::FilterToLepus(std::optional<FilterData> filter) {
+lepus_value CSSStyleUtils::FilterToLepus(
+    const base::flex_optional<FilterData>& filter) {
   auto result = lepus::CArray::Create();
   if (filter) {
     result->emplace_back(static_cast<int>(filter->type));
@@ -950,9 +950,9 @@ lepus_value CSSStyleUtils::FilterToLepus(std::optional<FilterData> filter) {
 }
 
 lepus_value CSSStyleUtils::TransformToLepus(
-    std::optional<std::vector<TransformRawData>> transform_raw) {
+    const base::Vector<TransformRawData>& transform_raw) {
   auto items = lepus::CArray::Create();
-  for (auto& tr : *transform_raw) {
+  for (const auto& tr : transform_raw) {
     auto item = lepus::CArray::Create();
     item->emplace_back(static_cast<int>(tr.type));
     if (tr.type == TransformType::kMatrix ||
@@ -1068,7 +1068,7 @@ bool CSSStyleUtils::ComputeLongStyle(const tasm::CSSValue& value,
 
 bool CSSStyleUtils::ComputeHeroAnimation(
     const tasm::CSSValue& value, const bool reset,
-    std::optional<AnimationData>& anim, const char* msg,
+    base::flex_optional<AnimationData>& anim, const char* msg,
     const tasm::CSSParserConfigs& configs) {
   auto old_value = anim ? *anim : DefaultComputedStyle::DEFAULT_ANIMATION();
   if (reset) {
@@ -1165,7 +1165,7 @@ lepus_value CSSStyleUtils::AnimationDataToLepus(AnimationData& anim) {
 
 bool CSSStyleUtils::ComputeShadowStyle(
     const tasm::CSSValue& value, const bool reset,
-    std::optional<std::vector<ShadowData>>& shadow,
+    base::flex_optional<base::InlineVector<ShadowData, 1>>& shadow,
     const tasm::CssMeasureContext& context,
     const tasm::CSSParserConfigs& configs) {
   if (reset) {
@@ -1177,7 +1177,7 @@ bool CSSStyleUtils::ComputeShadowStyle(
   CSS_HANDLER_FAIL_IF_NOT(value.IsArray(), configs.enable_css_strict_mode,
                           "shadow must be an array!")
   auto group = value.GetValue().Array();
-  std::vector<ShadowData> dest;
+  base::InlineVector<ShadowData, 1> dest;
   BASE_STATIC_STRING_DECL(kEnable, "enable");
   for (size_t i = 0; i < group->size(); i++) {
     auto dict = group->get(i).Table();

@@ -2657,7 +2657,7 @@ void FiberElement::ResolveStyleValue(CSSPropertyID id,
 }
 
 void FiberElement::SetFontSize() {
-  std::optional<float> result;
+  base::flex_optional<float> result;
   if (auto it = parsed_styles_map_.find(CSSPropertyID::kPropertyIDFontSize);
       it != parsed_styles_map_.end()) {
     CheckDynamicUnit(CSSPropertyID::kPropertyIDFontSize, it->second, false);

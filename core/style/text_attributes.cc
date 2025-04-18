@@ -65,7 +65,7 @@ void TextAttributes::Apply(const TextAttributes& rhs) {
   word_break = rhs.word_break;
   underline_decoration = rhs.underline_decoration;
   line_through_decoration = rhs.line_through_decoration;
-  text_shadow = rhs.text_shadow ? *rhs.text_shadow : text_shadow;
+  text_shadow = rhs.text_shadow ? rhs.text_shadow : text_shadow;
   vertical_align = rhs.vertical_align;
   vertical_align_length = rhs.vertical_align_length;
   text_indent = rhs.text_indent;

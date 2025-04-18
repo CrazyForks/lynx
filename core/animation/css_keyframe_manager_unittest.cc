@@ -247,7 +247,7 @@ TEST_F(CSSKeyframeManagerTest, GetDefaultValue) {
 TEST_F(CSSKeyframeManagerTest, HasTwoSameAnimation) {
   auto test_element = InitElement();
   auto test_manager = InitTestKeyframeManager(test_element.get());
-  std::vector<starlight::AnimationData> animation_data;
+  base::Vector<starlight::AnimationData> animation_data;
   animation_data.emplace_back(InitAnimationData(
       base::String("test"), 2000, 0, starlight::TimingFunctionData(), 1,
       starlight::AnimationFillModeType::kBoth,
@@ -268,7 +268,7 @@ TEST_F(CSSKeyframeManagerTest, HasTwoSameAnimation) {
 TEST_F(CSSKeyframeManagerTest, ClearEffect) {
   auto test_element = InitElement();
   auto test_manager = InitTestKeyframeManager(test_element.get());
-  std::vector<starlight::AnimationData> animation_data;
+  base::Vector<starlight::AnimationData> animation_data;
   animation_data.emplace_back(InitAnimationData(
       base::String("test"), 2000, 0, starlight::TimingFunctionData(), 1,
       starlight::AnimationFillModeType::kBoth,
@@ -288,7 +288,7 @@ TEST_F(CSSKeyframeManagerTest, ClearEffect) {
 TEST_F(CSSKeyframeManagerTest, DurationZero) {
   auto test_element = InitElement();
   auto test_manager = InitTestKeyframeManager(test_element.get());
-  std::vector<starlight::AnimationData> animation_data;
+  base::Vector<starlight::AnimationData> animation_data;
   animation_data.emplace_back(InitAnimationData(
       base::String("test"), 0, 0, starlight::TimingFunctionData(), 1,
       starlight::AnimationFillModeType::kBoth,

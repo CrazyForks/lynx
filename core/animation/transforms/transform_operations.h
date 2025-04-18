@@ -47,7 +47,7 @@ class TransformOperations {
 
   static void InitializeTransformOperations(
       TransformOperations& transform_operations,
-      std::vector<lynx::starlight::TransformRawData>& transform_raw_data);
+      base::Vector<lynx::starlight::TransformRawData>& transform_raw_data);
 
   // Returns a transformation matrix representing the set of transform
   // operations from index |start| to the end of the list.

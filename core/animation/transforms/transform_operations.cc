@@ -10,18 +10,18 @@
 #define _USE_MATH_DEFINES
 #endif
 
-#include "core/animation/transforms/transform_operations.h"
-
 #include <algorithm>
 #include <cmath>
 #include <utility>
 
 // TODO(wujintian): Remove this include because the actual implementation has no
 // relation with CSSKeyframeManager
+#include "base/include/vector.h"
 #include "core/animation/css_keyframe_manager.h"  // nogncheck
 #include "core/animation/transforms/decomposed_transform.h"
 #include "core/animation/transforms/matrix44.h"
 #include "core/animation/transforms/transform_operation.h"
+#include "core/animation/transforms/transform_operations.h"
 #include "core/renderer/css/css_style_utils.h"
 #include "core/renderer/dom/element_manager.h"
 
@@ -37,7 +37,7 @@ static inline constexpr float RadToDeg(float rad) {
 // type.
 void TransformOperations::InitializeTransformOperations(
     TransformOperations& transform_operations,
-    std::vector<lynx::starlight::TransformRawData>& transform_raw_data) {
+    base::Vector<lynx::starlight::TransformRawData>& transform_raw_data) {
   for (auto& item : transform_raw_data) {
     auto zero_unit_nlength = starlight::NLength::MakeUnitNLength(0.0f);
     switch (item.type) {
@@ -169,8 +169,8 @@ TransformOperations::TransformOperations(tasm::Element* element)
 TransformOperations::TransformOperations(tasm::Element* element,
                                          const tasm::CSSValue& raw_data)
     : element_(element) {
-  std::optional<std::vector<starlight::TransformRawData>> transform_data =
-      std::make_optional<std::vector<starlight::TransformRawData>>();
+  auto transform_data = base::make_flex_optional(
+      base::InlineVector<starlight::TransformRawData, 1>());
   if (!starlight::CSSStyleUtils::ComputeTransform(
           raw_data, false, transform_data,
           animation::CSSKeyframeManager::GetLengthContext(element),

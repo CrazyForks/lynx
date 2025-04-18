@@ -54,8 +54,9 @@ struct DefaultComputedStyle {
       XAnimationColorInterpolationType::kAuto;
   static constexpr uint32_t DEFAULT_TEXT_DECORATION_STYLE =
       static_cast<uint32_t>(TextDecorationType::kSolid);
-  static std::vector<float> DEFAULT_AUTO_FONT_SIZE_PRESET_SIZES() {
-    static base::NoDestructor<std::vector<float>> l{std::vector<float>()};
+  static base::Vector<float> DEFAULT_AUTO_FONT_SIZE_PRESET_SIZES() {
+    static base::NoDestructor<base::InlineVector<float, 1>> l{
+        base::InlineVector<float, 1>()};
     return *l;
   }
 
@@ -64,9 +65,9 @@ struct DefaultComputedStyle {
     return *l;
   }
 
-  static std::vector<ShadowData> DEFAULT_BOX_SHADOW() {
-    static base::NoDestructor<std::vector<ShadowData>> l{
-        std::vector<ShadowData>()};
+  static base::Vector<ShadowData> DEFAULT_BOX_SHADOW() {
+    static base::NoDestructor<base::InlineVector<ShadowData, 1>> l{
+        base::InlineVector<ShadowData, 1>()};
     return *l;
   }
 

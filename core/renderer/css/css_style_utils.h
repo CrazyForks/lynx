@@ -6,12 +6,12 @@
 #define CORE_RENDERER_CSS_CSS_STYLE_UTILS_H_
 
 #include <memory>
-#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "base/include/debug/lynx_assert.h"
+#include "base/include/flex_optional.h"
 #include "core/renderer/css/css_font_face_token.h"
 #include "core/renderer/css/css_fragment.h"
 #include "core/renderer/css/css_keyframes_token.h"
@@ -23,6 +23,8 @@
 #include "core/runtime/vm/lepus/array.h"
 #include "core/style/shadow_data.h"
 #include "core/style/text_attributes.h"
+#include "core/style/transform_raw_data.h"
+#include "core/style/transition_data.h"
 
 namespace lynx {
 namespace tasm {
@@ -34,8 +36,6 @@ namespace starlight {
 
 struct AnimationData;
 struct TimingFunctionData;
-struct TransformRawData;
-struct TransitionData;
 struct FilterData;
 
 class NLength;
@@ -43,22 +43,22 @@ class NLength;
 class CSSStyleUtils {
  public:
   template <typename T>
-  static inline void PrepareOptional(std::optional<T>& optional) {
+  static inline void PrepareOptional(T& optional) {
     if (!optional) {
-      optional = T();
+      optional.emplace();
     }
   }
 
   template <typename T>
-  static inline void PrepareOptional(std::optional<T>& optional,
+  static inline void PrepareOptional(T& optional,
                                      bool css_align_with_legacy_w3c) {
     if (!optional) {
-      optional = T(css_align_with_legacy_w3c);
+      optional.emplace(css_align_with_legacy_w3c);
     }
   }
 
   static inline void PrepareOptionalForTextAttributes(
-      std::optional<starlight::TextAttributes>& optional,
+      base::flex_optional<starlight::TextAttributes>& optional,
       float default_font_size) {
     if (!optional) {
       optional = starlight::TextAttributes(default_font_size);
@@ -69,7 +69,7 @@ class CSSStyleUtils {
       const tasm::CSSValue& value, const tasm::CssMeasureContext& context,
       const tasm::CSSParserConfigs& configs, bool is_font_relevant = false);
 
-  static std::optional<float> ResolveFontSize(
+  static base::flex_optional<float> ResolveFontSize(
       const tasm::CSSValue& value, const tasm::LynxEnvConfig& config,
       const starlight::LayoutUnit& vw_base,
       const starlight::LayoutUnit& vh_base, double cur_node_font_size,
@@ -141,14 +141,15 @@ class CSSStyleUtils {
                                const unsigned int default_value,
                                const char* msg,
                                const tasm::CSSParserConfigs& configs);
-  static bool ComputeShadowStyle(const tasm::CSSValue& value, const bool reset,
-                                 std::optional<std::vector<ShadowData>>& shadow,
-                                 const tasm::CssMeasureContext& context,
-                                 const tasm::CSSParserConfigs& configs);
+  static bool ComputeShadowStyle(
+      const tasm::CSSValue& value, const bool reset,
+      base::flex_optional<base::InlineVector<ShadowData, 1>>& shadow,
+      const tasm::CssMeasureContext& context,
+      const tasm::CSSParserConfigs& configs);
 
   static bool ComputeTransform(
       const tasm::CSSValue& value, bool reset,
-      std::optional<std::vector<TransformRawData>>& raw,
+      base::flex_optional<base::InlineVector<TransformRawData, 1>>& raw,
       const tasm::CssMeasureContext& context,
       const tasm::CSSParserConfigs& configs);
 
@@ -156,14 +157,15 @@ class CSSStyleUtils {
       const std::pair<tasm::CSSPropertyID, tasm::CSSValue>& style);
 
   static lepus_value TransformToLepus(
-      std::optional<std::vector<TransformRawData>> items);
+      const base::Vector<TransformRawData>& items);
 
   static bool ComputeFilter(const tasm::CSSValue& value, bool reset,
-                            std::optional<FilterData>& filter,
+                            base::flex_optional<FilterData>& filter,
                             const tasm::CssMeasureContext,
                             const tasm::CSSParserConfigs& configs);
 
-  static lepus_value FilterToLepus(std::optional<FilterData> filter);
+  static lepus_value FilterToLepus(
+      const base::flex_optional<FilterData>& filter);
 
   static bool ComputeStringStyle(const tasm::CSSValue& value, const bool reset,
                                  base::String& dest,
@@ -179,8 +181,7 @@ class CSSStyleUtils {
                                const tasm::CSSParserConfigs& configs);
 
   template <typename T, typename F0, typename F1>
-  static bool SetAnimationProperty(std::optional<std::vector<T>>& anim,
-                                   const tasm::CSSValue& value,
+  static bool SetAnimationProperty(T& anim, const tasm::CSSValue& value,
                                    F0 const& reset_func, F1 const& compute_func,
                                    const bool reset,
                                    const tasm::CSSParserConfigs& configs) {
@@ -199,7 +200,7 @@ class CSSStyleUtils {
                             "be enum, number, string or array!")
     CSSStyleUtils::PrepareOptional(anim);
     if (anim->empty()) {
-      anim->push_back(T());
+      anim->emplace_back();
     }
     bool changed = false;
     size_t input_size;
@@ -208,7 +209,7 @@ class CSSStyleUtils {
       input_size = arr->size();
       for (size_t i = 0; i < arr->size(); i++) {
         if (anim->size() < i + 1) {
-          anim->push_back(T());
+          anim->emplace_back();
         }
         changed |= compute_func(arr->get(i), (*anim)[i], reset);
       }
@@ -226,7 +227,7 @@ class CSSStyleUtils {
 
   static bool ComputeHeroAnimation(const tasm::CSSValue& value,
                                    const bool reset,
-                                   std::optional<AnimationData>& anim,
+                                   base::flex_optional<AnimationData>& anim,
                                    const char* msg,
                                    const tasm::CSSParserConfigs& configs);
   static bool ComputeAnimation(const lepus::Value& value, AnimationData& anim,
