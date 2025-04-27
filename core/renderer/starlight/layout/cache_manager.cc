@@ -97,22 +97,26 @@ void CacheManager::InsertCacheEntry(const Constraints& constraints,
                                     float border_bound_width,
                                     float border_bound_height) {
   ++current_cache_index_;
-
-  if (current_cache_index_ >= cache_data_.size()) {
+  if (current_cache_index_ >= LAYOUT_RESULT_CACHE_SIZE) {
     current_cache_index_ = 0;
   }
-  for (size_t idx = 0; idx < LAYOUT_RESULT_CACHE_SIZE; ++idx) {
+  for (size_t idx = 0; idx < cache_data_.size(); ++idx) {
     if (cache_data_[idx].is_valid_ &&
         cache_data_[idx].resolved_constraints_ == constraints) {
       current_cache_index_ = idx;
       break;
     }
   }
-  cache_data_[current_cache_index_].resolved_constraints_ = constraints;
-
-  cache_data_[current_cache_index_].border_bound_width_ = border_bound_width;
-  cache_data_[current_cache_index_].border_bound_height_ = border_bound_height;
-  cache_data_[current_cache_index_].is_valid_ = true;
+  CacheEntry* target_entry;
+  if (current_cache_index_ >= cache_data_.size()) {
+    target_entry = &cache_data_.emplace_back();
+  } else {
+    target_entry = &cache_data_[current_cache_index_];
+  }
+  target_entry->resolved_constraints_ = constraints;
+  target_entry->border_bound_width_ = border_bound_width;
+  target_entry->border_bound_height_ = border_bound_height;
+  target_entry->is_valid_ = true;
 }
 
 FindCacheResult CacheManager::FindAvailableCacheEntry(
@@ -128,7 +132,8 @@ FindCacheResult CacheManager::FindAvailableCacheEntry(
                        entry.resolved_constraints_[kVertical],
                        entry.border_bound_height_, false, &target));
   };
-  if (CheckCacheHit(cache_data_[current_cache_index_])) {
+  if (current_cache_index_ < cache_data_.size() &&
+      CheckCacheHit(cache_data_[current_cache_index_])) {
     result.cache_ = &cache_data_[current_cache_index_];
     result.is_cache_in_sync_with_current_state = true;
     return result;

@@ -5,8 +5,7 @@
 #ifndef CORE_RENDERER_STARLIGHT_LAYOUT_CACHE_MANAGER_H_
 #define CORE_RENDERER_STARLIGHT_LAYOUT_CACHE_MANAGER_H_
 
-#include <array>
-
+#include "base/include/vector.h"
 #include "core/renderer/starlight/layout/layout_global.h"
 #include "core/renderer/starlight/types/layout_types.h"
 
@@ -27,12 +26,11 @@ struct FindCacheResult {
 };
 
 /*
- * The cache slots is 8 to cover most cases of complex flex layout.
- * The size of cache is determined by experiment.
- * A hand made deeply nested flex layout test case can reach almost 100% cache
- * reuse rate when the cache size is 8. Which
- * means when cache size 8 cache will perform perfectly for almost all actual
- * use case.
+ * The cache slots is 3 inlined and maximum to 8 to cover most cases of complex
+ * flex layout. The max size of cache(LAYOUT_RESULT_CACHE_SIZE) is determined by
+ * experiment. A hand made deeply nested flex layout test case can reach almost
+ * 100% cache reuse rate when the cache size is 8. Which means when cache size 8
+ * cache will perform perfectly for almost all actual use case.
  */
 constexpr size_t LAYOUT_RESULT_CACHE_SIZE = 8;
 
@@ -51,7 +49,7 @@ class CacheManager {
                                           LayoutObject& target) const;
 
  private:
-  std::array<CacheEntry, LAYOUT_RESULT_CACHE_SIZE> cache_data_;
+  base::InlineVector<CacheEntry, 3> cache_data_;
   size_t current_cache_index_ = LAYOUT_RESULT_CACHE_SIZE - 1;
 };
 
