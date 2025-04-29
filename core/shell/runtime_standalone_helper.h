@@ -48,7 +48,7 @@ InitRuntimeStandaloneResult InitRuntimeStandalone(
     bool force_reload_js_core, bool force_use_light_weight_js_engine = false,
     bool pending_js_task = false, bool enable_user_bytecode = false,
     const std::string& bytecode_source_url = "",
-    bool pending_core_js_load = false);
+    bool pending_core_js_load = false, bool long_task_monitor_disabled = false);
 
 }  // namespace shell
 }  // namespace lynx

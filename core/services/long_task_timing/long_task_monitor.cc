@@ -25,19 +25,17 @@ LongTaskMonitor* LongTaskMonitor::Instance() {
 }
 
 LongTaskMonitor::LongTaskMonitor()
-    : enable_(LynxEnv::GetInstance().EnableLongTaskTiming()),
-      duration_threshold_ms_(50),
+    : duration_threshold_ms_(50),
       thread_name_(base::GetCurrentThreadName()),
       long_batched_tasks_monitor_(
-          LongBatchedTasksMonitor(thread_name_, duration_threshold_ms_)) {}
+          LongBatchedTasksMonitor(thread_name_, duration_threshold_ms_)) {
+  g_enabled = LynxEnv::GetInstance().EnableLongTaskTiming();
+}
 
 void LongTaskMonitor::WillProcessTask(const std::string& type,
                                       const std::string& name,
                                       const std::string& task_info,
                                       int32_t instance_id) {
-  if (!enable_ || instance_id < 0) {
-    return;
-  }
   // When atomic tasks are nested, the same time period may report multiple
   // long-duration tasks
   // and task intervals may exceed 16.7 milliseconds, causing premature long
@@ -53,7 +51,7 @@ void LongTaskMonitor::WillProcessTask(const std::string& type,
 }
 
 void LongTaskMonitor::DidProcessTask() {
-  if (!enable_ || timing_stack_.empty()) {
+  if (!g_enabled || timing_stack_.empty()) {
     return;
   }
   LongTaskTiming& timing = timing_stack_.top();
@@ -99,7 +97,7 @@ void LongTaskMonitor::DidProcessTask() {
 }
 
 LongTaskTiming* LongTaskMonitor::GetTopTimingPtr() {
-  if (!enable_ || timing_stack_.empty()) {
+  if (!g_enabled || timing_stack_.empty()) {
     return nullptr;
   }
   auto& timing = timing_stack_.top();

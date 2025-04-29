@@ -128,9 +128,10 @@ void LayoutMediator::OnLayoutAfter(
     engine_actor_->Act([queue = operation_queue_.get(), catalyzer = catalyzer_,
                         options = options, h = std::move(holder), has_layout,
                         is_first_layout, facade_actor = facade_actor_,
-                        node_manager = node_manager_](auto &engine) mutable {
+                        node_manager = node_manager_,
+                        page_options = page_options_](auto &engine) mutable {
       options.has_layout = has_layout;
-      HandlePendingLayoutTask(queue, catalyzer, options);
+      HandlePendingLayoutTask(queue, catalyzer, options, page_options);
       HandleListOrComponentUpdated(node_manager, options);
 
       if (options.has_layout) {
@@ -144,26 +145,26 @@ void LayoutMediator::OnLayoutAfter(
   } else {
     auto operations = layout_result_manager_->FetchTASMOperations();
 
-    auto on_layout_after_task = [layout_result_manager =
-                                     layout_result_manager_.get(),
-                                 catalyzer = catalyzer_,
-                                 facade_actor = facade_actor_,
-                                 node_manager = node_manager_,
-                                 operations = std::move(operations),
-                                 holder = std::move(holder), options = options,
-                                 is_first_layout, has_layout]() mutable {
-      options.has_layout = has_layout;
-      HandlePendingLayoutTask(nullptr, catalyzer, options, &operations);
-      HandleListOrComponentUpdated(node_manager, options);
+    auto on_layout_after_task =
+        [layout_result_manager = layout_result_manager_.get(),
+         catalyzer = catalyzer_, facade_actor = facade_actor_,
+         node_manager = node_manager_, operations = std::move(operations),
+         holder = std::move(holder), options = options, is_first_layout,
+         has_layout, page_options = page_options_]() mutable {
+          options.has_layout = has_layout;
+          HandlePendingLayoutTask(nullptr, catalyzer, options, page_options,
+                                  &operations);
+          HandleListOrComponentUpdated(node_manager, options);
 
-      if (options.has_layout) {
-        // TODO(klaxxi): now trigger onFirstScreen when first layout,
-        // but it is inconsistent with options.is_first_screen.
-        facade_actor->Act([is_first_screen = is_first_layout](auto &facade) {
-          facade->OnPageChanged(is_first_screen);
-        });
-      }
-    };
+          if (options.has_layout) {
+            // TODO(klaxxi): now trigger onFirstScreen when first layout,
+            // but it is inconsistent with options.is_first_screen.
+            facade_actor->Act(
+                [is_first_screen = is_first_layout](auto &facade) {
+                  facade->OnPageChanged(is_first_screen);
+                });
+          }
+        };
 
     layout_result_manager_->EnqueueOnLayoutAfterTask(
         std::move(on_layout_after_task));
@@ -236,14 +237,14 @@ void LayoutMediator::SetTiming(tasm::Timing timing) {
 // @note: run on tasm thread
 void LayoutMediator::HandlePendingLayoutTask(
     TASMOperationQueue *queue, tasm::Catalyzer *catalyzer,
-    tasm::PipelineOptions options,
+    tasm::PipelineOptions options, const tasm::PageOptions &page_options,
     const std::vector<TASMOperationQueue::TASMOperationWrapper> *operations) {
   TRACE_EVENT(LYNX_TRACE_CATEGORY, LAYOUT_MEDIATOR_HANDLE_PENDING_LAYOUT_TASK);
   if (catalyzer == nullptr) {
     return;
   }
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      catalyzer->GetInstanceId(), tasm::timing::kNativeFuncTask,
+      page_options, tasm::timing::kNativeFuncTask,
       tasm::timing::kTaskNameHandlePendingLayoutTask);
   // If Flush return false, means layout has no change.
   bool layout_changed = false;
@@ -328,8 +329,9 @@ void LayoutMediator::HandleListOrComponentUpdated(
 // @note: run on tasm thread
 // Should be work on the thread that tasm work on. And must be called after
 // notifying safepoint.
-void LayoutMediator::HandleLayoutVoluntarily(TASMOperationQueue *queue,
-                                             tasm::Catalyzer *catalyzer) {
+void LayoutMediator::HandleLayoutVoluntarily(
+    TASMOperationQueue *queue, tasm::Catalyzer *catalyzer,
+    const tasm::PageOptions &page_options) {
   TRACE_EVENT(LYNX_TRACE_CATEGORY, LAYOUT_MEDIATOR_HANDLE_LAYOUT_VOLUNTARILY,
               "has_first_screen_", queue->has_first_screen_.load());
   // when part on layout, usually, layout is faster than create ui.
@@ -351,7 +353,7 @@ void LayoutMediator::HandleLayoutVoluntarily(TASMOperationQueue *queue,
     }
   }
 
-  HandlePendingLayoutTask(queue, catalyzer, std::move(options));
+  HandlePendingLayoutTask(queue, catalyzer, std::move(options), page_options);
 }
 
 void LayoutMediator::OnFirstMeaningfulLayout() {

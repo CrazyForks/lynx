@@ -8,6 +8,7 @@
 #include <memory>
 #include <vector>
 
+#include "core/public/page_options.h"
 #include "core/public/pipeline_option.h"
 #include "core/renderer/dom/element_manager.h"
 #include "core/renderer/ui_wrapper/layout/layout_context.h"
@@ -69,13 +70,18 @@ class LayoutMediator : public tasm::LayoutContext::Delegate,
     enable_air_strict_mode_ = enable_air_strict_mode;
   }
 
+  void SetPageOptions(const tasm::PageOptions &page_options) {
+    page_options_ = page_options;
+  }
+
   static void HandleLayoutVoluntarily(TASMOperationQueue *queue,
-                                      tasm::Catalyzer *catalyzer);
+                                      tasm::Catalyzer *catalyzer,
+                                      const tasm::PageOptions &page_options);
 
  private:
   static void HandlePendingLayoutTask(
       TASMOperationQueue *queue, tasm::Catalyzer *catalyzer,
-      tasm::PipelineOptions option,
+      tasm::PipelineOptions option, const tasm::PageOptions &page_options,
       const std::vector<TASMOperationQueue::TASMOperationWrapper> *operations =
           nullptr);
   static void HandleListOrComponentUpdated(
@@ -101,6 +107,7 @@ class LayoutMediator : public tasm::LayoutContext::Delegate,
   // but it may be triggered when update data...
   bool has_first_layout_{false};
   bool enable_air_strict_mode_{false};
+  tasm::PageOptions page_options_;
 };
 
 }  // namespace shell

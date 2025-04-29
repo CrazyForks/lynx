@@ -78,6 +78,10 @@ void DynamicUIOperationQueue::SetErrorCallback(ErrorCallback callback) {
   impl_->SetErrorCallback(std::move(callback));
 }
 
+void DynamicUIOperationQueue::SetPageOptions(const tasm::PageOptions& options) {
+  impl_->SetPageOptions(options);
+}
+
 uint32_t DynamicUIOperationQueue::GetNativeUpdateDataOrder() {
   return impl_->GetNativeUpdateDataOrder();
 }

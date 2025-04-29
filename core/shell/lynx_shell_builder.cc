@@ -226,6 +226,7 @@ LynxShell* LynxShellBuilder::build() {
         shell->tasm_operation_queue_);
   }
 
+  layout_mediator->SetPageOptions(shell_option_.page_options_);
   shell->layout_mediator_ = layout_mediator.get();
   if (layout_context_) {
     layout_context_->SetLynxShell(shell);
@@ -233,7 +234,7 @@ LynxShell* LynxShellBuilder::build() {
   shell->layout_actor_ = std::make_shared<LynxActor<tasm::LayoutContext>>(
       std::make_unique<lynx::tasm::LayoutContext>(
           std::move(layout_mediator), std::move(this->layout_context_),
-          this->lynx_env_config_, shell->instance_id_),
+          this->lynx_env_config_, shell_option_.page_options_),
       shell->runners_.GetLayoutTaskRunner(), shell->instance_id_);
 
   TRACE_EVENT_BEGIN(LYNX_TRACE_CATEGORY,

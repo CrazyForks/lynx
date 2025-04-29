@@ -14,6 +14,7 @@
 
 #include "base/include/closure.h"
 #include "base/include/log/logging.h"
+#include "core/public/page_options.h"
 #include "core/renderer/data/template_data.h"
 #include "core/renderer/dom/vdom/radon/node_select_options.h"
 #include "core/renderer/template_entry.h"
@@ -67,10 +68,10 @@ class App : public std::enable_shared_from_this<App> {
       std::shared_ptr<JSIExceptionHandler> exception_handler,
       piper::Object nativeModuleProxy,
       std::unique_ptr<lynx::runtime::LynxApiHandler> api_handler,
-      const std::string& group_id) {
+      const std::string& group_id, const tasm::PageOptions& page_options) {
     auto app = std::shared_ptr<App>(new App(
         rt_id, rt, delegate, exception_handler, std::move(nativeModuleProxy),
-        std::move(api_handler), group_id));
+        std::move(api_handler), group_id, page_options));
     app->Init();
     return app;
   }
@@ -256,19 +257,23 @@ class App : public std::enable_shared_from_this<App> {
 
   void QueueMicrotask(piper::Function func);
 
+  void SetPageOptions(const tasm::PageOptions& options);
+  const tasm::PageOptions& GetPageOptions() { return page_options_; }
+
  private:
   App(int64_t rt_id, std::weak_ptr<Runtime> rt,
       runtime::TemplateDelegate* delegate,
       std::shared_ptr<JSIExceptionHandler> exception_handler,
       piper::Object nativeModuleProxy,
       std::unique_ptr<lynx::runtime::LynxApiHandler> api_handler,
-      const std::string& group_id)
+      const std::string& group_id, const tasm::PageOptions& page_options)
       : app_guid_(std::to_string(rt_id)),
         rt_(rt),
         js_app_(),
         delegate_(delegate),
         exception_handler_(exception_handler),
-        js_task_adapter_(std::make_shared<JsTaskAdapter>(rt, group_id)),
+        js_task_adapter_(
+            std::make_shared<JsTaskAdapter>(rt, group_id, page_options)),
         nativeModuleProxy_(std::move(nativeModuleProxy)),
         api_handler_(std::move(api_handler)),
         jsi_object_wrapper_manager_(
@@ -276,6 +281,7 @@ class App : public std::enable_shared_from_this<App> {
         app_dsl_(tasm::PackageInstanceDSL::TT),
         bundle_module_mode_(
             tasm::PackageInstanceBundleModuleMode::EVAL_REQUIRE_MODE),
+        page_options_(page_options),
         animation_frame_handler_(
             std::make_unique<runtime::AnimationFrameTaskHandler>()) {}
 
@@ -306,7 +312,7 @@ class App : public std::enable_shared_from_this<App> {
   piper::Value js_app_;
   runtime::TemplateDelegate* const delegate_;
   std::shared_ptr<JSIExceptionHandler> exception_handler_;
-  // Ownered js_task_adapter_
+  // Owning js_task_adapter_
   std::shared_ptr<piper::JsTaskAdapter> js_task_adapter_;
   piper::Object nativeModuleProxy_;
   ApiCallBackManager api_callback_manager_;
@@ -316,6 +322,7 @@ class App : public std::enable_shared_from_this<App> {
   tasm::PackageInstanceBundleModuleMode bundle_module_mode_;
   std::shared_ptr<LynxProxy> lynx_proxy_;
   std::string url_;
+  tasm::PageOptions page_options_;
   piper::Value ssr_global_event_emitter_;
   std::unique_ptr<GCPauseSuppressionMode> gc_pause_suppression_mode_{nullptr};
 

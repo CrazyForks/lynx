@@ -203,7 +203,7 @@ void RadonListBase::RenderComponentAtIndex(uint32_t index,
                 UpdateTraceDebugInfo(ctx.event());
               });
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      tasm_->GetInstanceId(), tasm::timing::kListNodeTask,
+      tasm_->GetPageOptions(), tasm::timing::kListNodeTask,
       tasm::timing::kTaskNameRadonListBaseRenderAtIndex);
   DCHECK(index < platform_info_.components_.size());
   auto* comp = CreateComponentWithType(index);
@@ -280,8 +280,9 @@ void RadonListBase::UpdateComponent(uint32_t sign, uint32_t row,
     LOGE("comp is nullptr in RadonListBase::UpdateComponent.");
     return;
   }
+
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      tasm_->GetInstanceId(), tasm::timing::kListNodeTask,
+      tasm_->GetPageOptions(), tasm::timing::kListNodeTask,
       tasm::timing::kTaskNameRadonListBaseUpdateComponent);
   SyncComponentExtraInfo(comp, row, operation_id);
 

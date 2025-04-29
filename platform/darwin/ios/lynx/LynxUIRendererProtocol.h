@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setPageConfig:(const std::shared_ptr<lynx::tasm::PageConfig> &)pageConfig
               context:(LynxContext *)context;
 
-- (void)setFluencyTracerEnabled:(LynxBooleanOption)enabledBySampling;
+- (void)setFluencyTracerEnabled:(LynxBooleanOption)enabled;
 
 - (BOOL)needPaintingContextProxy;
 

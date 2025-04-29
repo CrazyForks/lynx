@@ -33,17 +33,17 @@ LepusLynx::LepusLynx(Napi::Env env, const std::string& entry_name,
 
 uint32_t LepusLynx::SetTimeout(std::unique_ptr<NapiFuncCallback> callback,
                                int64_t delay) {
-  int32_t instance_id = tasm_->GetInstanceId();
   TRACE_EVENT(LYNX_TRACE_CATEGORY, LEPUS_MAIN_THREAD_SET_TIMEOUT, "delay",
-              delay, "instance_id", instance_id);
+              delay, "instance_id", tasm_->GetInstanceId());
   EnsureTimeTaskInvoker();
   auto callback_id = task_handler_->StoreTimedTask(std::move(callback));
+
   auto task_id = timer_->SetTimeout(
-      fml::MakeCopyable([env = NapiEnv(), callback_id, this, instance_id]() {
+      fml::MakeCopyable([env = NapiEnv(), callback_id, this]() {
         TRACE_EVENT(LYNX_TRACE_CATEGORY, LEPUS_MAIN_THREAD_INVOKE_TIMEOUT_TASK,
-                    "instance_id", instance_id);
+                    "instance_id", tasm_->GetInstanceId());
         tasm::timing::LongTaskMonitor::Scope long_task_scope(
-            instance_id, tasm::timing::kTimerTask,
+            tasm_->GetPageOptions(), tasm::timing::kTimerTask,
             tasm::timing::kTaskNameLepusLynxSetTimeout);
         task_handler_->InvokeWithTimedTaskID(callback_id,
                                              Napi::Object::New(env), tasm_);
@@ -60,17 +60,16 @@ uint32_t LepusLynx::SetTimeout(std::unique_ptr<NapiFuncCallback> callback,
 
 uint32_t LepusLynx::SetInterval(std::unique_ptr<NapiFuncCallback> callback,
                                 int64_t delay) {
-  int32_t instance_id = tasm_->GetInstanceId();
   TRACE_EVENT(LYNX_TRACE_CATEGORY, LEPUS_MAIN_THREAD_SET_INTERVAL, "delay",
-              delay, "instance_id", instance_id);
+              delay, "instance_id", tasm_->GetInstanceId());
   EnsureTimeTaskInvoker();
   auto callback_id = task_handler_->StoreTimedTask(std::move(callback));
   auto task_id = timer_->SetInterval(
-      [callback_id, this, instance_id]() {
+      [callback_id, this]() {
         TRACE_EVENT(LYNX_TRACE_CATEGORY, LEPUS_MAIN_THREAD_INVOKE_INTERVAL_TASK,
-                    "instance_id", instance_id);
+                    "instance_id", tasm_->GetInstanceId());
         tasm::timing::LongTaskMonitor::Scope long_task_scope(
-            instance_id, tasm::timing::kTimerTask,
+            tasm_->GetPageOptions(), tasm::timing::kTimerTask,
             tasm::timing::kTaskNameLepusLynxSetInterval);
         task_handler_->InvokeWithTimedTaskID(
             callback_id, Napi::Object::New(NapiEnv()), tasm_);

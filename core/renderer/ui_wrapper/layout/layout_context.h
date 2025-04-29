@@ -15,6 +15,7 @@
 #include "base/include/closure.h"
 #include "core/public/layout_ctx_platform_impl.h"
 #include "core/public/layout_node_manager.h"
+#include "core/public/page_options.h"
 #include "core/public/pipeline_option.h"
 #include "core/public/platform_extra_bundle.h"
 #include "core/public/prop_bundle.h"
@@ -77,7 +78,8 @@ class LayoutContext : public std::enable_shared_from_this<LayoutContext>,
 
   LayoutContext(std::unique_ptr<Delegate> delegate,
                 std::unique_ptr<LayoutCtxPlatformImpl> platform_impl,
-                const LynxEnvConfig& lynx_env_config, int32_t instance_id);
+                const LynxEnvConfig& lynx_env_config,
+                const PageOptions& page_options);
   virtual ~LayoutContext();
 
   // used for platform
@@ -137,6 +139,7 @@ class LayoutContext : public std::enable_shared_from_this<LayoutContext>,
   void MarkDirty(int32_t id);
   void DispatchLayoutUpdates(const PipelineOptions& options);
   void SetPageConfigForLayoutThread(const std::shared_ptr<PageConfig>& config);
+  void SetPageOptions(const PageOptions& options) { page_options_ = options; }
 
   void SetEnableLayout();
 
@@ -279,7 +282,8 @@ class LayoutContext : public std::enable_shared_from_this<LayoutContext>,
   std::unique_ptr<starlight::ComputedCSSStyle> init_css_style_;
   std::shared_ptr<PageConfig> page_config_;
   LynxEnvConfig lynx_env_config_;
-  const int32_t instance_id_ = 0;
+  PageOptions page_options_;
+
 #if ENABLE_TESTBENCH_RECORDER
   int64_t record_id_;
 #endif

@@ -47,7 +47,7 @@ void LynxUIOperationQueue::ConsumeOperations(
         high_priority_operations,
     const base::ConcurrentQueue<UIOperation>::IterableContainer& operations) {
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      instance_id_, tasm::timing::kUIOperationFlushTask,
+      page_options_, tasm::timing::kUIOperationFlushTask,
       tasm::timing::kTaskNameLynxUIOperationQueueConsumeOperations);
   for (auto& operation : high_priority_operations) {
     TRACE_EVENT(LYNX_TRACE_CATEGORY,

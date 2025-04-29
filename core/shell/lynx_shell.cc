@@ -106,8 +106,10 @@ LynxShell::LynxShell(base::ThreadStrategyForRendering strategy,
       enable_async_hydration_(DoAsyncHydration(strategy, shell_option)),
       current_strategy_(strategy),
       js_group_thread_name_(shell_option.js_group_thread_name_),
-      enable_js_group_thread_(shell_option.enable_js_group_thread_) {
+      enable_js_group_thread_(shell_option.enable_js_group_thread_),
+      page_options_(shell_option.page_options_) {
   LOGI("LynxShell create, this:" << this);
+  ui_operation_queue_->SetPageOptions(shell_option.page_options_);
   engine_thread_switch_ = std::make_shared<EngineThreadSwitch>(
       runners_.GetUITaskRunner(), runners_.GetTASMTaskRunner(),
       ui_operation_queue_);
@@ -225,7 +227,7 @@ void LynxShell::InitRuntime(
   tasm_mediator_->SetPropBundleCreator(prop_bundle_creator_);
   auto runtime = std::make_unique<runtime::LynxRuntime>(
       group_id, instance_id_, std::move(delegate), enable_user_code_cache,
-      code_cache_source_url, enable_js_group_thread_);
+      code_cache_source_url, enable_js_group_thread_, page_options_);
   runtime_actor_ = std::make_shared<LynxActor<runtime::LynxRuntime>>(
       std::move(runtime), js_task_runner, instance_id_, enable_runtime_);
   delegate_raw_ptr->set_vsync_monitor(vsync_monitor, runtime_actor_);
@@ -1107,6 +1109,17 @@ void LynxShell::SetEnableBytecode(bool enable,
                                         bytecode_source_url)](auto& runtime) {
     runtime->SetEnableBytecode(enable, bytecode_source_url);
   });
+}
+
+void LynxShell::SetPageOptions(const tasm::PageOptions& page_options) {
+  engine_actor_->Act([page_options](auto& engine) {
+    engine->GetTasm()->SetPageOptions(page_options);
+  });
+  runtime_actor_->Act(
+      [page_options](auto& runtime) { runtime->SetPageOptions(page_options); });
+  layout_actor_->Act(
+      [page_options](auto& layout) { layout->SetPageOptions(page_options); });
+  ui_operation_queue_->SetPageOptions(page_options);
 }
 
 void LynxShell::SetAnimationsPending(bool need_pending_ui_op) {

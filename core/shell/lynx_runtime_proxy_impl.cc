@@ -25,11 +25,10 @@ void LynxRuntimeProxyImpl::CallJSFunction(std::string module_id,
   }
   actor_->Act([module_id = std::move(module_id),
                method_id = std::move(method_id), params = std::move(params),
-               is_runtime_standalone_mode = is_runtime_standalone_mode_,
-               instance_id = actor_->GetInstanceId()](auto& runtime) mutable {
+               is_runtime_standalone_mode =
+                   is_runtime_standalone_mode_](auto& runtime) mutable {
     auto task = [&runtime, module_id = std::move(module_id),
-                 method_id = std::move(method_id), params = std::move(params),
-                 instance_id] {
+                 method_id = std::move(method_id), params = std::move(params)] {
       auto js_runtime = runtime->GetJSRuntime();
       if (js_runtime == nullptr) {
         LOGE("try call js module before js context is ready! module:"
@@ -40,7 +39,7 @@ void LynxRuntimeProxyImpl::CallJSFunction(std::string module_id,
 
       // Timing
       tasm::timing::LongTaskMonitor::Scope long_task_scope(
-          instance_id, tasm::timing::kJSFuncTask,
+          runtime->GetPageOptions(), tasm::timing::kJSFuncTask,
           tasm::timing::kTaskNameJSProxyCallJSFunction);
       std::string first_arg_str;
       if (params->Length() > 0) {

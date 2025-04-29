@@ -17,6 +17,7 @@ lynx_core_source_set("public") {
     "lynx_extension_delegate.h",
     "lynx_resource_loader.h",
     "lynx_runtime_proxy.h",
+    "page_options.h",
     "painting_ctx_platform_impl.h",
     "pipeline_option.h",
     "platform_extra_bundle.h",

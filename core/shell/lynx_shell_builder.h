@@ -129,6 +129,7 @@ class LynxShellBuilder {
   bool enable_layout_only_{true};
   bool enable_pre_update_data_{false};
   bool enable_diff_without_layout_{false};
+
   std::string locale_;
 
   std::function<std::unique_ptr<shell::LynxEngine>(

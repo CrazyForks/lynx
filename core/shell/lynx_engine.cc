@@ -82,7 +82,7 @@ void LynxEngine::LoadTemplate(
   tasm::TimingCollector::Scope<Delegate> scope(delegate_.get(),
                                                pipeline_options);
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      instance_id_, tasm::timing::kLoadTemplateTask,
+      tasm_->GetPageOptions(), tasm::timing::kLoadTemplateTask,
       tasm::timing::kTaskNameLynxEngineLoadTemplate);
   tasm_->LoadTemplate(url, std::move(source), template_data, pipeline_options,
                       enable_pre_painting, enable_recycle_template_bundle);
@@ -98,7 +98,7 @@ void LynxEngine::LoadTemplateBundle(
   tasm::TimingCollector::Scope<Delegate> scope(delegate_.get(),
                                                pipeline_options);
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      instance_id_, tasm::timing::kLoadTemplateTask,
+      tasm_->GetPageOptions(), tasm::timing::kLoadTemplateTask,
       tasm::timing::kTaskNameLynxEngineLoadTemplate);
   tasm_->LoadTemplateBundle(url, std::move(template_bundle), template_data,
                             pipeline_options, enable_pre_painting,
@@ -119,7 +119,7 @@ void LynxEngine::UpdateDataByParsedData(
     const std::shared_ptr<tasm::TemplateData>& data,
     uint32_t native_update_data_order, tasm::PipelineOptions pipeline_options) {
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      instance_id_, tasm::timing::kUpdateDataByNativeTask,
+      tasm_->GetPageOptions(), tasm::timing::kUpdateDataByNativeTask,
       tasm::timing::kTaskNameLynxEngineUpdateDataByParsedData);
   tasm::UpdatePageOption update_page_option;
   update_page_option.from_native = true;
@@ -142,7 +142,7 @@ void LynxEngine::ResetDataByParsedData(
     const std::shared_ptr<tasm::TemplateData>& data,
     uint32_t native_update_data_order, tasm::PipelineOptions pipeline_options) {
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      instance_id_, tasm::timing::kUpdateDataByNativeTask,
+      tasm_->GetPageOptions(), tasm::timing::kUpdateDataByNativeTask,
       tasm::timing::kTaskNameLynxEngineResetDataByParsedData);
   tasm::UpdatePageOption update_page_option;
   update_page_option.from_native = true;
@@ -160,7 +160,7 @@ void LynxEngine::ReloadTemplate(const std::shared_ptr<tasm::TemplateData>& data,
   tasm::TimingCollector::Scope<Delegate> scope(delegate_.get(),
                                                pipeline_options);
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      instance_id_, tasm::timing::kLoadTemplateTask,
+      tasm_->GetPageOptions(), tasm::timing::kLoadTemplateTask,
       tasm::timing::kTaskNameLynxEngineReloadTemplate);
   tasm_->ReloadTemplate(data, global_props, update_page_option,
                         pipeline_options);
@@ -174,7 +174,7 @@ void LynxEngine::UpdateConfig(const lepus::Value& config,
 void LynxEngine::UpdateGlobalProps(const lepus::Value& global_props,
                                    tasm::PipelineOptions pipeline_options) {
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      instance_id_, tasm::timing::kUpdateDataByNativeTask,
+      tasm_->GetPageOptions(), tasm::timing::kUpdateDataByNativeTask,
       tasm::timing::kTaskNameLynxEngineUpdateGlobalProps);
   tasm_->UpdateGlobalProps(global_props, true, pipeline_options);
 }
@@ -234,9 +234,10 @@ void LynxEngine::UpdateViewport(float width, int32_t width_mode, float height,
 }
 
 void LynxEngine::SyncFetchLayoutResult() {
-  LayoutMediator::HandleLayoutVoluntarily(
-      operation_queue_.get(),
-      tasm_->page_proxy()->element_manager()->catalyzer());
+  auto& element_manager = tasm_->page_proxy()->element_manager();
+  LayoutMediator::HandleLayoutVoluntarily(operation_queue_.get(),
+                                          element_manager->catalyzer(),
+                                          element_manager->GetPageOptions());
 }
 
 void LynxEngine::SendAirPageEvent(const std::string& name,
@@ -318,7 +319,7 @@ void LynxEngine::DidPreloadComponent(
 void LynxEngine::DidLoadComponent(
     lynx::tasm::LazyBundleLoader::CallBackInfo callback_info) {
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      instance_id_, tasm::timing::kNativeFuncTask,
+      tasm_->GetPageOptions(), tasm::timing::kNativeFuncTask,
       tasm::timing::kTaskNameLynxEngineDidLoadComponent,
       callback_info.component_url);
   tasm::PipelineOptions pipeline_options;
@@ -412,7 +413,7 @@ std::unordered_map<std::string, std::string> LynxEngine::GetAllJsSource() {
 
 void LynxEngine::UpdateDataByJS(runtime::UpdateDataTask task) {
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      instance_id_, tasm::timing::kUpdateDataByJSTask,
+      tasm_->GetPageOptions(), tasm::timing::kUpdateDataByJSTask,
       tasm::timing::kTaskNameLynxEngineUpdateDataByJS);
   auto& pipeline_options = task.pipeline_options_;
   tasm::TimingCollector::Scope<Delegate> scope(delegate_.get(),
@@ -435,7 +436,7 @@ void LynxEngine::UpdateBatchedDataByJS(
                 ctx.event()->add_terminating_flow_ids(update_task_id);
               });
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      instance_id_, tasm::timing::kUpdateDataByJSTask,
+      tasm_->GetPageOptions(), tasm::timing::kUpdateDataByJSTask,
       tasm::timing::kTaskNameLynxEngineUpdateBatchedDataByJS);
   auto cached_page_data = card_cached_data_mgr_->GetCardCacheData();
   for (auto& task : tasks) {
@@ -497,7 +498,7 @@ void LynxEngine::InvokeLepusComponentCallback(const int64_t callback_id,
 
 void LynxEngine::UpdateComponentData(runtime::UpdateDataTask task) {
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      instance_id_, tasm::timing::kUpdateDataByJSTask,
+      tasm_->GetPageOptions(), tasm::timing::kUpdateDataByJSTask,
       tasm::timing::kTaskNameLynxEngineUpdateComponentData);
   auto& pipeline_options = task.pipeline_options_;
   tasm::TimingCollector::Scope<Delegate> scope(delegate_.get(),
@@ -618,7 +619,7 @@ void LynxEngine::CallLepusMethod(const std::string& method_name,
                                  const piper::ApiCallBack& callback,
                                  uint64_t trace_flow_id) {
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      instance_id_, tasm::timing::kNativeFuncTask,
+      tasm_->GetPageOptions(), tasm::timing::kNativeFuncTask,
       tasm::timing::kTaskNameLynxEngineCallLepusMethod, method_name);
   tasm_->CallLepusMethod(method_name, std::move(args), callback, trace_flow_id);
 }

@@ -382,10 +382,9 @@ int32_t RadonDiffListNode2::ComponentAtIndex(uint32_t index,
     LOGE("index out of range in RadonDiffListNode2::ComponentAtIndex.");
     return 0;
   }
-  int32_t instance_id = tasm_ == nullptr ? tasm::report::kUnknownInstanceId
-                                         : tasm_->GetInstanceId();
+
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      instance_id, tasm::timing::kListNodeTask,
+      tasm_->GetPageOptions(), tasm::timing::kListNodeTask,
       tasm::timing::kTaskNameRadonDiffListNode2ComponentAtIndex);
   // try to get reuse_identifier and item_key.
   ListComponentInfo& component_info = *components_[index];

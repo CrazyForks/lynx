@@ -13,6 +13,7 @@
 
 #include "base/include/closure.h"
 #include "base/include/thread/timed_task.h"
+#include "core/public/page_options.h"
 #include "core/runtime/jsi/jsi.h"
 
 namespace lynx {
@@ -22,7 +23,8 @@ namespace piper {
 class JsTaskAdapter : public std::enable_shared_from_this<JsTaskAdapter> {
  public:
   explicit JsTaskAdapter(const std::weak_ptr<Runtime>& rt,
-                         const std::string& group_id);
+                         const std::string& group_id,
+                         const tasm::PageOptions& page_options);
   ~JsTaskAdapter();
 
   JsTaskAdapter(const JsTaskAdapter&) = delete;
@@ -37,6 +39,10 @@ class JsTaskAdapter : public std::enable_shared_from_this<JsTaskAdapter> {
   void RemoveTask(uint32_t task);
 
   void QueueMicrotask(Function func);
+
+  void SetPageOptions(const tasm::PageOptions& options) {
+    page_options_ = options;
+  }
 
  private:
   enum class TaskType {
@@ -54,6 +60,8 @@ class JsTaskAdapter : public std::enable_shared_from_this<JsTaskAdapter> {
   std::weak_ptr<Runtime> rt_;
 
   std::string group_id_;
+
+  tasm::PageOptions page_options_;
 };
 
 }  // namespace piper

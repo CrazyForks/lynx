@@ -15,6 +15,7 @@
 #include "base/include/debug/lynx_assert.h"
 #include "base/include/debug/lynx_error.h"
 #include "core/base/threading/task_runner_manufactor.h"
+#include "core/public/page_options.h"
 #include "core/public/prop_bundle.h"
 #include "core/runtime/bindings/jsi/api_call_back.h"
 #include "core/runtime/bindings/jsi/js_app.h"
@@ -45,7 +46,8 @@ class LynxRuntime final {
   LynxRuntime(const std::string& group_id, int32_t instance_id,
               std::unique_ptr<TemplateDelegate> delegate,
               bool enable_user_bytecode, const std::string& bytecode_source_url,
-              bool enable_js_group_thread);
+              bool enable_js_group_thread,
+              const tasm::PageOptions& page_options);
   ~LynxRuntime();
   LynxRuntime(const LynxRuntime&) = delete;
   LynxRuntime& operator=(const LynxRuntime&) = delete;
@@ -137,6 +139,9 @@ class LynxRuntime final {
       std::unique_ptr<RuntimeLifecycleListenerDelegate> listener);
 
   void SetEnableBytecode(bool enable, const std::string& bytecode_source_url);
+
+  void SetPageOptions(const tasm::PageOptions& page_options);
+  const tasm::PageOptions& GetPageOptions() { return page_options_; }
 
   void OnReceiveMessageEvent(runtime::MessageEvent event);
 
@@ -236,6 +241,7 @@ class LynxRuntime final {
   std::string bytecode_source_url_;
   bool enable_js_group_thread_{false};
   std::unique_ptr<RuntimeLifecycleObserverImpl> lifecycle_observer_;
+  tasm::PageOptions page_options_;
   lepus::Value init_global_props_;
   bool is_pending_core_js_{false};
   bool force_reload_js_core_{false};

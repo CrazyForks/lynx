@@ -60,7 +60,7 @@ void CollectDirtyNodeForList(LayoutNode* node, const PipelineOptions& options) {
 LayoutContext::LayoutContext(
     std::unique_ptr<Delegate> delegate,
     std::unique_ptr<LayoutCtxPlatformImpl> platform_impl,
-    const LynxEnvConfig& lynx_env_config, int32_t instance_id)
+    const LynxEnvConfig& lynx_env_config, const PageOptions& page_options)
     : platform_impl_(std::move(platform_impl)),
       delegate_(std::move(delegate)),
       root_(nullptr),
@@ -69,7 +69,7 @@ LayoutContext::LayoutContext(
           lynx_env_config.LayoutsUnitPerPx(),
           lynx_env_config.PhysicalPixelsPerLayoutUnit())),
       lynx_env_config_(lynx_env_config),
-      instance_id_(instance_id) {
+      page_options_(page_options) {
   // TODO(chennengshi), add test for lynx_shell_builder_unittest, then the
   // condition can be deleted.
   if (platform_impl_) {
@@ -654,7 +654,7 @@ LayoutNode* LayoutContext::FindNodeById(int32_t id) {
 void LayoutContext::DispatchLayoutUpdates(const PipelineOptions& options) {
   TRACE_EVENT(LYNX_TRACE_CATEGORY, LAYOUT_CONTEXT_DISPATCH_LAYOUT_UPDATES);
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      instance_id_, tasm::timing::kNativeFuncTask,
+      page_options_, tasm::timing::kNativeFuncTask,
       "LayoutContext::DispatchLayoutUpdates");
   tasm::TimingCollector::Scope<Delegate> scope(delegate_.get(), options);
   enable_layout_ = true;
@@ -844,7 +844,8 @@ void LayoutContext::Layout(const PipelineOptions& options) {
     std::unordered_map<std::string, float> prop_map = {
         {"lynxview_height", calculated_viewport_.height},
         {"lynxview_width", calculated_viewport_.width}};
-    report::EventTracker::UpdateGenericInfo(instance_id_, std::move(prop_map));
+    report::EventTracker::UpdateGenericInfo(page_options_.GetInstanceID(),
+                                            std::move(prop_map));
   }
 
   TRACE_EVENT_INSTANT(

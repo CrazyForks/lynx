@@ -38,9 +38,11 @@ void JSClosureEventListener::Invoke(event::Event* event) {
   if (!closure_.isObject()) {
     return;
   }
-  int32_t instance_id = static_cast<int32_t>(rt->getRuntimeId());
+
+  auto app = native_app_.lock();
+  auto page_options = app ? app->GetPageOptions() : tasm::PageOptions();
   tasm::timing::LongTaskMonitor::Scope long_task_scope(
-      instance_id, tasm::timing::kJSFuncTask,
+      page_options, tasm::timing::kJSFuncTask,
       tasm::timing::kTaskNameJSEventListenerInvoke,
       event ? event->type() : "null");
   piper::Scope scope(*rt);

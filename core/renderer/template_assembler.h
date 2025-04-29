@@ -20,6 +20,7 @@
 #include "base/include/fml/task_runner.h"
 #include "base/include/log/logging.h"
 #include "core/inspector/observer/inspector_lepus_observer.h"
+#include "core/public/page_options.h"
 #include "core/public/pipeline_option.h"
 #include "core/renderer/data/template_data.h"
 #include "core/renderer/element_manager_delegate_impl.h"
@@ -696,6 +697,13 @@ class TemplateAssembler final
   }
   void SetDefaultLepusNG(bool value) { default_use_lepus_ng_ = value; }
 
+  void SetPageOptions(const PageOptions& options) {
+    page_options_ = options;
+    page_proxy_.element_manager()->SetPageOptions(options);
+  }
+
+  const PageOptions& GetPageOptions() const { return page_options_; }
+
  private:
   friend class TemplateBinaryReader;
   friend class TemplateBinaryReaderSSR;
@@ -859,6 +867,8 @@ class TemplateAssembler final
 
   std::shared_ptr<LazyBundleLoader> component_loader_;
   std::string locale_;
+
+  PageOptions page_options_;
 
   TemplateAssembler(const TemplateAssembler&) = delete;
   TemplateAssembler& operator=(const TemplateAssembler&) = delete;

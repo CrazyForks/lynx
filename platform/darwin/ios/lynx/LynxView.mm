@@ -853,6 +853,10 @@
   [_templateRender setExtraTiming:timingInfo];
 }
 
+- (void)setLongTaskMonitorEnabled:(LynxBooleanOption)enabled {
+  [_templateRender setLongTaskMonitorEnabled:enabled];
+}
+
 - (void)setFluencyTracerEnabled:(LynxBooleanOption)enabled {
   [_templateRender setFluencyTracerEnabled:enabled];
 }

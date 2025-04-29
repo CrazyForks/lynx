@@ -48,8 +48,9 @@ void ContextProxyInJSTest::SetUp() {
 
   auto nativeModule =
       eval("(function() { return {}; })()")->asObject(rt).value();
-  app_ = App::Create(0, runtime, &delegate_, exception_handler_,
-                     std::move(nativeModule), nullptr, "-1");
+  app_ =
+      App::Create(0, runtime, &delegate_, exception_handler_,
+                  std::move(nativeModule), nullptr, "-1", tasm::PageOptions());
 
   app_->setJsAppObj(Object::createFromHostObject(*runtime, mock_js_app_));
 

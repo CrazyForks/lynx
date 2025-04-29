@@ -66,6 +66,14 @@ inline std::unordered_map<std::string, JsContent>& GetJSAssetsMap() {
   return *js_assets_map_;
 }
 
+inline tasm::PageOptions GetPageOptions(std::weak_ptr<App> native_app) {
+  auto app = native_app.lock();
+  if (!app) {
+    return tasm::PageOptions();
+  }
+  return app->GetPageOptions();
+}
+
 // default resource loader timeout is 5 seconds.
 constexpr long DEFAULT_RESOURCE_TIMEOUT = 5;
 
@@ -232,9 +240,8 @@ Value AppProxy::get(Runtime* rt, const PropNameID& name) {
                const piper::Value* args,
                size_t count) -> base::expected<Value, JSINativeException> {
           TRACE_EVENT(LYNX_TRACE_CATEGORY, APP_PROXY_UPDATE_DATA);
-          int32_t instance_id = static_cast<int32_t>(rt.getRuntimeId());
           tasm::timing::LongTaskMonitor::Scope long_task_scope(
-              instance_id, tasm::timing::kUpdateDataByJSTask,
+              GetPageOptions(native_app_), tasm::timing::kUpdateDataByJSTask,
               tasm::timing::kTaskNameJSAppUpdateData);
           if (count < 1) {
             return base::unexpected(
@@ -294,9 +301,8 @@ Value AppProxy::get(Runtime* rt, const PropNameID& name) {
         [this](Runtime& rt, const piper::Value& thisVal,
                const piper::Value* args,
                size_t count) -> base::expected<Value, JSINativeException> {
-          int32_t instance_id = static_cast<int32_t>(rt.getRuntimeId());
           tasm::timing::LongTaskMonitor::Scope long_task_scope(
-              instance_id, tasm::timing::kUpdateDataByJSTask,
+              GetPageOptions(native_app_), tasm::timing::kUpdateDataByJSTask,
               tasm::timing::kTaskNameJSAppBatchedUpdateData);
           if (count < 1) {
             return base::unexpected(BUILD_JSI_NATIVE_EXCEPTION(
@@ -551,9 +557,8 @@ Value AppProxy::get(Runtime* rt, const PropNameID& name) {
           if (!ptr || ptr->IsDestroying()) {
             return piper::Value::undefined();
           }
-          int32_t instance_id = static_cast<int32_t>(rt.getRuntimeId());
           tasm::timing::LongTaskMonitor::Scope long_task_scope(
-              instance_id, tasm::timing::kUpdateDataByJSTask,
+              GetPageOptions(native_app_), tasm::timing::kUpdateDataByJSTask,
               tasm::timing::kTaskNameJSAppUpdateComponentData);
           std::string id;
           if (args[0].isString()) {
@@ -1068,9 +1073,8 @@ Value AppProxy::get(Runtime* rt, const PropNameID& name) {
           if (!ptr || ptr->IsDestroying()) {
             return piper::Value::undefined();
           }
-          int32_t instance_id = static_cast<int32_t>(rt.getRuntimeId());
           tasm::timing::LongTaskMonitor::Scope long_task_scope(
-              instance_id, tasm::timing::kJSFuncTask,
+              GetPageOptions(native_app_), tasm::timing::kJSFuncTask,
               tasm::timing::kTaskNameJSAppCallLepusMethod);
 
           std::string method_name;
@@ -2136,9 +2140,8 @@ std::optional<Value> App::SendPageEvent(const std::string& page_name,
   LOGI("App::SendPageEvent,handler: " << handler << " " << this);
   auto rt = rt_.lock();
   if (rt && IsJsAppStateValid()) {
-    int32_t instance_id = static_cast<int32_t>(rt->getRuntimeId());
     tasm::timing::LongTaskMonitor::Scope long_task_scope(
-        instance_id, tasm::timing::kJSFuncTask,
+        GetPageOptions(), tasm::timing::kJSFuncTask,
         tasm::timing::kTaskNameJSAppSendPageEvent, handler);
     TRACE_EVENT(LYNX_TRACE_CATEGORY, APP_SEND_PAGE_EVENT,
                 [&](lynx::perfetto::EventContext ctx) {
@@ -2984,9 +2987,8 @@ std::optional<Value> App::PublishComponentEvent(const std::string& component_id,
 
   auto rt = rt_.lock();
   if (rt && IsJsAppStateValid() && card_bundle_.support_component_js) {
-    int32_t instance_id = static_cast<int32_t>(rt->getRuntimeId());
     tasm::timing::LongTaskMonitor::Scope long_task_scope(
-        instance_id, tasm::timing::kUpdateTriggeredByBts,
+        GetPageOptions(), tasm::timing::kUpdateTriggeredByBts,
         tasm::timing::kTaskNameJSAppPublishComponentEvent, handler);
     Scope scope(*rt);
     Object js_app = js_app_.getObject(*rt);
@@ -3468,6 +3470,11 @@ void App::ResumeAnimationFrame() {
 void App::SetJsBundleHolder(
     const std::weak_ptr<piper::JsBundleHolder>& holder) {
   weak_js_bundle_holder_ = holder;
+}
+
+void App::SetPageOptions(const tasm::PageOptions& options) {
+  page_options_ = options;
+  js_task_adapter_->SetPageOptions(options);
 }
 
 }  // namespace piper

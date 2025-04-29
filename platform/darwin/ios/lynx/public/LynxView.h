@@ -8,6 +8,7 @@
 
 #import <Lynx/JSModule.h>
 #import <Lynx/LUIBodyView.h>
+#import <Lynx/LynxBooleanOption.h>
 #import <Lynx/LynxConfigInfo.h>
 #import <Lynx/LynxExtraTiming.h>
 #import <Lynx/LynxGenericResourceFetcher.h>
@@ -335,9 +336,21 @@
 
 - (void)setExtraTimingWithDictionary:(NSDictionary* _Nonnull)timing;
 
+/// Set whether to enable long task monitor.
+///
+/// @param enabled Whether to enable long task monitor.
+/// Pass LynxBooleanOptionUnset to use the default behavior, i.e. the env value
+/// of `enable_long_task_timing`(injected via the LynxTrailService).
+/// Pass LynxBooleanOptionTrue to enable long task monitor.
+/// Pass LynxBooleanOptionFalse to disable long task monitor.
+///
+/// @note This method is only effective when PageConfig is not configured with
+/// kEnableLongTaskTiming.
+- (void)setLongTaskMonitorEnabled:(LynxBooleanOption)enabled;
+
 /// Set whether to enable fluency metics collection.
 ///
-/// @param enabledBySampling Whether to enable fluency metics collection.
+/// @param enabled Whether to enable fluency metics collection.
 /// Pass LynxBooleanOptionUnset to use the default behavior, i.e. the env value
 /// of `ENABLE_FLUENCY_TRACE`(injected via the LynxTrailService).
 /// Pass LynxBooleanOptionTrue to enable fluency metrics collection.
@@ -345,7 +358,7 @@
 ///
 /// @note This method is only effective when PageConfig is not configured with
 /// kEnableLynxScrollFluency.
-- (void)setFluencyTracerEnabled:(LynxBooleanOption)enabledBySampling;
+- (void)setFluencyTracerEnabled:(LynxBooleanOption)enabled;
 
 /// Put parameters for reporting events, overriding old values if the parameters already
 /// exist.

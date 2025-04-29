@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "base/include/base_export.h"
+#include "core/public/page_options.h"
 #include "core/runtime/bindings/jsi/global.h"
 #include "core/runtime/bindings/jsi/js_app.h"
 #include "core/runtime/bindings/jsi/modules/lynx_jsi_module_callback.h"
@@ -58,7 +59,8 @@ class BASE_EXPORT_FOR_DEVTOOL JSExecutor {
 
   std::shared_ptr<piper::App> createNativeAppInstance(
       int64_t rt_id, runtime::TemplateDelegate*,
-      std::unique_ptr<lynx::runtime::LynxApiHandler> api_handler);
+      std::unique_ptr<lynx::runtime::LynxApiHandler> api_handler,
+      const tasm::PageOptions& page_options);
 
   piper::JSRuntimeCreatedType getJSRuntimeType();
 

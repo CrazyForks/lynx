@@ -8,6 +8,7 @@
 #include <list>
 #include <map>
 #include <memory>
+#include <optional>
 #include <set>
 #include <string>
 #include <unordered_map>
@@ -19,6 +20,7 @@
 #include "core/base/utils/any.h"
 #include "core/inspector/observer/inspector_element_observer.h"
 #include "core/inspector/style_sheet.h"
+#include "core/public/page_options.h"
 #include "core/public/pipeline_option.h"
 #include "core/public/prop_bundle.h"
 #include "core/renderer/css/computed_css_style.h"
@@ -471,6 +473,10 @@ class ElementManager {
     }
     return false;
   }
+
+  void SetPageOptions(const PageOptions &options) { page_options_ = options; }
+
+  const PageOptions &GetPageOptions() { return page_options_; }
 
   void SetEnableLayoutOnly(bool enable) { enable_layout_only_ = enable; }
 
@@ -1141,6 +1147,8 @@ class ElementManager {
   bool need_layout_{false};
   // Current thread strategy
   int thread_strategy_;
+
+  PageOptions page_options_;
 
   // Enable new animator for current lynx view by default for radon/fiber, the
   // initial values here are defined to show the default values and serve as a

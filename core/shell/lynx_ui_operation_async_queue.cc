@@ -125,7 +125,7 @@ void LynxUIOperationAsyncQueue::FlushInterval() {
               });
 
   tasm::timing::LongTaskMonitor::Scope longTaskScope(
-      instance_id_, tasm::timing::kUIOperationFlushTask,
+      page_options_, tasm::timing::kUIOperationFlushTask,
       tasm::timing::kTaskNameLynxUIOperationAsyncQueueFlush);
   is_in_flush_ = true;
 

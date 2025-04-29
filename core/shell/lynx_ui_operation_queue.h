@@ -14,6 +14,7 @@
 
 #include "base/include/closure.h"
 #include "base/include/concurrent_queue.h"
+#include "core/public/page_options.h"
 #include "core/renderer/utils/lynx_env.h"
 #include "core/services/event_report/event_tracker.h"
 
@@ -54,6 +55,9 @@ class LynxUIOperationQueue {
   void SetErrorCallback(ErrorCallback callback) {
     error_callback_ = std::move(callback);
   };
+  void SetPageOptions(const tasm::PageOptions& options) {
+    page_options_ = options;
+  }
   virtual uint32_t GetNativeUpdateDataOrder() { return 0; }
   virtual uint32_t UpdateNativeUpdateDataOrder() { return 0; }
   virtual bool IsInFlush() { return false; }
@@ -70,7 +74,8 @@ class LynxUIOperationQueue {
   std::atomic_bool destroyed_{false};
   bool enable_flush_{true};
   ErrorCallback error_callback_;
-  int32_t instance_id_;
+  const int32_t instance_id_;
+  tasm::PageOptions page_options_;
 };
 
 }  // namespace shell

@@ -142,11 +142,10 @@ void JSProxyAndroid::CallJSFunction(std::string module_id,
   actor_->Act([module_id = std::move(module_id),
                method_id = std::move(method_id), args_id,
                runtime_standalone_mode = runtime_standalone_mode_,
-               jni_object = jni_object_,
-               instance_id = actor_->GetInstanceId()](auto& runtime) mutable {
+               jni_object = jni_object_](auto& runtime) mutable {
     auto task = [&runtime, module_id = std::move(module_id),
-                 method_id = std::move(method_id), args_id, jni_object,
-                 instance_id]() mutable {
+                 method_id = std::move(method_id), args_id,
+                 jni_object]() mutable {
       auto js_runtime = runtime->GetJSRuntime();
       if (js_runtime == nullptr) {
         LOGR("try call js module before js context is ready! module:"
@@ -161,7 +160,7 @@ void JSProxyAndroid::CallJSFunction(std::string module_id,
       }
       piper::Scope scope(*js_runtime);
       tasm::timing::LongTaskMonitor::Scope long_task_scope(
-          instance_id, tasm::timing::kJSFuncTask,
+          runtime->GetPageOptions(), tasm::timing::kJSFuncTask,
           tasm::timing::kTaskNameJSProxyCallJSFunction);
       tasm::timing::LongTaskTiming* timing =
           tasm::timing::LongTaskMonitor::Instance()->GetTopTimingPtr();

@@ -43,10 +43,12 @@ class AdapterTask {
 }  // namespace
 
 JsTaskAdapter::JsTaskAdapter(const std::weak_ptr<Runtime>& rt,
-                             const std::string& group_id)
+                             const std::string& group_id,
+                             const tasm::PageOptions& page_options)
     : manager_(std::make_unique<base::TimedTaskManager>()),
       runner_(fml::MessageLoop::GetCurrent().GetTaskRunner()),
-      rt_(rt) {}
+      rt_(rt),
+      page_options_(page_options) {}
 
 JsTaskAdapter::~JsTaskAdapter() { manager_->StopAllTasks(); }
 
@@ -74,33 +76,33 @@ void JsTaskAdapter::QueueMicrotask(Function func) {
 }
 
 base::closure JsTaskAdapter::MakeTask(Function func, TaskType task_type) {
-  return fml::MakeCopyable(
-      [weak_rt = rt_, func = std::move(func), task_type]() {
-        auto rt = weak_rt.lock();
-        if (rt) {
-          int32_t instance_id = static_cast<int32_t>(rt->getRuntimeId());
-          std::string task_name;
-          switch (task_type) {
-            case TaskType::kSetTimeout:
-              task_name = tasm::timing::kTaskNameJsTaskAdapterSetTimeout;
-              break;
-            case TaskType::kSetInterval:
-              task_name = tasm::timing::kTaskNameJsTaskAdapterSetInterval;
-              break;
-            case TaskType::kQueueMicrotask:
-              task_name = tasm::timing::kTaskNameJsTaskAdapterQueueMicrotask;
-              break;
-          }
-          TRACE_EVENT("lynx", task_name, "instance_id", instance_id);
+  return fml::MakeCopyable([weak_rt = rt_, func = std::move(func), task_type,
+                            page_options = page_options_]() {
+    auto rt = weak_rt.lock();
+    if (rt) {
+      std::string task_name;
+      switch (task_type) {
+        case TaskType::kSetTimeout:
+          task_name = tasm::timing::kTaskNameJsTaskAdapterSetTimeout;
+          break;
+        case TaskType::kSetInterval:
+          task_name = tasm::timing::kTaskNameJsTaskAdapterSetInterval;
+          break;
+        case TaskType::kQueueMicrotask:
+          task_name = tasm::timing::kTaskNameJsTaskAdapterQueueMicrotask;
+          break;
+      }
+      TRACE_EVENT("lynx", task_name, "instance_id",
+                  static_cast<int32_t>(rt->getRuntimeId()));
 
-          tasm::timing::LongTaskMonitor::Scope long_task_scope(
-              instance_id, tasm::timing::kTimerTask, task_name);
-          piper::Scope scope(*rt);
-          // Explicitly ignore the return value since the exception will be
-          // handled by `func.call`.
-          static_cast<void>(func.call(*rt, nullptr, 0));
-        }
-      });
+      tasm::timing::LongTaskMonitor::Scope long_task_scope(
+          page_options, tasm::timing::kTimerTask, task_name);
+      piper::Scope scope(*rt);
+      // Explicitly ignore the return value since the exception will be
+      // handled by `func.call`.
+      static_cast<void>(func.call(*rt, nullptr, 0));
+    }
+  });
 }
 
 void JsTaskAdapter::RemoveTask(uint32_t task) { manager_->StopTask(task); }

@@ -24,8 +24,9 @@ void JSClosureEventListenerTest::SetUp() {
   fml::MessageLoop::EnsureInitializedForCurrentThread();
   auto nativeModule =
       eval("(function() { return {}; })()")->asObject(rt).value();
-  app_ = App::Create(0, runtime, &delegate_, exception_handler_,
-                     std::move(nativeModule), nullptr, "-1");
+  app_ =
+      App::Create(0, runtime, &delegate_, exception_handler_,
+                  std::move(nativeModule), nullptr, "-1", tasm::PageOptions());
 }
 
 TEST_P(JSClosureEventListenerTest, JSClosureEventListenerMatches) {

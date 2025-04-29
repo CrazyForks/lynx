@@ -214,6 +214,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Perf
 
+- (void)setLongTaskMonitorEnabled:(LynxBooleanOption)enabled;
+
 - (void)setExtraTiming:(LynxExtraTiming* _Nonnull)timing;
 
 - (void)setFluencyTracerEnabled:(LynxBooleanOption)enabled;

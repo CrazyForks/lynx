@@ -3157,6 +3157,7 @@ public protocol LynxTemplateRenderProtocol-p : <NSObject> {
   public nullable NSNumber * LynxTemplateRenderProtocol-p::getLynxRuntimeId();
   public void LynxTemplateRenderProtocol-p::onErrorOccurred:message:(NSInteger errCode,[message] NSString *_Nonnull errMessage);
   public void LynxTemplateRenderProtocol-p::onErrorOccurred:sourceError:(NSInteger errCode,[sourceError] NSError *_Nonnull source);
+  public void LynxTemplateRenderProtocol-p::setLongTaskMonitorEnabled:(LynxBooleanOption enabled);
   public void LynxTemplateRenderProtocol-p::setExtraTiming:(LynxExtraTiming *_Nonnull timing);
   public void LynxTemplateRenderProtocol-p::setFluencyTracerEnabled:(LynxBooleanOption enabled);
   public void LynxTemplateRenderProtocol-p::putExtraParamsForReportingEvents:(NSDictionary< NSString *, id > *_Nonnull params);
@@ -4168,7 +4169,7 @@ public protocol LynxUIRendererProtocol-p : <NSObject> {
   public lynx::tasm::UIDelegate * LynxUIRendererProtocol-p::uiDelegate();
   public void LynxUIRendererProtocol-p::setupEventHandler:engineProxy:lynxView:context:shellPtr:(LynxTemplateRender *templateRenderer,[engineProxy] LynxEngineProxy *engineProxy,[lynxView] LynxView *lynxView,[context] LynxContext *context,[shellPtr] int64_t shellPtr);
   public void LynxUIRendererProtocol-p::setPageConfig:context:(const std::shared_ptr< lynx::tasm::PageConfig > &pageConfig,[context] LynxContext *context);
-  public void LynxUIRendererProtocol-p::setFluencyTracerEnabled:(LynxBooleanOption enabledBySampling);
+  public void LynxUIRendererProtocol-p::setFluencyTracerEnabled:(LynxBooleanOption enabled);
   public BOOL LynxUIRendererProtocol-p::needPaintingContextProxy();
   public void LynxUIRendererProtocol-p::onSetFrame:(CGRect frame);
   public nullable LynxUIIntersectionObserverManager * LynxUIRendererProtocol-p::getLynxUIIntersectionObserverManager();
@@ -4419,7 +4420,8 @@ public class LynxView : UIView, <LUIBodyView> {
   public void LynxView::setExtraTiming:(LynxExtraTiming *_Nonnull timing);
   public nullable NSDictionary * LynxView::getAllTimingInfo();
   public void LynxView::setExtraTimingWithDictionary:(NSDictionary *_Nonnull timing);
-  public void LynxView::setFluencyTracerEnabled:(LynxBooleanOption enabledBySampling);
+  public void LynxView::setLongTaskMonitorEnabled:(LynxBooleanOption enabled);
+  public void LynxView::setFluencyTracerEnabled:(LynxBooleanOption enabled);
   public void LynxView::putParamsForReportingEvents:(NSDictionary< NSString *, id > *_Nonnull params);
   public void LynxView::runOnTasmThread:(dispatch_block_t _Nonnull task);
   public void LynxView::syncFlush();

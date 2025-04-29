@@ -30,8 +30,8 @@ TEST_F(LynxRuntimeActorHolderTest, HoldAndRelease) {
 
   // hold serveral LynxRuntimes
   for (uint32_t i = 0; i < kRuntimeCounts; ++i) {
-    auto runtime = std::make_unique<runtime::LynxRuntime>("", 0, nullptr, false,
-                                                          "", false);
+    auto runtime = std::make_unique<runtime::LynxRuntime>(
+        "", 0, nullptr, false, "", false, tasm::PageOptions());
     int64_t id = runtime->GetRuntimeId();
     auto actor = std::make_shared<LynxActor<runtime::LynxRuntime>>(
         std::move(runtime), js_runner);
@@ -72,8 +72,8 @@ TEST_F(LynxRuntimeActorHolderTest, HoldAndDelayedRelease) {
 
   // hold serveral LynxRuntimes
   for (uint32_t i = 0; i < kRuntimeCounts; ++i) {
-    auto runtime = std::make_unique<runtime::LynxRuntime>("", 0, nullptr, false,
-                                                          "", false);
+    auto runtime = std::make_unique<runtime::LynxRuntime>(
+        "", 0, nullptr, false, "", false, tasm::PageOptions());
     int64_t id = runtime->GetRuntimeId();
     auto actor = std::make_shared<LynxActor<runtime::LynxRuntime>>(
         std::move(runtime), js_runner);

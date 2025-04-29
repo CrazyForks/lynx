@@ -20,6 +20,7 @@
 #include "core/inspector/observer/inspector_runtime_observer_ng.h"
 #include "core/public/lynx_extension_delegate.h"
 #include "core/public/lynx_resource_loader.h"
+#include "core/public/page_options.h"
 #include "core/renderer/data/template_data.h"
 #include "core/renderer/ui_wrapper/common/prop_bundle_creator_default.h"
 #include "core/runtime/bindings/jsi/modules/lynx_module_manager.h"
@@ -67,6 +68,7 @@ struct ShellOption {
   bool enable_async_hydration_{false};
   int32_t instance_id_{kUnknownInstanceId};
   std::string js_group_thread_name_;
+  tasm::PageOptions page_options_;
 };
 
 // support create and destroy in any thread
@@ -265,6 +267,10 @@ class LynxShell {
 
   int32_t GetInstanceId() { return instance_id_; }
 
+  void SetPageOptions(const tasm::PageOptions& page_options);
+
+  const tasm::PageOptions& GetPageOptions() { return page_options_; }
+
   std::shared_ptr<LynxActor<NativeFacade>> GetFacadeActor() {
     return facade_actor_;
   }
@@ -305,6 +311,7 @@ class LynxShell {
   void SetEnableBytecode(bool enable, std::string bytecode_source_url);
 
   void SetAnimationsPending(bool need_pending_ui_op);
+
   /**
    * Dispatch MessageEvent from platform, currently only dispatching
    * MessageEvent from DevTool.
@@ -409,6 +416,7 @@ class LynxShell {
 
   std::string js_group_thread_name_;
   bool enable_js_group_thread_;
+  tasm::PageOptions page_options_;
   std::condition_variable tasm_merge_cv_;
   std::mutex tasm_merge_mutex_;
   std::atomic_bool need_wait_for_merge_{false};

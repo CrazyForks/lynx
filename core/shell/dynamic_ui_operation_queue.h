@@ -9,6 +9,7 @@
 #include <utility>
 
 #include "core/base/threading/task_runner_manufactor.h"
+#include "core/public/page_options.h"
 #include "core/services/event_report/event_tracker.h"
 #include "core/shell/lynx_ui_operation_queue.h"
 
@@ -34,6 +35,7 @@ class DynamicUIOperationQueue {
   void Flush();
   void SetEnableFlush(bool enable_flush);
   void SetErrorCallback(ErrorCallback callback);
+  void SetPageOptions(const tasm::PageOptions& options);
   uint32_t GetNativeUpdateDataOrder();
   uint32_t UpdateNativeUpdateDataOrder();
 

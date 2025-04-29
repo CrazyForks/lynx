@@ -2026,8 +2026,14 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
   }
 }
 
-- (void)setFluencyTracerEnabled:(LynxBooleanOption)enabledBySampling {
-  [_lynxUIRenderer setFluencyTracerEnabled:enabledBySampling];
+- (void)setFluencyTracerEnabled:(LynxBooleanOption)enabled {
+  [_lynxUIRenderer setFluencyTracerEnabled:enabled];
+}
+
+- (void)setLongTaskMonitorEnabled:(LynxBooleanOption)enabled {
+  auto options = shell_->GetPageOptions();
+  options.SetLongTaskMonitorDisabled(enabled == LynxBooleanOptionFalse);
+  shell_->SetPageOptions(options);
 }
 
 - (void)putExtraParamsForReportingEvents:(NSDictionary<NSString*, id>*)params {

@@ -12,6 +12,7 @@
 #include <string>
 
 #include "base/include/vector.h"
+#include "core/public/page_options.h"
 #include "core/services/long_task_timing/long_batched_tasks_monitor.h"
 #include "core/services/long_task_timing/long_task_timing.h"
 
@@ -108,19 +109,29 @@ class LongTaskMonitor {
  public:
   class Scope {
    public:
-    explicit Scope(int32_t instance_id, const std::string& type = "",
-                   const std::string& name = "",
+    explicit Scope(const PageOptions& page_options,
+                   const std::string& type = "", const std::string& name = "",
                    const std::string& task_info = "") {
-      LongTaskMonitor::Instance()->WillProcessTask(type, name, task_info,
-                                                   instance_id);
+      if (LongTaskMonitor::IsEnabledForInstance(page_options)) {
+        current_scope_enabled_ = true;
+        LongTaskMonitor::Instance()->WillProcessTask(
+            type, name, task_info, page_options.GetInstanceID());
+      }
     }
 
-    ~Scope() { LongTaskMonitor::Instance()->DidProcessTask(); }
+    ~Scope() {
+      if (current_scope_enabled_) {
+        LongTaskMonitor::Instance()->DidProcessTask();
+      }
+    }
 
     Scope(const Scope& s) = delete;
     Scope& operator=(const Scope&) = delete;
     Scope(Scope&&) = delete;
     Scope& operator=(Scope&&) = delete;
+
+   private:
+    bool current_scope_enabled_ = false;
   };
 
   /**
@@ -168,14 +179,32 @@ class LongTaskMonitor {
   static LongTaskMonitor* Instance();
 
  private:
+  friend class Scope;
+
   LongTaskMonitor();
   LongTaskMonitor(const LongTaskMonitor& timing) = delete;
   LongTaskMonitor& operator=(const LongTaskMonitor&) = delete;
   LongTaskMonitor(LongTaskMonitor&&) = delete;
   LongTaskMonitor& operator=(LongTaskMonitor&&) = delete;
 
+  bool enable_ __attribute__((
+      unused));  // TODO(kazec.liu): for ssr compilation, delete later
+
+  static inline bool g_enabled = false;
+  static inline bool IsEnabledForInstance(const PageOptions& page_options) {
+    if (!g_enabled || page_options.GetInstanceID() < 0) {
+      return false;
+    }
+
+    // If the task is explictly disabled by sampling for the shell instance,
+    // skip the task monitoring.
+    if (page_options.GetLongTaskMonitorDisabled()) {
+      return false;
+    }
+    return true;
+  }
+
   base::InlineStack<LongTaskTiming, 16> timing_stack_;
-  bool enable_;
   // TODO(limeng.amer): get value from LynxEnv;
   double duration_threshold_ms_;
   std::string thread_name_;
