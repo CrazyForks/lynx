@@ -7,6 +7,7 @@ public class TimingConstants {
   // Performance Timing Key
   public static final String PIPELINE_START = "pipelineStart";
   public static final String LOAD_BUNDLE_START = "loadBundleStart";
+  public static final String RELOAD_BUNDLE_START = "reloadBundleStart";
   public static final String VERIFY_TASM_START = "verifyTasmStart";
   public static final String VERIFY_TASM_END = "verifyTasmEnd";
   public static final String FFI_START = "ffiStart";

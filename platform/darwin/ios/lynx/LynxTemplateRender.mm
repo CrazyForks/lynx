@@ -631,7 +631,7 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
   _globalProps = [_globalProps deepClone];
   [_lynxUIRenderer reset];
 
-  shell_->ClearAllTimingInfo();
+  shell_->ClearPipelineTimingInfo();
   // remove generic info
   [LynxEventReporter removeGenericInfo:_context.instanceId];
   int32_t lastInstanceId = _context.instanceId;
@@ -1094,7 +1094,7 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
     [self onPipelineStart:pipeline_options->pipeline_id
                 pipelineOrigin:pipeline_options->pipeline_origin
         pipelineStartTimestamp:pipeline_options->pipeline_start_timestamp];
-    [self markTiming:lynx::tasm::timing::kLoadBundleStart
+    [self markTiming:lynx::tasm::timing::kReloadBundleStart
           pipelineID:pipeline_options->pipeline_id.c_str()];
 
     if ([_delegate respondsToSelector:@selector(templateRenderOnPageStarted:withPipelineInfo:)]) {

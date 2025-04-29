@@ -113,8 +113,8 @@ class TimingInfo {
   // Method to clear all timing information.
   // TODO(kechenglong): Temporary API, will be removed after pipelineOptions
   // finished pre-created. We don't need reset anymore.
-  void ClearAllTiming();
-
+  void ClearPipelineTimingInfo();
+  void ClearExtraTimingInfo();
   void ReleaseTiming(const PipelineID& pipeline_id);
 
  private:

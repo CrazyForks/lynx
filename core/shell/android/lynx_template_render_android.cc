@@ -1270,15 +1270,15 @@ jobject GetAllTimingInfo(JNIEnv* env, jobject jcaller, jlong ptr,
   return env->NewLocalRef(all_timing.jni_object());  // NOLINT
 }
 
-void ClearAllTimingInfo(JNIEnv* env, jobject jcaller, jlong ptr,
-                        jlong lifecycle) {
+void ClearPipelineTimingInfo(JNIEnv* env, jobject jcaller, jlong ptr,
+                             jlong lifecycle) {
   AtomicLifecycle* lifecycle_ptr =
       reinterpret_cast<AtomicLifecycle*>(lifecycle);
   if (!AtomicLifecycle::TryLock(lifecycle_ptr)) {
     return;
   }
   auto* shell = reinterpret_cast<LynxShell*>(ptr);
-  shell->ClearAllTimingInfo();
+  shell->ClearPipelineTimingInfo();
   AtomicLifecycle::TryFree(lifecycle_ptr);
 }
 

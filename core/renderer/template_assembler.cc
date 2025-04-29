@@ -1067,6 +1067,7 @@ void TemplateAssembler::ReloadTemplate(
                 debug->set_name("url");
                 debug->set_string_value(url_);
               });
+  tasm::TimingCollector::Instance()->Mark(tasm::timing::kReloadBundleStart);
   // Before template load start.
   UpdateGlobalPropsWithDefaultProps(pipeline_options);
   auto card = FindEntry(DEFAULT_ENTRY_NAME);
@@ -1076,16 +1077,13 @@ void TemplateAssembler::ReloadTemplate(
   if (card && card->GetVm()) {
     card->GetVm()->UpdateGCTiming(true);
   }
-  tasm::TimingCollector::Instance()->Mark(tasm::timing::kLoadBundleStart);
-  // when reloadTemplate, we will use loadTemplateStart to mock
-  // SETUP_DECODE_START, SETUP_DECODE_END
-  // SETUP_LEPUS_EXECUTE_START, SETUP_LEPUS_EXECUTE_END
-  // SETUP_SET_INIT_DATA_START, SETUP_SET_INIT_DATA_END
+
+  // mock for old Timing API, we will remove these after onTimingSetup goes
+  // offline. SETUP_DECODE_START, SETUP_DECODE_END SETUP_LEPUS_EXECUTE_START,
+  // SETUP_LEPUS_EXECUTE_END SETUP_SET_INIT_DATA_START, SETUP_SET_INIT_DATA_END
   tasm::TimingCollector::Instance()->Mark(tasm::timing::kParseStart);
   tasm::TimingCollector::Instance()->Mark(tasm::timing::kParseEnd);
-  if (pipeline_options->need_timestamps) {
-    tasm::TimingCollector::Instance()->Mark(tasm::timing::kMtsRenderStart);
-  }
+  tasm::TimingCollector::Instance()->Mark(tasm::timing::kMtsRenderStart);
   tasm::TimingCollector::Instance()->MarkFrameworkTiming(
       tasm::timing::kVmExecuteStart);
   tasm::TimingCollector::Instance()->MarkFrameworkTiming(
@@ -1141,10 +1139,10 @@ void TemplateAssembler::ReloadTemplate(
   delegate_.OnTasmFinishByNative();
   is_loading_template_ = false;
   LOGI("end TemplateAssembler::ReloadTemplate");
-  tasm::TimingCollector::Instance()->Mark(tasm::timing::kLoadBundleEnd);
   if (card && card->GetVm()) {
     card->GetVm()->UpdateGCTiming(false);
   }
+  tasm::TimingCollector::Instance()->Mark(tasm::timing::kReloadBundleEnd);
 }
 
 void TemplateAssembler::ReloadTemplate(
@@ -1164,6 +1162,7 @@ void TemplateAssembler::ReloadFromJS(
     std::shared_ptr<PipelineOptions>& pipeline_options) {
   TRACE_EVENT(LYNX_TRACE_CATEGORY_VITALS, RELOAD_FROM_JS);
   Scope scope(this);
+  tasm::TimingCollector::Instance()->Mark(tasm::timing::kReloadBundleStart);
   pipeline_context_manager_->CreateAndUpdateCurrentPipelineContext(
       pipeline_options, true /*is_major_updated*/);
 
@@ -1203,6 +1202,7 @@ void TemplateAssembler::ReloadFromJS(
   RunPixelPipeline();
 
   SendFontScaleChanged(font_scale_);
+  tasm::TimingCollector::Instance()->Mark(tasm::timing::kReloadBundleEnd);
 }
 
 void TemplateAssembler::AddFont(const lepus::Value& font) {

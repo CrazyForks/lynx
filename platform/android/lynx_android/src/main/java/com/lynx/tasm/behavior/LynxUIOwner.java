@@ -1299,7 +1299,7 @@ public class LynxUIOwner {
     }
     NativeFacade nativeFacade = (mNativeFacade != null) ? mNativeFacade.get() : null;
     if (nativeFacade != null) {
-      nativeFacade.clearAllNativeTimingInfo();
+      nativeFacade.clearNativePipelineTimingInfo();
     }
   }
 

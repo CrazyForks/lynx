@@ -335,7 +335,7 @@ class LynxShell {
 
   // TODO(kechenglong): Temporary API, will be removed after pipelineOptions
   // finished pre-created.
-  void ClearAllTimingInfo() const;
+  void ClearPipelineTimingInfo() const;
 
   void OnPipelineStart(const tasm::PipelineID& pipeline_id,
                        const tasm::PipelineOrigin& pipeline_origin,

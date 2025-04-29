@@ -3329,15 +3329,17 @@ void App::onPiperInvoked(const std::string& module_name,
 void App::ReloadFromJS(const lepus::Value& value, ApiCallBack callback) {
   auto rt = rt_.lock();
   if (rt) {
+    delegate_->ResetTimingBeforeReload();
     runtime::UpdateDataType update_data_type;
     auto pipeline_options = std::make_shared<tasm::PipelineOptions>();
     pipeline_options->pipeline_origin = tasm::timing::kReloadBundleFromBts;
+    pipeline_options->need_timestamps = true;
+    pipeline_options->is_reload_template = true;
     delegate_->OnPipelineStart(pipeline_options->pipeline_id,
                                pipeline_options->pipeline_origin,
                                pipeline_options->pipeline_start_timestamp);
     const auto& timing_flag = tasm::GetTimingFlag(value);
     if (!timing_flag.empty()) {
-      pipeline_options->need_timestamps = true;
       delegate_->BindPipelineIDWithTimingFlag(pipeline_options->pipeline_id,
                                               timing_flag);
       tasm::TimingCollector::Scope<runtime::TemplateDelegate> scope(

@@ -2,8 +2,6 @@ LoadBundleEntry:
   x-type: 'pipeline'
   x-name:
     - 'loadBundle'
-    - 'reloadBundleFromNative'
-    - 'reloadBundleFromBts'
   allOf:
     - $ref: 'PipelineEntry.yml#/PipelineEntry'
     - type: object

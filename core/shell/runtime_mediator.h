@@ -151,6 +151,7 @@ class RuntimeMediator : public runtime::TemplateDelegate {
                                    const std::string& key,
                                    const std::string& value) override;
   void FlushJSBTiming(piper::NativeModuleInfo timing) override;
+  void ResetTimingBeforeReload() override;
 
   void OnPipelineStart(
       const tasm::PipelineID& pipeline_id,

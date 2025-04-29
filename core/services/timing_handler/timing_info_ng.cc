@@ -17,12 +17,21 @@ namespace lynx {
 namespace tasm {
 namespace timing {
 
-void TimingInfoNg::ClearAllTimingInfo() {
+void TimingInfoNg::ClearPipelineTimingInfo() {
   pipeline_timing_info_.clear();
   framework_timing_info_.clear();
   metrics_.clear();
   load_bundle_pipeline_id_ = "";
   pipeline_id_to_origin_map_.clear();
+}
+
+void TimingInfoNg::ClearContainerTimingInfo() {
+  std::initializer_list<TimestampKey> container_keys = {
+      kContainerInitStart, kContainerInitEnd, kPrepareTemplateStart,
+      kPrepareTemplateEnd, kOpenTime};
+  for (const TimestampKey& key : container_keys) {
+    init_timing_info_.Erase(key);
+  }
 }
 
 void TimingInfoNg::ReleasePipelineTiming(const PipelineID& pipeline_id) {
@@ -164,9 +173,7 @@ std::unique_ptr<lynx::pub::Value> TimingInfoNg::GetPipelineEntry(
     return nullptr;
   }
   // check special pipeline is ready
-  if (pipeline_origin == kLoadBundle ||
-      pipeline_origin == kReloadBundleFromBts ||
-      pipeline_origin == kReloadBundleFromNative) {
+  if (pipeline_origin == kLoadBundle) {
     // check loadBundle is ready
     static const std::initializer_list<std::string> check_keys =
         enable_background_runtime_
@@ -177,8 +184,19 @@ std::unique_ptr<lynx::pub::Value> TimingInfoNg::GetPipelineEntry(
     if (!ready) {
       return nullptr;
     }
+  } else if (pipeline_origin == kReloadBundleFromBts ||
+             pipeline_origin == kReloadBundleFromNative) {
+    // check reloadBundle is ready
+    static const std::initializer_list<std::string> check_keys =
+        enable_background_runtime_
+            ? std::initializer_list<std::string>{kReloadBundleEnd,
+                                                 kReloadBackgroundEnd}
+            : std::initializer_list<std::string>{kReloadBundleEnd};
+    bool ready = timing_map.CheckAllKeysExist(check_keys);
+    if (!ready) {
+      return nullptr;
+    }
   }
-
   // make entry
   auto entry = timing_map.ToPubMap(false, value_factory_);
   // merge framework, framework-pipeline may don't have item.
@@ -259,9 +277,10 @@ std::unique_ptr<lynx::pub::Value> TimingInfoNg::GetMetricFcpEntry(
   }
 
   /* Calculation formula:
-   * lynxFcp = LoadBundleEntry.paintEnd - LoadBundleEntry.loadBundleStart
-   * fcp = LoadBundleEntry.paintEnd - InitContainerEntry.prepareTemplateStart
-   * totalFcp = LoadBundleEntry.paintEnd - InitContainerEntry.openTime
+   * lynxFcp = (Re)LoadBundleEntry.paintEnd -
+   * (Re)LoadBundleEntry.loadBundleStart fcp = (Re)LoadBundleEntry.paintEnd -
+   * InitContainerEntry.prepareTemplateStart totalFcp =
+   * (Re)LoadBundleEntry.paintEnd - InitContainerEntry.openTime
    */
   if (metrics_.find(kLynxFCP) == metrics_.end()) {
     // determine use reload or load
@@ -269,10 +288,11 @@ std::unique_ptr<lynx::pub::Value> TimingInfoNg::GetMetricFcpEntry(
     auto pipeline_origin =
         pipeline_id_to_origin_map_.find(load_bundle_pipeline_id_);
     if (pipeline_origin != pipeline_id_to_origin_map_.end()) {
-      if (pipeline_origin->second == kLoadBundle ||
-          pipeline_origin->second == kReloadBundleFromBts ||
-          pipeline_origin->second == kReloadBundleFromNative) {
+      if (pipeline_origin->second == kLoadBundle) {
         lynx_fcp_start_name = kLoadBundleStart;
+      } else if (pipeline_origin->second == kReloadBundleFromBts ||
+                 pipeline_origin->second == kReloadBundleFromNative) {
+        lynx_fcp_start_name = kReloadBundleStart;
       } else {
         LOGE("TimingInfoNg: only loadBundle/reloadBundle could calc fcp.")
       }
@@ -342,7 +362,6 @@ std::unique_ptr<lynx::pub::Value> TimingInfoNg::GetMetricFmpEntry(
   }
 
   uint64_t paint_end = 0;
-  uint64_t load_bundle_start = 0;
   if (pipeline_id.empty()) {
     // If there's no pipeline ID, check if metrics_[kLynxActualFMP] exists.
     //      If not, exit; if it exists, extract kPaintEnd for calculation.
@@ -371,7 +390,8 @@ std::unique_ptr<lynx::pub::Value> TimingInfoNg::GetMetricFmpEntry(
   }
 
   /* Calculation formula:
-   * lynxActualFmp = PipelineEntry.paintEnd - LoadBundleEntry.loadBundleStart
+   * lynxActualFmp = PipelineEntry.paintEnd -
+   (Re)LoadBundleEntry.loadBundleStart
    * actualFmp = PipelineEntry.paintEnd
                  - InitContainerEntry.prepareTemplateStart
    * totalActualFmp = PipelineEntry.paintEnd - InitContainerEntry.openTime
@@ -384,10 +404,11 @@ std::unique_ptr<lynx::pub::Value> TimingInfoNg::GetMetricFmpEntry(
     auto pipeline_origin =
         pipeline_id_to_origin_map_.find(load_bundle_pipeline_id_);
     if (pipeline_origin != pipeline_id_to_origin_map_.end()) {
-      if (pipeline_origin->second == kLoadBundle ||
-          pipeline_origin->second == kReloadBundleFromBts ||
-          pipeline_origin->second == kReloadBundleFromNative) {
+      if (pipeline_origin->second == kLoadBundle) {
         lynx_actual_fmp_start_name = kLoadBundleStart;
+      } else if (pipeline_origin->second == kReloadBundleFromBts ||
+                 pipeline_origin->second == kReloadBundleFromNative) {
+        lynx_actual_fmp_start_name = kReloadBundleStart;
       } else {
         LOGE("TimingInfoNg: only loadBundle/reloadBundle could calc fcp.")
       }
@@ -404,8 +425,8 @@ std::unique_ptr<lynx::pub::Value> TimingInfoNg::GetMetricFmpEntry(
           timing_map.GetTimestamp(lynx_actual_fmp_start_name).value_or(0);
       if (start_time != 0) {
         has_update_metrics |=
-            UpdateMetrics(kLynxActualFMP, kLoadBundleStart, kPaintEnd,
-                          load_bundle_start, paint_end);
+            UpdateMetrics(kLynxActualFMP, lynx_actual_fmp_start_name, kPaintEnd,
+                          start_time, paint_end);
       }
     }
   }
@@ -437,7 +458,6 @@ std::unique_ptr<lynx::pub::Value> TimingInfoNg::GetMetricFmpEntry(
     }
     entry->PushStringToMap(kEntryType, kEntryTypeMetric);
     entry->PushStringToMap(kEntryName, kEntryNameActualFMP);
-
     return entry;
   }
   return nullptr;

@@ -451,6 +451,12 @@ void RuntimeMediator::BindPipelineIDWithTimingFlag(
       });
 }
 
+void RuntimeMediator::ResetTimingBeforeReload() {
+  perf_controller_actor_->ActAsync([](auto& performance) {
+    performance->GetTimingHandler().ResetTimingBeforeReload();
+  });
+}
+
 void RuntimeMediator::CallLepusMethod(const std::string& method_name,
                                       lepus::Value args,
                                       const piper::ApiCallBack& callback,

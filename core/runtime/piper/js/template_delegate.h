@@ -149,6 +149,7 @@ class TemplateDelegate : public ContextProxy::Delegate {
                                            const std::string& key,
                                            const std::string& value) = 0;
   virtual void FlushJSBTiming(piper::NativeModuleInfo timing) = 0;
+  virtual void ResetTimingBeforeReload() = 0;
 
   virtual void OnPipelineStart(
       const tasm::PipelineID& pipeline_id,

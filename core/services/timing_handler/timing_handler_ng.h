@@ -50,8 +50,10 @@ class TimingHandlerNg {
   void BindPipelineIDWithTimingFlag(const PipelineID &pipeline_id,
                                     const TimingFlag &timing_flag);
 
-  // Clears all stored timing information.
-  void ClearAllTimingInfo();
+  // Clear timing information related to PipelineEntry.
+  void ClearPipelineTimingInfo();
+  // Clear timing information related to InitContainerEntry.
+  void ClearContainerTimingInfo();
 
   // Setter methods for various properties related to timing.
   inline void SetEnableEngineCallback(bool enable_engine_callback) {
@@ -103,6 +105,7 @@ class TimingHandlerNg {
 
   // Internal methods for checking which pipeline type.
   bool IsLoadBundlePipeline(const PipelineID &pipeline_id) const;
+  bool IsReloadBundlePipeline(const PipelineID &pipeline_id) const;
   bool ReadyToDispatch() const;
   void SendOrPendingPerformanceEntry(std::unique_ptr<lynx::pub::Value> entry);
   void SendPerformanceEntry(std::unique_ptr<lynx::pub::Value> entry);

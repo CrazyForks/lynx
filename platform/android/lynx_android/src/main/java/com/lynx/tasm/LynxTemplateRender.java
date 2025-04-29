@@ -1611,7 +1611,7 @@ public class LynxTemplateRender implements ILynxEngine, ILynxErrorReceiver {
     TimingOption timingOption = new TimingOption(TimingConstants.RELOAD_BUNDLE_FROM_NATIVE);
     long currentTimeMillis = System.currentTimeMillis();
     timingOption.setTiming(TimingConstants.PIPELINE_START, currentTimeMillis);
-    timingOption.setTiming(TimingConstants.LOAD_BUNDLE_START, currentTimeMillis);
+    timingOption.setTiming(TimingConstants.RELOAD_BUNDLE_START, currentTimeMillis);
     if (prepareUpdateData(data)) {
       if (newGlobalProps != null) {
         globalProps = newGlobalProps;
@@ -2632,8 +2632,8 @@ public class LynxTemplateRender implements ILynxEngine, ILynxErrorReceiver {
     }
 
     @Override
-    public void onClearAllNativeTimingInfo() {
-      nativeClearAllTimingInfo(mNativePtr, mNativeLifecycle);
+    public void onClearNativePipelineTimingInfo() {
+      nativeClearPipelineTimingInfo(mNativePtr, mNativeLifecycle);
     }
 
     @Override
@@ -3595,7 +3595,7 @@ public class LynxTemplateRender implements ILynxEngine, ILynxErrorReceiver {
 
   private native JavaOnlyMap nativeGetAllTimingInfo(long ptr, long lifecycle);
 
-  private native void nativeClearAllTimingInfo(long ptr, long lifecycle);
+  private native void nativeClearPipelineTimingInfo(long ptr, long lifecycle);
 
   private native void nativeSetLongTaskMonitorDisabled(long ptr, long lifecycle, boolean disabled);
 

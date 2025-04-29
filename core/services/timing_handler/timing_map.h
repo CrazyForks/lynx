@@ -66,6 +66,8 @@ class TimingMap {
 
   TimingMap GetSubMap(const std::initializer_list<std::string>& keys) const;
 
+  inline void Erase(const TimestampKey& key) { timing_infos_.erase(key); }
+
  private:
   // All of the timestamp is saved as microsecond
   // TODO(zhangkaijie.9): This is an unordered map, which means the order of the

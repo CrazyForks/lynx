@@ -45,6 +45,10 @@ void TimingHandlerNg::BindPipelineIDWithTimingFlag(
 void TimingHandlerNg::SetFrameworkTiming(const TimestampKey& timing_key,
                                          const TimestampUs us_timestamp,
                                          const PipelineID& pipeline_id) {
+  if (timing_key.empty() || us_timestamp == 0) {
+    LOGE("Invalid timing key or timestamp");
+    return;
+  }
   timing_info_.SetFrameworkTiming(timing_key, us_timestamp, pipeline_id);
 }
 
@@ -58,7 +62,7 @@ void TimingHandlerNg::SetTiming(const TimestampKey& timing_key,
                                 const TimestampUs us_timestamp,
                                 const PipelineID& pipeline_id) {
   if (timing_key.empty() || us_timestamp == 0) {
-    LOGE("Invalid timing key or timestamp in TimingHandlerNg::SetTiming");
+    LOGE("Invalid timing key or timestamp");
     return;
   }
   if (pipeline_id.empty()) {
@@ -81,7 +85,8 @@ void TimingHandlerNg::ProcessPipelineTiming(
     const lynx::tasm::timing::TimestampUs us_timestamp,
     const lynx::tasm::PipelineID& pipeline_id) {
   if (timing_info_.SetPipelineTiming(timing_key, us_timestamp, pipeline_id)) {
-    if (timing_key == kLoadBackgroundEnd) {
+    if (timing_key == kLoadBackgroundEnd ||
+        timing_key == kReloadBackgroundEnd) {
       is_background_runtime_ready_ = true;
       FlushPendingPerformanceEntries();
     }
@@ -101,11 +106,15 @@ bool TimingHandlerNg::IsLoadBundlePipeline(
 /*
  * Reset all timing information.
  */
-void TimingHandlerNg::ClearAllTimingInfo() {
-  timing_info_.ClearAllTimingInfo();
+void TimingHandlerNg::ClearPipelineTimingInfo() {
+  timing_info_.ClearPipelineTimingInfo();
   has_dispatched_timing_flags_.clear();
   pending_dispatched_performance_entries_.clear();
   is_background_runtime_ready_ = false;
+}
+
+void TimingHandlerNg::ClearContainerTimingInfo() {
+  timing_info_.ClearContainerTimingInfo();
 }
 
 /*

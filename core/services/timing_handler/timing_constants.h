@@ -158,6 +158,11 @@ static constexpr const char kParseStart[] = "parseStart";
 static constexpr const char kParseEnd[] = "parseEnd";
 static constexpr const char kLoadBackgroundStart[] = "loadBackgroundStart";
 static constexpr const char kLoadBackgroundEnd[] = "loadBackgroundEnd";
+// ReloadBundleEntry
+static constexpr const char kReloadBundleStart[] = "reloadBundleStart";
+static constexpr const char kReloadBundleEnd[] = "reloadBundleEnd";
+static constexpr const char kReloadBackgroundStart[] = "reloadBackgroundStart";
+static constexpr const char kReloadBackgroundEnd[] = "reloadBackgroundEnd";
 
 // ================== UNSPECIFIED ==================
 // This setion contains constants that are not yet used by any specific

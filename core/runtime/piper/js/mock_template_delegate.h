@@ -93,6 +93,7 @@ class MockTemplateDelegate : public runtime::TemplateDelegate {
                                const std::string& timestamp_key,
                                tasm::timing::TimestampUs timestamp) override{};
   void FlushJSBTiming(piper::NativeModuleInfo timing) override {}
+  void ResetTimingBeforeReload() override {}
 
   void OnPipelineStart(
       const tasm::PipelineID& pipeline_id,

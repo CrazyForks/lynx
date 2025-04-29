@@ -2613,6 +2613,16 @@ public class LynxRecorder : NSObject {
   public void LynxRecorder::recordUIEvent:withLynxView:(nullable UIEvent *event,[withLynxView] nullable LynxView *lynxView);
 }
 
+public class LynxReloadBundleEntry : LynxPipelineEntry {
+  public NSNumber* LynxReloadBundleEntry::reloadBundleStart reloadBundleStart;
+  public NSNumber* LynxReloadBundleEntry::reloadBundleEnd reloadBundleEnd;
+  public NSNumber* LynxReloadBundleEntry::reloadBackgroundStart reloadBackgroundStart;
+  public NSNumber* LynxReloadBundleEntry::reloadBackgroundEnd reloadBackgroundEnd;
+  public NSNumber* LynxReloadBundleEntry::ffiStart ffiStart;
+  public NSNumber* LynxReloadBundleEntry::ffiEnd ffiEnd;
+  public instancetype LynxReloadBundleEntry::initWithDictionary:(NSDictionary *dictionary);
+}
+
 public protocol LynxResourceFetcher-p : <NSObject> {
   public dispatch_block_t LynxResourceFetcher-p::loadResourceWithURL:type:completion:(NSURL *url,[type] LynxFetchResType type,[completion] LynxResourceLoadCompletionBlock completionBlock);
   public dispatch_block_t LynxResourceFetcher-p::fetchResourceWithURL:type:completion:(NSURL *url,[type] LynxFetchResType type,[completion] LynxResourceLoadCompletionBlock completionBlock);

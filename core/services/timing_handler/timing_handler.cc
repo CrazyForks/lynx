@@ -61,7 +61,7 @@ void TimingHandler::SetFrameworkTiming(TimestampKey& timing_key,
                                        TimestampUs us_timestamp,
                                        const PipelineID& pipeline_id) {
   if (timing_key.empty() || us_timestamp == 0) {
-    LOGE("Invalid timing key or timestamp in TimingHandler::SetTiming");
+    LOGE("Invalid timing key or timestamp");
     return;
   }
   handler_ng_.SetFrameworkTiming(timing_key, us_timestamp, pipeline_id);
@@ -83,7 +83,7 @@ void TimingHandler::SetTiming(TimestampKey& timing_key,
                               TimestampUs us_timestamp,
                               const PipelineID& pipeline_id) {
   if (timing_key.empty() || us_timestamp == 0) {
-    LOGE("Invalid timing key or timestamp in TimingHandler::SetTiming");
+    LOGE("Invalid timing key or timestamp");
     return;
   }
   handler_ng_.SetTiming(timing_key, us_timestamp, pipeline_id);
@@ -274,16 +274,22 @@ std::unique_ptr<lynx::pub::Value> TimingHandler::GetAllTimingInfo() const {
 
 // Reset all timing information.
 void TimingHandler::ResetTimingBeforeReload() {
-  ClearAllTimingInfo();
+  ClearPipelineTimingInfo();
   timing_info_.SetHasReload(true);
 }
 
-void TimingHandler::ClearAllTimingInfo() {
-  timing_info_.ClearAllTiming();
+void TimingHandler::ClearPipelineTimingInfo() {
+  timing_info_.ClearPipelineTimingInfo();
   has_dispatched_setup_timing_ = false;
   has_dispatched_timing_flags_.clear();
 
-  handler_ng_.ClearAllTimingInfo();
+  handler_ng_.ClearPipelineTimingInfo();
+}
+
+void TimingHandler::ClearExtraTimingInfo() {
+  timing_info_.ClearExtraTimingInfo();
+
+  handler_ng_.ClearContainerTimingInfo();
 }
 
 void TimingHandler::ReleaseTiming(const PipelineID& pipeline_id) {

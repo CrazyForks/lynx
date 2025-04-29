@@ -120,8 +120,10 @@ class TimingHandler {
    */
   void SetPaintEndTimingIfNeeded(TimestampUs timestamp);
 
-  // Clears all stored timing information.
-  void ClearAllTimingInfo();
+  // Clear timing information related to setup_timing & update_timing.
+  void ClearPipelineTimingInfo();
+  // Clear timing information related to extra_timing.
+  void ClearExtraTimingInfo();
 
   // Retrieves all timing information.
   std::unique_ptr<lynx::pub::Value> GetAllTimingInfo() const;

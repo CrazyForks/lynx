@@ -1100,7 +1100,7 @@ public interface com::lynx::tasm::NativeFacade::Callback {
   public void com.lynx.tasm.NativeFacade.Callback.onTASMFinishedByNative();
   public void com.lynx.tasm.NativeFacade.Callback.onUpdateI18nResource(String key, String bytes, int status);
   public void com.lynx.tasm.NativeFacade.Callback.onUIMethodInvoked(final int cb, JavaOnlyMap res);
-  public void com.lynx.tasm.NativeFacade.Callback.onClearAllNativeTimingInfo();
+  public void com.lynx.tasm.NativeFacade.Callback.onClearNativePipelineTimingInfo();
   public void com.lynx.tasm.NativeFacade.Callback.onEventCapture(long targetID, boolean isCatch, long eventID);
   public void com.lynx.tasm.NativeFacade.Callback.onEventBubble(long targetID, boolean isCatch, long eventID);
   public void com.lynx.tasm.NativeFacade.Callback.onEventFire(long targetID, boolean isStop, long eventID);
@@ -6541,7 +6541,7 @@ public class com::lynx::tasm::NativeFacade : com.lynx.tasm.EventEmitter.LynxEven
   public void com.lynx.tasm.NativeFacade.triggerLepusBridgeAsync(String methodName, Object args);
   public void com.lynx.tasm.NativeFacade.getI18nResourceByNative(final String channelOrUrl, String fallbackUrl);
   public int com.lynx.tasm.NativeFacade.getInstanceId();
-  public void com.lynx.tasm.NativeFacade.clearAllNativeTimingInfo();
+  public void com.lynx.tasm.NativeFacade.clearNativePipelineTimingInfo();
 }
 
 public class com::lynx::tasm::gesture::handler::NativeGestureHandler : com.lynx.tasm.gesture.handler.PanGestureHandler {
@@ -7679,6 +7679,16 @@ public enum com::lynx::react::bridge::ReadableType {
   public com.lynx.react.bridge.ReadableType.LynxObject LynxObject;
 }
 
+public class com::lynx::tasm::performance::performanceobserver::ReloadBundleEntry : com.lynx.tasm.performance.performanceobserver.PipelineEntry {
+  public double com.lynx.tasm.performance.performanceobserver.ReloadBundleEntry.reloadBundleStart reloadBundleStart;
+  public double com.lynx.tasm.performance.performanceobserver.ReloadBundleEntry.reloadBundleEnd reloadBundleEnd;
+  public double com.lynx.tasm.performance.performanceobserver.ReloadBundleEntry.reloadBackgroundStart reloadBackgroundStart;
+  public double com.lynx.tasm.performance.performanceobserver.ReloadBundleEntry.reloadBackgroundEnd reloadBackgroundEnd;
+  public double com.lynx.tasm.performance.performanceobserver.ReloadBundleEntry.ffiStart ffiStart;
+  public double com.lynx.tasm.performance.performanceobserver.ReloadBundleEntry.ffiEnd ffiEnd;
+  public com.lynx.tasm.performance.performanceobserver.ReloadBundleEntry.ReloadBundleEntry(HashMap< String, Object > props);
+}
+
 public class abstract com::lynx::tasm::rendernode::compat::RenderNodeCompat :  {
   public com.lynx.tasm.rendernode.compat.RenderNodeCompat.RenderNodeCompat();
   public abstract void com.lynx.tasm.rendernode.compat.RenderNodeCompat.init();
@@ -8224,7 +8234,7 @@ public class com::lynx::tasm::LynxTemplateRender::TASMCallback : com.lynx.tasm.N
   public void com.lynx.tasm.LynxTemplateRender.TASMCallback.onTASMFinishedByNative();
   public void com.lynx.tasm.LynxTemplateRender.TASMCallback.onUpdateI18nResource(String key, String bytes, int status);
   public void com.lynx.tasm.LynxTemplateRender.TASMCallback.onUIMethodInvoked(final int cb, JavaOnlyMap res);
-  public void com.lynx.tasm.LynxTemplateRender.TASMCallback.onClearAllNativeTimingInfo();
+  public void com.lynx.tasm.LynxTemplateRender.TASMCallback.onClearNativePipelineTimingInfo();
   public void com.lynx.tasm.LynxTemplateRender.TASMCallback.onEventCapture(long targetID, boolean isCatch, long eventID);
   public void com.lynx.tasm.LynxTemplateRender.TASMCallback.onEventBubble(long targetID, boolean isCatch, long eventID);
   public void com.lynx.tasm.LynxTemplateRender.TASMCallback.onEventFire(long targetID, boolean isStop, long eventID);
@@ -8523,6 +8533,7 @@ public enum com::lynx::tasm::ThreadStrategyForRendering {
 public class com::lynx::tasm::performance::timing::TimingConstants :  {
   public final String com.lynx.tasm.performance.timing.TimingConstants.PIPELINE_START PIPELINE_START;
   public final String com.lynx.tasm.performance.timing.TimingConstants.LOAD_BUNDLE_START LOAD_BUNDLE_START;
+  public final String com.lynx.tasm.performance.timing.TimingConstants.RELOAD_BUNDLE_START RELOAD_BUNDLE_START;
   public final String com.lynx.tasm.performance.timing.TimingConstants.VERIFY_TASM_START VERIFY_TASM_START;
   public final String com.lynx.tasm.performance.timing.TimingConstants.VERIFY_TASM_END VERIFY_TASM_END;
   public final String com.lynx.tasm.performance.timing.TimingConstants.FFI_START FFI_START;

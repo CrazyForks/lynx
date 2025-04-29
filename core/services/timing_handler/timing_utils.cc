@@ -100,7 +100,12 @@ bool TryUpdatePolyfillTimingKey(const TimestampKey& timing_key,
            {kPrepareTemplateEnd, kPrepareTemplateEndPolyfill},
            {kOpenTime, kOpenTimePolyfill},
            {kContainerInitStart, kContainerInitStartPolyfill},
-           {kContainerInitEnd, kContainerInitEndPolyfill}}};
+           {kContainerInitEnd, kContainerInitEndPolyfill},
+           // polyfill Reload to Load for onTimingSetup
+           {kReloadBundleStart, kLoadBundleStartPolyfill},
+           {kReloadBundleEnd, kLoadBundleEndPolyfill},
+           {kReloadBackgroundStart, kLoadBackgroundStartPolyfill},
+           {kReloadBackgroundEnd, kLoadBackgroundEndPolyfill}}};
   static const lynx::base::NoDestructor<std::list<TimestampKey>>
       keysNotAllowedForPolyfill{
           std::initializer_list<TimestampKey>{kMtsRenderStart, kMtsRenderEnd}};

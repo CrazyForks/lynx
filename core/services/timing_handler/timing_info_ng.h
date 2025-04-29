@@ -122,7 +122,8 @@ class TimingInfoNg {
   std::unique_ptr<lynx::pub::Value> GetPipelineEntry(
       const TimestampKey& current_key, const PipelineID& pipeline_id);
 
-  void ClearAllTimingInfo();
+  void ClearPipelineTimingInfo();
+  void ClearContainerTimingInfo();
   void ReleasePipelineTiming(const PipelineID& pipeline_id);
 
  private:

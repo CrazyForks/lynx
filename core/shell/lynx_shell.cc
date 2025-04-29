@@ -634,6 +634,7 @@ void LynxShell::ReloadTemplate(
     ResetTimingBeforeReload();
     pipeline_options = std::make_shared<tasm::PipelineOptions>();
     pipeline_options->need_timestamps = true;
+    pipeline_options->is_reload_template = true;
     pipeline_options->pipeline_origin = tasm::timing::kReloadBundleFromNative;
     OnPipelineStart(pipeline_options->pipeline_id,
                     pipeline_options->pipeline_origin,
@@ -1246,9 +1247,9 @@ void LynxShell::SetSSRTimingData(std::string url, uint64_t data_size) const {
       });
 }
 
-void LynxShell::ClearAllTimingInfo() const {
+void LynxShell::ClearPipelineTimingInfo() const {
   perf_controller_actor_->ActAsync([](auto& performance) {
-    performance->GetTimingHandler().ClearAllTimingInfo();
+    performance->GetTimingHandler().ClearPipelineTimingInfo();
   });
 }
 

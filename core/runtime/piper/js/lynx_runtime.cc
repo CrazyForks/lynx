@@ -795,11 +795,15 @@ void LynxRuntime::OnAppReload(
                                                          pipeline_options);
     // when reloadTemplate, we will use OnAppReload to mock
     // SETUP_LOAD_CORE_START & SETUP_LOAD_CORE_END timing.
+    // we already have ReloadBundleEntry now, so we mark ReloadBackground here.
+    // and we will remove the LoadCore mock and the LoadBackground polyfill
+    // after onTimingSetup goes offline.
     tasm::TimingCollector::Instance()->Mark(tasm::timing::kLoadCoreStart);
     tasm::TimingCollector::Instance()->Mark(tasm::timing::kLoadCoreEnd);
-    tasm::TimingCollector::Instance()->Mark(tasm::timing::kLoadBackgroundStart);
+    tasm::TimingCollector::Instance()->Mark(
+        tasm::timing::kReloadBackgroundStart);
     app_->onAppReload(std::move(data));
-    tasm::TimingCollector::Instance()->Mark(tasm::timing::kLoadBackgroundEnd);
+    tasm::TimingCollector::Instance()->Mark(tasm::timing::kReloadBackgroundEnd);
   });
 }
 

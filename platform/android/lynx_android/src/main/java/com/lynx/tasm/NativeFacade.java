@@ -83,7 +83,7 @@ public class NativeFacade implements EventEmitter.LynxEventReporter {
 
     void onUIMethodInvoked(final int cb, JavaOnlyMap res);
 
-    void onClearAllNativeTimingInfo();
+    void onClearNativePipelineTimingInfo();
 
     void onEventCapture(long targetID, boolean isCatch, long eventID);
 
@@ -558,9 +558,9 @@ public class NativeFacade implements EventEmitter.LynxEventReporter {
     }
   }
 
-  public void clearAllNativeTimingInfo() {
+  public void clearNativePipelineTimingInfo() {
     if (mCallback != null) {
-      mCallback.onClearAllNativeTimingInfo();
+      mCallback.onClearNativePipelineTimingInfo();
     }
   }
 }
