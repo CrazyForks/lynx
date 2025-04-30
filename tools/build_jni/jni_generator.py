@@ -157,6 +157,15 @@ class JniParams(object):
   _implicit_imports = []
 
   @staticmethod
+  def ResetArgs():
+    JniParams._imports = []
+    JniParams._fully_qualified_class = ''
+    JniParams._package = ''
+    JniParams._inner_classes = []
+    JniParams._remappings = []
+    JniParams._implicit_imports = []
+
+  @staticmethod
   def SetFullyQualifiedClass(fully_qualified_class):
     JniParams._fully_qualified_class = 'L' + fully_qualified_class
     JniParams._package = '/'.join(fully_qualified_class.split('/')[:-1])
@@ -1439,6 +1448,7 @@ def ExtractJarInputFile(jar_file, input_file, out_dir):
 
 
 def GenerateJNIHeader(input_file, output_file, options):
+  JniParams.ResetArgs()
   try:
     if os.path.splitext(input_file)[1] == '.class':
       jni_from_javap = JNIFromJavaP.CreateFromClass(input_file, options)
