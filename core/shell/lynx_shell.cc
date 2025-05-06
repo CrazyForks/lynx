@@ -953,10 +953,11 @@ void LynxShell::OnEnterForeground() {
     return;
   }
 #endif
-  runtime::MessageEvent event(runtime::kMessageEventTypeOnAppEnterForeground,
-                              runtime::ContextProxy::Type::kCoreContext,
-                              runtime::ContextProxy::Type::kJSContext,
-                              lepus::Value());
+  runtime::MessageEvent event(
+      runtime::kMessageEventTypeOnAppEnterForeground,
+      runtime::ContextProxy::Type::kCoreContext,
+      runtime::ContextProxy::Type::kJSContext,
+      std::make_unique<pub::ValueImplLepus>(lepus::Value()));
   tasm_mediator_->DispatchMessageEvent(std::move(event));
 }
 
@@ -976,10 +977,11 @@ void LynxShell::OnEnterBackground() {
     return;
   }
 #endif
-  runtime::MessageEvent event(runtime::kMessageEventTypeOnAppEnterBackground,
-                              runtime::ContextProxy::Type::kCoreContext,
-                              runtime::ContextProxy::Type::kJSContext,
-                              lepus::Value());
+  runtime::MessageEvent event(
+      runtime::kMessageEventTypeOnAppEnterBackground,
+      runtime::ContextProxy::Type::kCoreContext,
+      runtime::ContextProxy::Type::kJSContext,
+      std::make_unique<pub::ValueImplLepus>(lepus::Value()));
   tasm_mediator_->DispatchMessageEvent(std::move(event));
 }
 
@@ -1236,10 +1238,11 @@ void LynxShell::RegisterModuleFactory(
 void LynxShell::OnRuntimeCreate() {
   DCHECK(runtime_actor_);
 
-  runtime::MessageEvent event(runtime::kMessageEventTypeOnRuntimeCreate,
-                              runtime::ContextProxy::Type::kCoreContext,
-                              runtime::ContextProxy::Type::kJSContext,
-                              lepus::Value());
+  runtime::MessageEvent event(
+      runtime::kMessageEventTypeOnRuntimeCreate,
+      runtime::ContextProxy::Type::kCoreContext,
+      runtime::ContextProxy::Type::kJSContext,
+      std::make_unique<pub::ValueImplLepus>(lepus::Value()));
   runtime_actor_->Act(
       [message_event = std::move(event)](auto& runtime) mutable {
         runtime->OnReceiveMessageEvent(std::move(message_event));

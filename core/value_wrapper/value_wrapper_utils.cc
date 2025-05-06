@@ -5,6 +5,7 @@
 #include "core/value_wrapper/value_wrapper_utils.h"
 
 #include "core/base/js_constants.h"
+#include "core/runtime/common/jsi_object_wrapper.h"
 #include "core/runtime/common/utils.h"
 #include "core/value_wrapper/value_impl_lepus.h"
 #include "core/value_wrapper/value_impl_piper.h"
@@ -100,14 +101,16 @@ lepus::Value ValueUtils::ConvertValueToLepusTable(
   }
 }
 
-piper::Value ValueUtils::ConvertValueToPiperValue(piper::Runtime& rt,
-                                                  const Value& value) {
+piper::Value ValueUtils::ConvertValueToPiperValue(
+    piper::Runtime& rt, const Value& value,
+    piper::JSIObjectWrapperManager* jsi_object_wrapper_manager) {
   if (value.backend_type() == ValueBackendType::ValueBackendTypePiper) {
     return piper::Value(
         rt, static_cast<const ValueImplPiper&>(value).backend_value());
   } else if (value.backend_type() == ValueBackendType::ValueBackendTypeLepus) {
     auto result = piper::valueFromLepus(
-        rt, static_cast<const PubLepusValue&>(value).backend_value(), nullptr);
+        rt, static_cast<const PubLepusValue&>(value).backend_value(),
+        jsi_object_wrapper_manager);
     if (result.has_value()) {
       return std::move(*result);
     }

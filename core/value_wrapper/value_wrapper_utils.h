@@ -17,6 +17,9 @@ namespace lynx {
 namespace lepus {
 class Value;
 }
+namespace piper {
+class JSIObjectWrapperManager;
+}
 namespace base {
 namespace android {
 class JavaValue;
@@ -38,8 +41,9 @@ class ValueUtils {
       const Value& value,
       std::vector<std::unique_ptr<pub::Value>>* prev_value_vector = nullptr,
       int depth = 0);
-  static piper::Value ConvertValueToPiperValue(piper::Runtime& rt,
-                                               const Value& value);
+  static piper::Value ConvertValueToPiperValue(
+      piper::Runtime& rt, const Value& value,
+      piper::JSIObjectWrapperManager* jsi_object_wrapper_manager = nullptr);
   static piper::Value ConvertValueToPiperArray(piper::Runtime& rt,
                                                const Value& value);
   static piper::Value ConvertValueToPiperObject(piper::Runtime& rt,

@@ -99,10 +99,11 @@ void TimingMediator::OnPerformanceEvent(
       auto args = lepus::CArray::Create();
       args->emplace_back(BASE_STATIC_STRING(kPerformanceRuntimeCallback));
       args->emplace_back((lepus_value::ShallowCopy(entry)));
-      runtime::MessageEvent event(runtime::kMessageEventTypeSendGlobalEvent,
-                                  runtime::ContextProxy::Type::kCoreContext,
-                                  runtime::ContextProxy::Type::kJSContext,
-                                  lepus::Value(std::move(args)));
+      runtime::MessageEvent event(
+          runtime::kMessageEventTypeSendGlobalEvent,
+          runtime::ContextProxy::Type::kCoreContext,
+          runtime::ContextProxy::Type::kJSContext,
+          std::make_unique<pub::ValueImplLepus>(lepus::Value(std::move(args))));
       runtime->OnReceiveMessageEvent(std::move(event));
     });
   } else if (engine_actor_ && enable_engine_callback) {
@@ -152,10 +153,11 @@ void TimingMediator::TriggerSetupRuntimeCallback(
       auto args = lepus::CArray::Create();
       args->emplace_back(BASE_STATIC_STRING(kSetupRuntimeCallback));
       args->emplace_back((lepus_value::ShallowCopy(timing)));
-      runtime::MessageEvent event(runtime::kMessageEventTypeSendGlobalEvent,
-                                  runtime::ContextProxy::Type::kCoreContext,
-                                  runtime::ContextProxy::Type::kJSContext,
-                                  lepus::Value(std::move(args)));
+      runtime::MessageEvent event(
+          runtime::kMessageEventTypeSendGlobalEvent,
+          runtime::ContextProxy::Type::kCoreContext,
+          runtime::ContextProxy::Type::kJSContext,
+          std::make_unique<pub::ValueImplLepus>(lepus::Value(std::move(args))));
       runtime->OnReceiveMessageEvent(std::move(event));
     });
   } else if (engine_actor_ && timing_info.GetEnableAirStrictMode()) {
@@ -360,10 +362,11 @@ void TimingMediator::TriggerUpdateRuntimeCallback(
       auto args = lepus::CArray::Create();
       args->emplace_back(BASE_STATIC_STRING(kUpdateRuntimeCallback));
       args->emplace_back(lepus_value::ShallowCopy(timing));
-      runtime::MessageEvent event(runtime::kMessageEventTypeSendGlobalEvent,
-                                  runtime::ContextProxy::Type::kCoreContext,
-                                  runtime::ContextProxy::Type::kJSContext,
-                                  lepus::Value(std::move(args)));
+      runtime::MessageEvent event(
+          runtime::kMessageEventTypeSendGlobalEvent,
+          runtime::ContextProxy::Type::kCoreContext,
+          runtime::ContextProxy::Type::kJSContext,
+          std::make_unique<pub::ValueImplLepus>(lepus::Value(std::move(args))));
       runtime->OnReceiveMessageEvent(std::move(event));
     });
   } else if (engine_actor_ && timing_info.GetEnableAirStrictMode()) {
