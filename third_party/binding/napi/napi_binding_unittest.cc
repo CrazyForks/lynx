@@ -491,15 +491,17 @@ TEST_F(NapiBindingTest, ArrayBufferToNapiValueTest) {
       finalizer_works = true;
     }
   };
-  ab_value = Value::ArrayBuffer(buffer_size, ab_data, finalizer);
-  EXPECT_TRUE(ab_value.GetType() == ValueType::kArrayBuffer);
-  napi_array = ToNAPI(std::move(ab_value), env_);
-  EXPECT_TRUE(napi_array.IsArrayBuffer());
-  EXPECT_TRUE(napi_array.As<Napi::ArrayBuffer>().ByteLength() == buffer_size);
-  void* napi_data = napi_array.As<Napi::ArrayBuffer>().Data();
-  EXPECT_TRUE(napi_data == ab_data);
+  {
+    auto ab_value = Value::ArrayBuffer(buffer_size, ab_data, finalizer);
+    EXPECT_TRUE(ab_value.GetType() == ValueType::kArrayBuffer);
+    napi_array = ToNAPI(std::move(ab_value), env_);
+    EXPECT_TRUE(napi_array.IsArrayBuffer());
+    EXPECT_TRUE(napi_array.As<Napi::ArrayBuffer>().ByteLength() == buffer_size);
+    void* napi_data = napi_array.As<Napi::ArrayBuffer>().Data();
+    EXPECT_FALSE(napi_data == ab_data);
 
-  Dispose();
+    Dispose();
+  }
   EXPECT_TRUE(finalizer_works);
 }
 

@@ -146,23 +146,13 @@ Napi::Value ToNAPI(Value&& value, Napi::Env env) {
     }
     case ValueType::kArrayBuffer: {
       auto* array_buffer = value.Data<Value::ArrayBufferData>();
-      if (!array_buffer->data_) {
-        return Napi::ArrayBuffer::New(env, array_buffer->size_);
-      } else if (array_buffer->finalizer_) {
-        // Data is stolen.
-        auto rv = Napi::ArrayBuffer::New(
-            env, array_buffer->data_, array_buffer->size_,
-            [](napi_env env, void* napi_data, void* finalize) {
-              reinterpret_cast<Value::Finalizer>(finalize)(napi_data);
-            },
-            reinterpret_cast<void*>(array_buffer->finalizer_));
-        array_buffer->finalizer_ = nullptr;
-        return rv;
-      } else {
-        // Data must be managed externally.
-        return Napi::ArrayBuffer::New(env, array_buffer->data_,
-                                      array_buffer->size_);
+      auto rv = Napi::ArrayBuffer::New(env, array_buffer->size_);
+      if (array_buffer->data_) {
+        // Do not be smart and just copy data as some platform does not support
+        // creating ArrayBuffer from external data.
+        memcpy(rv.Data(), array_buffer->data_, array_buffer->size_);
       }
+      return rv;
     }
     case ValueType::kObject: {
       return ToNAPI(std::move(*value.Data<Object>()));
