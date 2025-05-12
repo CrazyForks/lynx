@@ -1661,7 +1661,7 @@ void FiberElement::PrepareAndGenerateChildrenActions() {
             if (IsFiberArch()) {
               InsertFixedElement(child.get(), nullptr);
             } else {
-              need_handle_fixed_ = true;
+              child->need_handle_fixed_ = true;
             }
           }
         }
@@ -1680,7 +1680,7 @@ void FiberElement::PrepareAndGenerateChildrenActions() {
             if (IsFiberArch()) {
               InsertFixedElement(param.child_.get(), param.ref_node_);
             } else {
-              need_handle_fixed_ = true;
+              param.child_.get()->need_handle_fixed_ = true;
             }
           }
         } break;
