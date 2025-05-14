@@ -58,6 +58,12 @@ enum class GestureType : unsigned int {
   NATIVE = 7       // Native gesture
 };
 
+enum class LynxInterceptGestureStatus : unsigned int {
+  LynxInterceptGestureStateUnset = 0,
+  LynxInterceptGestureStateFalse = 1,
+  LynxInterceptGestureStateTrue = 2
+};
+
 // Constants representing relation map keys for GestureDetector.
 static constexpr const char kGestureSimultaneous[] = "simultaneous";
 static constexpr const char kGestureWaitFor[] = "waitFor";
