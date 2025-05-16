@@ -94,7 +94,8 @@ Add the following statement to your environment configuration file (it may be ~/
     ```
     $JDK_PATH='C:\Program Files\ojdkbuild\java-11-openjdk-11.0.15-1'
     [Environment]::SetEnvironmentVariable('JAVA_HOME', $JDK_PATH, 'User')
-    [Environment]::SetEnvironmentVariable('PATH', "$JDK_PATH;$PATH", 'User')
+    $EXISTING_PATH = [Environment]::GetEnvironmentVariable('PATH', 'User')
+    [Environment]::SetEnvironmentVariable('PATH', "$JDK_PATH;$EXISTING_PATH", 'User')
     ```
 
 ### Android development environment
