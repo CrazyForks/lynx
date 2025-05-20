@@ -69,6 +69,7 @@
 #include "core/resource/lynx_resource_loader_darwin.h"
 #include "core/runtime/vm/lepus/json_parser.h"
 #include "core/services/timing_handler/timing_collector_platform_impl.h"
+#include "core/services/timing_handler/timing_constants.h"
 #include "core/shell/ios/data_utils.h"
 #include "core/shell/ios/native_facade_darwin.h"
 #include "core/shell/ios/native_facade_reporter_darwin.h"
@@ -746,7 +747,7 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
   __weak LynxTemplateRender* weakSelf = self;
 
   _LogI(@"LynxTemplateRender loadTemplate url after process is %@", url);
-  [weakSelf markTiming:kTimingPrepareTemplateStart pipelineID:nil];
+  [weakSelf markTiming:[kTimingPrepareTemplateStart UTF8String] pipelineID:[@"" UTF8String]];
   if (_lynxUIRenderer.uiOwner.uiContext.templateResourceFetcher) {
     _LogI(@"loadTemplateFromURL with templateResourceFetcher.");
     LynxResourceRequest* request =
@@ -769,7 +770,7 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
   } else {
     _LogI(@"loadTemplateFromURL with legacy templateProvider.");
     LynxTemplateLoadBlock complete = ^(id tem, NSError* error) {
-      [weakSelf markTiming:kTimingPrepareTemplateEnd pipelineID:nil];
+      [weakSelf markTiming:[kTimingPrepareTemplateEnd UTF8String] pipelineID:[@"" UTF8String]];
       if (!error) {
         if ([tem isKindOfClass:[NSData class]]) {
           [weakSelf.devTool onTemplateLoadSuccess:tem];
@@ -790,6 +791,15 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
                    withURL:(NSString*)url
                   initData:(LynxTemplateData*)data {
   TRACE_EVENT(LYNX_TRACE_CATEGORY, TEMPLATE_RENDER_LOAD_TEMPLATE_BUNDLE, "url", [url UTF8String]);
+  auto pipeline_options = std::make_shared<lynx::tasm::PipelineOptions>();
+  pipeline_options->pipeline_origin = lynx::tasm::timing::kLoadBundle;
+  pipeline_options->need_timestamps = YES;
+  [self onPipelineStart:pipeline_options->pipeline_id
+              pipelineOrigin:pipeline_options->pipeline_origin
+      pipelineStartTimestamp:pipeline_options->pipeline_start_timestamp];
+  [self markTiming:lynx::tasm::timing::kLoadBundleStart
+        pipelineID:pipeline_options->pipeline_id.c_str()];
+
   [self updateUrl:url];
   [self dispatchViewDidStartLoading];
   if ([bundle errorMsg]) {
@@ -821,7 +831,6 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
   __weak LynxTemplateRender* weakSelf = self;
   [self
       executeNativeOpSafely:^() {
-        std::shared_ptr<lynx::tasm::PipelineOptions> pipeline_options = nullptr;
         [self prepareForLoadTemplateWithUrl:url initData:data];
         lynx::lepus::Value value;
         std::shared_ptr<lynx::tasm::TemplateData> ptr(nullptr);
@@ -841,6 +850,8 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
           copied_bundle.SetElementBundle(template_bundle->GetElementBundle().DeepClone());
         }
         [self->_devTool attachDebugBridge:url];
+        [self markTiming:lynx::tasm::timing::kFfiStart
+              pipelineID:pipeline_options->pipeline_id.c_str()];
         self->shell_->LoadTemplateBundle(lynx::base::SafeStringConvert([url UTF8String]),
                                          std::move(copied_bundle), pipeline_options, ptr,
                                          _enablePrePainting, _enableDumpElement);
@@ -854,10 +865,18 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
 
 - (void)internalLoadTemplate:(NSData*)tem withUrl:(NSString*)url initData:(LynxTemplateData*)data {
   TRACE_EVENT(LYNX_TRACE_CATEGORY, TEMPLATE_RENDER_INTERNAL_LOAD_TEMPLATE, "url", [url UTF8String]);
+  auto pipeline_options = std::make_shared<lynx::tasm::PipelineOptions>();
+  pipeline_options->pipeline_origin = lynx::tasm::timing::kLoadBundle;
+  pipeline_options->need_timestamps = YES;
+  [self onPipelineStart:pipeline_options->pipeline_id
+              pipelineOrigin:pipeline_options->pipeline_origin
+      pipelineStartTimestamp:pipeline_options->pipeline_start_timestamp];
+  [self markTiming:lynx::tasm::timing::kLoadBundleStart
+        pipelineID:pipeline_options->pipeline_id.c_str()];
+
   __weak LynxTemplateRender* weakSelf = self;
   [self
       executeNativeOpSafely:^() {
-        std::shared_ptr<lynx::tasm::PipelineOptions> pipeline_options = nullptr;
         [self prepareForLoadTemplateWithUrl:url initData:data];
         lynx::lepus::Value value;
         std::shared_ptr<lynx::tasm::TemplateData> ptr(nullptr);
@@ -872,16 +891,24 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
         if (securityService == nil) {
           [self->_devTool attachDebugBridge:url];
           // if securityService is nil, Skip Security Check.
+          [self markTiming:lynx::tasm::timing::kFfiStart
+                pipelineID:pipeline_options->pipeline_id.c_str()];
           self->shell_->LoadTemplate([url UTF8String], ConvertNSBinary(tem), pipeline_options, ptr,
                                      _enablePrePainting, _enableRecycleTemplateBundle);
           _hasStartedLoad = YES;
         } else {
+          [self markTiming:lynx::tasm::timing::kVerifyTasmStart
+                pipelineID:pipeline_options->pipeline_id.c_str()];
           LynxVerificationResult* verification = [securityService verifyTASM:tem
                                                                         view:_lynxView
                                                                          url:url
                                                                         type:LynxTASMTypeTemplate];
+          [self markTiming:lynx::tasm::timing::kVerifyTasmEnd
+                pipelineID:pipeline_options->pipeline_id.c_str()];
           if (verification.verified) {
             [self->_devTool attachDebugBridge:url];
+            [self markTiming:lynx::tasm::timing::kFfiStart
+                  pipelineID:pipeline_options->pipeline_id.c_str()];
             self->shell_->LoadTemplate([url UTF8String], ConvertNSBinary(tem), pipeline_options,
                                        ptr, _enablePrePainting, _enableRecycleTemplateBundle);
             _hasStartedLoad = YES;
@@ -1052,6 +1079,17 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
 - (void)reloadTemplateWithTemplateData:(nullable LynxTemplateData*)data
                            globalProps:(nullable LynxTemplateData*)globalProps {
   if (data) {
+    [self resetTimingBeforeReload];
+    auto pipeline_options = std::make_shared<lynx::tasm::PipelineOptions>();
+    pipeline_options->pipeline_origin = lynx::tasm::timing::kReloadBundleFromNative;
+    pipeline_options->need_timestamps = YES;
+    pipeline_options->is_reload_template = YES;
+    [self onPipelineStart:pipeline_options->pipeline_id
+                pipelineOrigin:pipeline_options->pipeline_origin
+        pipelineStartTimestamp:pipeline_options->pipeline_start_timestamp];
+    [self markTiming:lynx::tasm::timing::kLoadBundleStart
+          pipelineID:pipeline_options->pipeline_id.c_str()];
+
     if ([_delegate respondsToSelector:@selector(templateRenderOnPageStarted:withPipelineInfo:)]) {
       LynxPipelineInfo* pipelineInfo = [[LynxPipelineInfo alloc] initWithUrl:[self url]];
       [pipelineInfo addPipelineOrigin:LynxReload];
@@ -1059,7 +1097,6 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
     }
 
     [self executeUpdateDataSafely:^() {
-      std::shared_ptr<lynx::tasm::PipelineOptions> pipeline_options = nullptr;
       auto template_data = ConvertLynxTemplateDataToTemplateData(data);
       template_data->SetPlatformData(std::make_unique<lynx::tasm::PlatformDataDarwin>(data));
       [self resetLayoutStatus];
@@ -1069,6 +1106,8 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
        * Null globalProps -> Nil Value;
        * Empty globalProps -> Table Value;
        */
+      [self markTiming:lynx::tasm::timing::kFfiStart
+            pipelineID:pipeline_options->pipeline_id.c_str()];
       if (globalProps == nil) {
         self->shell_->ReloadTemplate(template_data, pipeline_options);
       } else {
@@ -2062,13 +2101,27 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
   timing_collector_platform_impl_->SetTiming(pipelineIDStr, keyStr, timestamp);
 }
 
-- (void)markTiming:(NSString*)key pipelineID:(nullable NSString*)pipelineID {
+- (void)resetTimingBeforeReload {
   if (!timing_collector_platform_impl_) {
     return;
   }
-  std::string keyStr = std::string([key UTF8String]);
-  std::string pipelineIDStr = pipelineID ? std::string([pipelineID UTF8String]) : std::string();
-  timing_collector_platform_impl_->MarkTiming(pipelineIDStr, keyStr);
+  timing_collector_platform_impl_->ResetTimingBeforeReload();
+}
+
+- (void)onPipelineStart:(std::string)pipelineID
+            pipelineOrigin:(std::string)pipelineOrigin
+    pipelineStartTimestamp:(uint64_t)timestamp {
+  if (!timing_collector_platform_impl_) {
+    return;
+  }
+  timing_collector_platform_impl_->OnPipelineStart(pipelineID, pipelineOrigin, timestamp);
+}
+
+- (void)markTiming:(const char*)key pipelineID:(const char*)pipelineID {
+  if (!timing_collector_platform_impl_) {
+    return;
+  }
+  timing_collector_platform_impl_->MarkTiming(std::string{pipelineID}, std::string{key});
 }
 
 /**

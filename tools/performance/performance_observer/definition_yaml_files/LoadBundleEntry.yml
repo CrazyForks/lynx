@@ -20,3 +20,13 @@ LoadBundleEntry:
           type: number
         loadBackgroundEnd:
           type: number
+        verifyTasmStart:
+          type: number
+          required: false
+        verifyTasmEnd:
+          type: number
+          required: false
+        ffiStart:
+          type: number
+        ffiEnd:
+          type: number

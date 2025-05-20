@@ -301,6 +301,18 @@ void TimingMediator::ReportSetupEvent(const TimingInfo& timing_info) const {
       CalculateDuration(
           setup_timing, BASE_STATIC_STRING(kTemplateBundleParseStartPolyfill),
           setup_timing, BASE_STATIC_STRING(kTemplateBundleParseEndPolyfill)));
+  event.SetProps(kSetupVerifyTasm,
+                 CalculateDuration(
+                     setup_timing, BASE_STATIC_STRING(kVerifyTasmStartPolyfill),
+                     setup_timing, BASE_STATIC_STRING(kVerifyTasmEndPolyfill)));
+  event.SetProps(kSetupPlatformDuration,
+                 CalculateDuration(
+                     setup_timing, BASE_STATIC_STRING(kLoadBundleStartPolyfill),
+                     setup_timing, BASE_STATIC_STRING(kFfiStartPolyfill)));
+  event.SetProps(kSetupEngineDuration,
+                 CalculateDuration(
+                     setup_timing, BASE_STATIC_STRING(kFfiEndPolyfill),
+                     setup_timing, BASE_STATIC_STRING(kLoadBundleEndPolyfill)));
 
   tasm::report::EventTrackerPlatformImpl::OnEvent(instance_id_,
                                                   std::move(event));

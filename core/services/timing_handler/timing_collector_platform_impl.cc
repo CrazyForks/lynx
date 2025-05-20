@@ -60,6 +60,26 @@ void TimingCollectorPlatformImpl::MarkDrawEndTimingIfNeeded() {
   }
 }
 
+void TimingCollectorPlatformImpl::OnPipelineStart(
+    const tasm::PipelineID& pipeline_id,
+    const lynx::tasm::PipelineOrigin& pipeline_origin,
+    lynx::tasm::timing::TimestampUs pipeline_start_timestamp) {
+  if (timing_actor_) {
+    timing_actor_->ActAsync([pipeline_id, pipeline_origin,
+                             pipeline_start_timestamp](auto& timing_handler) {
+      timing_handler->OnPipelineStart(pipeline_id, pipeline_origin,
+                                      pipeline_start_timestamp);
+    });
+  }
+}
+void TimingCollectorPlatformImpl::ResetTimingBeforeReload() {
+  if (timing_actor_) {
+    timing_actor_->ActSync([](auto& timing_handler) {
+      timing_handler->ResetTimingBeforeReload();
+    });
+  }
+}
+
 }  // namespace timing
 }  // namespace tasm
 }  // namespace lynx

@@ -2289,6 +2289,10 @@ public class LynxLoadBundleEntry : LynxPipelineEntry {
   public NSNumber* LynxLoadBundleEntry::parseEnd parseEnd;
   public NSNumber* LynxLoadBundleEntry::loadBackgroundStart loadBackgroundStart;
   public NSNumber* LynxLoadBundleEntry::loadBackgroundEnd loadBackgroundEnd;
+  public NSNumber* LynxLoadBundleEntry::verifyTasmStart verifyTasmStart;
+  public NSNumber* LynxLoadBundleEntry::verifyTasmEnd verifyTasmEnd;
+  public NSNumber* LynxLoadBundleEntry::ffiStart ffiStart;
+  public NSNumber* LynxLoadBundleEntry::ffiEnd ffiEnd;
   public instancetype LynxLoadBundleEntry::initWithDictionary:(NSDictionary *dictionary);
 }
 

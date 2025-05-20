@@ -32,6 +32,12 @@ class TimingCollectorPlatformImpl : public shell::TimingCollectorPlatform {
 
   void MarkDrawEndTimingIfNeeded() override;
 
+  void OnPipelineStart(const PipelineID& pipeline_id,
+                       const PipelineOrigin& pipeline_origin,
+                       uint64_t pipeline_start_timestamp);
+
+  void ResetTimingBeforeReload();
+
   inline void SetTimingActor(
       const std::shared_ptr<shell::LynxActor<tasm::timing::TimingHandler>>&
           timing_actor) {

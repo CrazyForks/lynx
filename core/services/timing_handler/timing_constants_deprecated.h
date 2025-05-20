@@ -68,6 +68,10 @@ static constexpr const char kLoadCoreStartPolyfill[] = "load_core_start";
 static constexpr const char kLoadCoreEndPolyfill[] = "load_core_end";
 static constexpr const char kPipelineStartPolyfill[] = "pipeline_start";
 static constexpr const char kPipelineEndPolyfill[] = "pipeline_end";
+static constexpr const char kVerifyTasmStartPolyfill[] = "verify_tasm_start";
+static constexpr const char kVerifyTasmEndPolyfill[] = "verify_tasm_end";
+static constexpr const char kFfiStartPolyfill[] = "ffi_start";
+static constexpr const char kFfiEndPolyfill[] = "ffi_end";
 // metric
 static constexpr const char kTTI[] = "tti";
 static constexpr const char kLynxTTIPolyfill[] = "lynx_tti";
@@ -152,6 +156,9 @@ static constexpr const char* kListFullFillRenderChildren =
     "list_full_fill_render_children";
 static constexpr const char* kListPatchChanges = "list_patch_changes";
 static constexpr const char* kListDiffVdom = "list_diff_vdom";
+static constexpr const char* kSetupVerifyTasm = "verify_tasm";
+static constexpr const char* kSetupPlatformDuration = "setup_platform_duration";
+static constexpr const char* kSetupEngineDuration = "setup_engine_duration";
 
 // Events of timing
 static constexpr const char* kLynxSDKSetupTiming = "lynxsdk_setup_timing";

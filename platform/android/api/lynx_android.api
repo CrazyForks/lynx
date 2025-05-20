@@ -2985,6 +2985,10 @@ public class com::lynx::tasm::performance::performanceobserver::LoadBundleEntry 
   public double com.lynx.tasm.performance.performanceobserver.LoadBundleEntry.parseEnd parseEnd;
   public double com.lynx.tasm.performance.performanceobserver.LoadBundleEntry.loadBackgroundStart loadBackgroundStart;
   public double com.lynx.tasm.performance.performanceobserver.LoadBundleEntry.loadBackgroundEnd loadBackgroundEnd;
+  public double com.lynx.tasm.performance.performanceobserver.LoadBundleEntry.verifyTasmStart verifyTasmStart;
+  public double com.lynx.tasm.performance.performanceobserver.LoadBundleEntry.verifyTasmEnd verifyTasmEnd;
+  public double com.lynx.tasm.performance.performanceobserver.LoadBundleEntry.ffiStart ffiStart;
+  public double com.lynx.tasm.performance.performanceobserver.LoadBundleEntry.ffiEnd ffiEnd;
   public com.lynx.tasm.performance.performanceobserver.LoadBundleEntry.LoadBundleEntry(HashMap< String, Object > props);
 }
 
