@@ -1240,16 +1240,7 @@ void LynxShell::SetHierarchyObserver(
 
 void LynxShell::OnRuntimeCreate() {
   DCHECK(runtime_actor_);
-
-  runtime::MessageEvent event(
-      runtime::kMessageEventTypeOnRuntimeCreate,
-      runtime::ContextProxy::Type::kCoreContext,
-      runtime::ContextProxy::Type::kJSContext,
-      std::make_unique<pub::ValueImplLepus>(lepus::Value()));
-  runtime_actor_->Act(
-      [message_event = std::move(event)](auto& runtime) mutable {
-        runtime->OnReceiveMessageEvent(std::move(message_event));
-      });
+  runtime_actor_->Act([](auto& runtime) { runtime->OnRuntimeActorCreate(); });
 }
 
 std::weak_ptr<piper::JsBundleHolder> LynxShell::GetWeakJsBundleHolder() {

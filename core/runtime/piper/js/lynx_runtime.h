@@ -180,6 +180,8 @@ class LynxRuntime final {
   void AddModuleFactory(
       std::unique_ptr<piper::NativeModuleFactory> native_factory);
 
+  void OnRuntimeActorCreate();
+
  private:
   enum class State {
     kNotStarted,       // only LynxRuntime created

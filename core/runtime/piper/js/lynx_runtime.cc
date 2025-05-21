@@ -873,12 +873,6 @@ void LynxRuntime::AddEventListeners() {
             [this](lepus::Value args) {
               lifecycle_observer_->OnAppEnterBackground();
             }));
-    core_context_proxy->AddEventListener(
-        kMessageEventTypeOnRuntimeCreate,
-        std::make_unique<event::ClosureEventListener>(
-            [this](lepus::Value args) {
-              lifecycle_observer_->OnRuntimeCreate(GetVSyncObserver());
-            }));
   }
 
   auto js_context_proxy =
@@ -1054,6 +1048,10 @@ void LynxRuntime::AddModuleFactory(
     }
   }
   cached_native_factories_.push_back(std::move(native_factory));
+}
+
+void LynxRuntime::OnRuntimeActorCreate() {
+  lifecycle_observer_->OnRuntimeCreate(GetVSyncObserver());
 }
 
 }  // namespace runtime
