@@ -62,7 +62,7 @@ public class TraceEvent {
       return;
     }
     if (enableTrace()) {
-      if (enablePerfettoTrace() && isTracingStarted()) {
+      if (enablePerfettoTrace()) {
         nativeBeginSection(category, sectionName);
       } else {
         Trace.beginSection(sectionName);
@@ -80,7 +80,7 @@ public class TraceEvent {
       return;
     }
     if (enableTrace()) {
-      if (enablePerfettoTrace() && isTracingStarted()) {
+      if (enablePerfettoTrace()) {
         nativeEndSection(category, sectionName);
       } else {
         Trace.endSection();
@@ -102,7 +102,7 @@ public class TraceEvent {
       return;
     }
     if (enableTrace()) {
-      if (enablePerfettoTrace() && isTracingStarted()) {
+      if (enablePerfettoTrace()) {
         nativeBeginSectionWithProps(category, sectionName, props);
       } else {
         Trace.beginSection(sectionName);
@@ -120,7 +120,7 @@ public class TraceEvent {
       return;
     }
     if (enableTrace()) {
-      if (enablePerfettoTrace() && isTracingStarted()) {
+      if (enablePerfettoTrace()) {
         nativeEndSectionWithProps(category, sectionName, props);
       } else {
         Trace.endSection();
@@ -162,7 +162,7 @@ public class TraceEvent {
 
   public static void instant(String category, String eventName, Map<String, String> props) {
     if (enableTrace()) {
-      if (enablePerfettoTrace() && isTracingStarted()) {
+      if (enablePerfettoTrace()) {
         nativeInstantWithProps(category, eventName, System.nanoTime() / 1000, props);
       } else {
         Trace.beginSection(eventName);
@@ -180,7 +180,7 @@ public class TraceEvent {
     if (TraceController.isNativeTracingOnly()) {
       return;
     }
-    if (enableTrace() && isTracingStarted()) {
+    if (enableTrace()) {
       nativeCounter(category, name, counterValue);
     }
   }
@@ -218,13 +218,9 @@ public class TraceEvent {
     return sPerfettoTraceEnabled;
   }
 
-  public static boolean isTracingStarted() {
-    return TraceController.isTracingStarted();
-  }
-
   private static void instant(String category, String eventName, long timestamp, String color) {
     if (enableTrace()) {
-      if (enablePerfettoTrace() && isTracingStarted()) {
+      if (enablePerfettoTrace()) {
         nativeInstant(category, eventName, timestamp, color);
       } else {
         Trace.beginSection(eventName);
@@ -236,7 +232,7 @@ public class TraceEvent {
   private static void instant(
       String category, String eventName, long timestamp, Map<String, String> props) {
     if (enableTrace()) {
-      if (enablePerfettoTrace() && isTracingStarted()) {
+      if (enablePerfettoTrace()) {
         timestamp = timestamp > 0 ? timestamp : System.nanoTime() / 1000;
         nativeInstantWithProps(category, eventName, timestamp, props);
       } else {

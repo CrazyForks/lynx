@@ -73,7 +73,7 @@ class FluencyTracerImpl {
       mKeyedTracer.put(sign, tracer);
     }
     tracer.start();
-    if (TraceEvent.isTracingStarted()) {
+    if (TraceEvent.enableTrace()) {
       Map<String, String> props = new HashMap<>();
       props.put("scene", config.scene);
       props.put("tag", config.tag);

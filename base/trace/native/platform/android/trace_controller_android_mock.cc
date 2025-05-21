@@ -46,8 +46,5 @@ std::string TraceControllerDelegateAndroid::GenerateTracingFileDir() {
 
 void TraceControllerDelegateAndroid::RefreshATraceTags() {}
 
-void TraceControllerDelegateAndroid::SetIsTracingStarted(
-    bool is_tracing_started) {}
-
 }  // namespace trace
 }  // namespace lynx
