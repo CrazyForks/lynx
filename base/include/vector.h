@@ -1607,6 +1607,11 @@ struct KeyValueArray : protected MapStatisticsBase<Stat> {
 
  protected:
   store_container_type array_;
+
+  template <size_t N2>
+  void _swap(KeyValueArray<K, T, N2, Stat>& other) {
+    array_.swap(other.array_);
+  }
 };
 
 /**
@@ -1655,10 +1660,13 @@ struct BinarySearchArray : public KeyValueArray<K, T, N, Stat> {
   using MapStatisticsBase<Stat>::IncreaseEraseCount;
   using MapStatisticsBase<Stat>::RecordFind;
 
+  using KeyValueArray<K, T, N, Stat>::is_map;
   using KeyValueArray<K, T, N, Stat>::array_;
+  using KeyValueArray<K, T, N, Stat>::_swap;
 
  public:
   using typename KeyValueArray<K, T, N, Stat>::value_type;
+  using typename KeyValueArray<K, T, N, Stat>::store_value_type;
   using typename KeyValueArray<K, T, N, Stat>::iterator;
   using typename KeyValueArray<K, T, N, Stat>::const_iterator;
   using typename KeyValueArray<K, T, N, Stat>::store_iterator;
@@ -1700,28 +1708,75 @@ struct BinarySearchArray : public KeyValueArray<K, T, N, Stat> {
   }
 
   std::pair<iterator, bool> insert(const value_type& value) {
-    auto pos = lower_bound(*reinterpret_cast<const K*>(&value));
-    if (pos != end() && *reinterpret_cast<const K*>(pos) ==
-                            *reinterpret_cast<const K*>(&value)) {
-      RecordFind(MapStatisticsFindKind::kInsertFindCollision, array_.size());
-      return {pos, false};  // duplicate
+    if constexpr (is_map) {
+      auto pos = lower_bound(value.first);
+      if (pos != end() && pos->first == value.first) {
+        RecordFind(MapStatisticsFindKind::kInsertFindCollision, array_.size());
+        return {pos, false};  // duplicate
+      } else {
+        RecordFind(MapStatisticsFindKind::kInsertFind, array_.size());
+        return {
+            reinterpret_cast<iterator>(array_.emplace(
+                reinterpret_cast<store_iterator>(pos), std::piecewise_construct,
+                std::forward_as_tuple(value.first),
+                std::forward_as_tuple(value.second))),
+            true};
+      }
     } else {
-      RecordFind(MapStatisticsFindKind::kInsertFind, array_.size());
-      return {reinterpret_cast<iterator>(
-                  array_.insert(reinterpret_cast<store_iterator>(pos), value)),
-              true};
+      auto pos = lower_bound(value);
+      if (pos != end() && *pos == value) {
+        RecordFind(MapStatisticsFindKind::kInsertFindCollision, array_.size());
+        return {pos, false};  // duplicate
+      } else {
+        RecordFind(MapStatisticsFindKind::kInsertFind, array_.size());
+        return {reinterpret_cast<iterator>(array_.emplace(
+                    reinterpret_cast<store_iterator>(pos), value)),
+                true};
+      }
     }
   }
 
   std::pair<iterator, bool> insert(value_type&& value) {
-    auto pos = lower_bound(*reinterpret_cast<const K*>(&value));
-    if (pos != end() && *reinterpret_cast<const K*>(pos) ==
-                            *reinterpret_cast<const K*>(&value)) {
+    if constexpr (is_map) {
+      auto pos = lower_bound(value.first);
+      if (pos != end() && pos->first == value.first) {
+        RecordFind(MapStatisticsFindKind::kInsertFindCollision, array_.size());
+        return {pos, false};  // duplicate
+      } else {
+        RecordFind(MapStatisticsFindKind::kInsertFind, array_.size());
+        return {
+            reinterpret_cast<iterator>(array_.emplace(
+                reinterpret_cast<store_iterator>(pos), std::piecewise_construct,
+                std::forward_as_tuple(std::move(value.first)),
+                std::forward_as_tuple(std::move(value.second)))),
+            true};
+      }
+    } else {
+      auto pos = lower_bound(value);
+      if (pos != end() && *pos == value) {
+        RecordFind(MapStatisticsFindKind::kInsertFindCollision, array_.size());
+        return {pos, false};  // duplicate
+      } else {
+        RecordFind(MapStatisticsFindKind::kInsertFind, array_.size());
+        return {reinterpret_cast<iterator>(array_.emplace(
+                    reinterpret_cast<store_iterator>(pos), std::move(value))),
+                true};
+      }
+    }
+  }
+
+  // Without this overload, `std::pair<K, T> v; map.insert(std::move(v));` would
+  // implicitly construct `std::pair<const K, T>` from `std::move(v)`.
+  template <class U, class = std::enable_if_t<
+                         is_map && std::is_same_v<U, store_value_type>>>
+  std::pair<iterator, bool> insert(U&& value) {
+    auto pos = lower_bound(value.first);
+    if (pos != end() && pos->first == value.first) {
       RecordFind(MapStatisticsFindKind::kInsertFindCollision, array_.size());
       return {pos, false};  // duplicate
     } else {
       RecordFind(MapStatisticsFindKind::kInsertFind, array_.size());
-      return {reinterpret_cast<iterator>(array_.insert(
+      return {reinterpret_cast<iterator>(array_.emplace(
                   reinterpret_cast<store_iterator>(pos), std::move(value))),
               true};
     }
@@ -1762,6 +1817,21 @@ struct BinarySearchArray : public KeyValueArray<K, T, N, Stat> {
   bool contains(const K& key) const { return find(key) != end(); }
 
   size_t count(const K& key) const { return contains(key) ? 1 : 0; }
+
+  template <size_t N2>
+  void swap(BinarySearchArray<K, T, N2, Compare, Stat>& other) {
+    _swap(other);
+  }
+
+  template <size_t N2>
+  void merge(BinarySearchArray<K, T, N2, Compare, Stat>& other) {
+    auto& other_array = other.array_;
+    for (intptr_t i = other_array.size() - 1; i >= 0; i--) {
+      if (insert(std::move(other_array[i])).second) {
+        other_array.erase(other_array.begin() + i);
+      }
+    }
+  }
 
   bool is_data_ordered() const { return true; }
 
@@ -1806,7 +1876,9 @@ struct LinearSearchArray : public KeyValueArray<K, T, N, Stat> {
   using MapStatisticsBase<Stat>::IncreaseEraseCount;
   using MapStatisticsBase<Stat>::RecordFind;
 
+  using KeyValueArray<K, T, N, Stat>::is_map;
   using KeyValueArray<K, T, N, Stat>::array_;
+  using KeyValueArray<K, T, N, Stat>::_swap;
 
  public:
   using typename KeyValueArray<K, T, N, Stat>::value_type;
@@ -1859,18 +1931,65 @@ struct LinearSearchArray : public KeyValueArray<K, T, N, Stat> {
   }
 
   std::pair<iterator, bool> insert(const value_type& value) {
-    auto pos = find_exact(*reinterpret_cast<const K*>(&value));
-    if (pos != nullptr) {
-      RecordFind(MapStatisticsFindKind::kInsertFindCollision, array_.size());
-      return {pos, false};  // duplicate
+    if constexpr (is_map) {
+      auto pos = find_exact(value.first);
+      if (pos != nullptr) {
+        RecordFind(MapStatisticsFindKind::kInsertFindCollision, array_.size());
+        return {pos, false};  // duplicate
+      } else {
+        RecordFind(MapStatisticsFindKind::kInsertFind, array_.size());
+        return {
+            reinterpret_cast<iterator>(&array_.emplace_back(
+                std::piecewise_construct, std::forward_as_tuple(value.first),
+                std::forward_as_tuple(value.second))),
+            true};
+      }
     } else {
-      RecordFind(MapStatisticsFindKind::kInsertFind, array_.size());
-      return {reinterpret_cast<iterator>(&array_.emplace_back(value)), true};
+      auto pos = find_exact(value);
+      if (pos != nullptr) {
+        RecordFind(MapStatisticsFindKind::kInsertFindCollision, array_.size());
+        return {pos, false};  // duplicate
+      } else {
+        RecordFind(MapStatisticsFindKind::kInsertFind, array_.size());
+        return {reinterpret_cast<iterator>(&array_.emplace_back(value)), true};
+      }
     }
   }
 
   std::pair<iterator, bool> insert(value_type&& value) {
-    auto pos = find_exact(*reinterpret_cast<const K*>(&value));
+    if constexpr (is_map) {
+      auto pos = find_exact(value.first);
+      if (pos != nullptr) {
+        RecordFind(MapStatisticsFindKind::kInsertFindCollision, array_.size());
+        return {pos, false};  // duplicate
+      } else {
+        RecordFind(MapStatisticsFindKind::kInsertFind, array_.size());
+        return {reinterpret_cast<iterator>(&array_.emplace_back(
+                    std::piecewise_construct,
+                    std::forward_as_tuple(std::move(value.first)),
+                    std::forward_as_tuple(std::move(value.second)))),
+                true};
+      }
+    } else {
+      auto pos = find_exact(value);
+      if (pos != nullptr) {
+        RecordFind(MapStatisticsFindKind::kInsertFindCollision, array_.size());
+        return {pos, false};  // duplicate
+      } else {
+        RecordFind(MapStatisticsFindKind::kInsertFind, array_.size());
+        return {
+            reinterpret_cast<iterator>(&array_.emplace_back(std::move(value))),
+            true};
+      }
+    }
+  }
+
+  // Without this overload, `std::pair<K, T> v; map.insert(std::move(v));` would
+  // implicitly construct `std::pair<const K, T>` from `std::move(v)`.
+  template <class U, class = std::enable_if_t<
+                         is_map && std::is_same_v<U, store_value_type>>>
+  std::pair<iterator, bool> insert(U&& value) {
+    auto pos = find_exact(value.first);
     if (pos != nullptr) {
       RecordFind(MapStatisticsFindKind::kInsertFindCollision, array_.size());
       return {pos, false};  // duplicate
@@ -1920,6 +2039,21 @@ struct LinearSearchArray : public KeyValueArray<K, T, N, Stat> {
   }
 
   size_t count(const K& key) const { return contains(key) ? 1 : 0; }
+
+  template <size_t N2>
+  void swap(LinearSearchArray<K, T, N2, Stat>& other) {
+    _swap(other);
+  }
+
+  template <size_t N2>
+  void merge(LinearSearchArray<K, T, N2, Stat>& other) {
+    auto& other_array = other.array_;
+    for (intptr_t i = other_array.size() - 1; i >= 0; i--) {
+      if (insert(std::move(other_array[i])).second) {
+        other_array.erase(other_array.begin() + i);
+      }
+    }
+  }
 
   bool is_data_ordered() const { return false; }
 
@@ -2525,6 +2659,36 @@ static_assert(sizeof(LinearFlatSet<int>) == sizeof(Vector<int>));
 namespace std {
 template <class T>
 inline void swap(lynx::base::Vector<T>& x, lynx::base::Vector<T>& y) {
+  x.swap(y);
+}
+
+template <class K, class T, size_t N1, size_t N2, class Compare1,
+          class Compare2, bool Stat1, bool Stat2,
+          typename = typename std::enable_if<N1 != N2>::type>
+inline void swap(lynx::base::BinarySearchMap<K, T, N1, Compare1, Stat1>& x,
+                 lynx::base::BinarySearchMap<K, T, N2, Compare2, Stat2>& y) {
+  x.swap(y);
+}
+
+template <class K, size_t N1, size_t N2, class Compare1, class Compare2,
+          bool Stat1, bool Stat2,
+          typename = typename std::enable_if<N1 != N2>::type>
+inline void swap(lynx::base::BinarySearchSet<K, N1, Compare1, Stat1>& x,
+                 lynx::base::BinarySearchSet<K, N2, Compare2, Stat2>& y) {
+  x.swap(y);
+}
+
+template <class K, class T, size_t N1, size_t N2, bool Stat1, bool Stat2,
+          typename = typename std::enable_if<N1 != N2>::type>
+inline void swap(lynx::base::LinearSearchMap<K, T, N1, Stat1>& x,
+                 lynx::base::LinearSearchMap<K, T, N2, Stat2>& y) {
+  x.swap(y);
+}
+
+template <class K, size_t N1, size_t N2, bool Stat1, bool Stat2,
+          typename = typename std::enable_if<N1 != N2>::type>
+inline void swap(lynx::base::LinearSearchSet<K, N1, Stat1>& x,
+                 lynx::base::LinearSearchSet<K, N2, Stat2>& y) {
   x.swap(y);
 }
 }  // namespace std

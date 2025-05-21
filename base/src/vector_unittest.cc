@@ -3843,6 +3843,12 @@ bool AssertMapContent_ABC_123(MapType& m) {
   return (m.size() == 3) && (m["A"] == "1") && (m["B"] == "2") &&
          (m["C"] == "3");
 }
+
+template <class MapType>
+bool AssertMapContent_abc_123(MapType& m) {
+  return (m.size() == 3) && (m["a"] == "1") && (m["b"] == "2") &&
+         (m["c"] == "3");
+}
 }  // namespace
 
 TEST(MapStringTest, MixedInlineSize) {
@@ -4083,6 +4089,11 @@ namespace {
 template <class SetType>
 bool AssertSetContent_ABC(const SetType& m) {
   return m.size() == 3 && m.contains("A") && m.contains("B") && m.contains("C");
+}
+
+template <class SetType>
+bool AssertSetContent_abc(const SetType& m) {
+  return m.size() == 3 && m.contains("a") && m.contains("b") && m.contains("c");
 }
 }  // namespace
 
@@ -4510,6 +4521,692 @@ TEST(LinearSet, FromSourceArray) {
     EXPECT_TRUE(set.contains("z"));
     EXPECT_TRUE(set.contains("a"));
     EXPECT_TRUE(set.contains("e"));
+  }
+}
+
+TEST(OrderedMap, Swap) {
+  {
+    OrderedFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    OrderedFlatMap<std::string, std::string> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+
+  {
+    OrderedFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineOrderedFlatMap<std::string, std::string, 2> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+
+  {
+    OrderedFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineOrderedFlatMap<std::string, std::string, 5> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+
+  {
+    InlineOrderedFlatMap<std::string, std::string, 3> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineOrderedFlatMap<std::string, std::string, 5> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+
+  {
+    OrderedFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    OrderedFlatMap<std::string, std::string> m2{
+        {"a", "1"}, {"b", "2"}, {"c", "3"}};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertMapContent_abc_123(m1));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertMapContent_abc_123(m2));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+
+  {
+    OrderedFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineOrderedFlatMap<std::string, std::string, 2> m2{
+        {"a", "1"}, {"b", "2"}, {"c", "3"}};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertMapContent_abc_123(m1));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertMapContent_abc_123(m2));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+
+  {
+    OrderedFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineOrderedFlatMap<std::string, std::string, 5> m2{
+        {"a", "1"}, {"b", "2"}, {"c", "3"}};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertMapContent_abc_123(m1));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertMapContent_abc_123(m2));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+
+  {
+    InlineOrderedFlatMap<std::string, std::string, 3> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineOrderedFlatMap<std::string, std::string, 5> m2{
+        {"a", "1"}, {"b", "2"}, {"c", "3"}};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertMapContent_abc_123(m1));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertMapContent_abc_123(m2));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+}
+
+TEST(LinearMap, Swap) {
+  {
+    LinearFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    LinearFlatMap<std::string, std::string> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+
+  {
+    LinearFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineLinearFlatMap<std::string, std::string, 2> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+
+  {
+    LinearFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineLinearFlatMap<std::string, std::string, 5> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+
+  {
+    InlineLinearFlatMap<std::string, std::string, 3> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineLinearFlatMap<std::string, std::string, 5> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+
+  {
+    LinearFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    LinearFlatMap<std::string, std::string> m2{
+        {"a", "1"}, {"b", "2"}, {"c", "3"}};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertMapContent_abc_123(m1));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertMapContent_abc_123(m2));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+
+  {
+    LinearFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineLinearFlatMap<std::string, std::string, 2> m2{
+        {"a", "1"}, {"b", "2"}, {"c", "3"}};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertMapContent_abc_123(m1));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertMapContent_abc_123(m2));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+
+  {
+    LinearFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineLinearFlatMap<std::string, std::string, 5> m2{
+        {"a", "1"}, {"b", "2"}, {"c", "3"}};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertMapContent_abc_123(m1));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertMapContent_abc_123(m2));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+
+  {
+    InlineLinearFlatMap<std::string, std::string, 3> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineLinearFlatMap<std::string, std::string, 5> m2{
+        {"a", "1"}, {"b", "2"}, {"c", "3"}};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertMapContent_abc_123(m1));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertMapContent_abc_123(m2));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+  }
+}
+
+TEST(OrderedSet, Swap) {
+  {
+    OrderedFlatSet<std::string> m1{"A", "B", "C"};
+    OrderedFlatSet<std::string> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+
+  {
+    OrderedFlatSet<std::string> m1{"A", "B", "C"};
+    InlineOrderedFlatSet<std::string, 2> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+
+  {
+    OrderedFlatSet<std::string> m1{"A", "B", "C"};
+    InlineOrderedFlatSet<std::string, 5> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+
+  {
+    InlineOrderedFlatSet<std::string, 3> m1{"A", "B", "C"};
+    InlineOrderedFlatSet<std::string, 5> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+
+  {
+    OrderedFlatSet<std::string> m1{"A", "B", "C"};
+    OrderedFlatSet<std::string> m2{"a", "b", "c"};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertSetContent_abc(m1));
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertSetContent_abc(m2));
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+
+  {
+    OrderedFlatSet<std::string> m1{"A", "B", "C"};
+    InlineOrderedFlatSet<std::string, 2> m2{"a", "b", "c"};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertSetContent_abc(m1));
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertSetContent_abc(m2));
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+
+  {
+    OrderedFlatSet<std::string> m1{"A", "B", "C"};
+    InlineOrderedFlatSet<std::string, 5> m2{"a", "b", "c"};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertSetContent_abc(m1));
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertSetContent_abc(m2));
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+
+  {
+    InlineOrderedFlatSet<std::string, 3> m1{"A", "B", "C"};
+    InlineOrderedFlatSet<std::string, 5> m2{"a", "b", "c"};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertSetContent_abc(m1));
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertSetContent_abc(m2));
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+}
+
+TEST(LinearSet, Swap) {
+  {
+    LinearFlatSet<std::string> m1{"A", "B", "C"};
+    LinearFlatSet<std::string> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+
+  {
+    LinearFlatSet<std::string> m1{"A", "B", "C"};
+    InlineLinearFlatSet<std::string, 2> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+
+  {
+    LinearFlatSet<std::string> m1{"A", "B", "C"};
+    InlineLinearFlatSet<std::string, 5> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+
+  {
+    InlineLinearFlatSet<std::string, 3> m1{"A", "B", "C"};
+    InlineLinearFlatSet<std::string, 5> m2;
+    m1.swap(m2);
+    EXPECT_TRUE(m1.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(m2.empty());
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+
+  {
+    LinearFlatSet<std::string> m1{"A", "B", "C"};
+    LinearFlatSet<std::string> m2{"a", "b", "c"};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertSetContent_abc(m1));
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertSetContent_abc(m2));
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+
+  {
+    LinearFlatSet<std::string> m1{"A", "B", "C"};
+    InlineLinearFlatSet<std::string, 2> m2{"a", "b", "c"};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertSetContent_abc(m1));
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertSetContent_abc(m2));
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+
+  {
+    LinearFlatSet<std::string> m1{"A", "B", "C"};
+    InlineLinearFlatSet<std::string, 5> m2{"a", "b", "c"};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertSetContent_abc(m1));
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertSetContent_abc(m2));
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+
+  {
+    InlineLinearFlatSet<std::string, 3> m1{"A", "B", "C"};
+    InlineLinearFlatSet<std::string, 5> m2{"a", "b", "c"};
+    m1.swap(m2);
+    EXPECT_TRUE(AssertSetContent_abc(m1));
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+
+    m2.swap(m1);
+    EXPECT_TRUE(AssertSetContent_abc(m2));
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+  }
+}
+
+namespace {
+template <class MapType>
+bool AssertMapContent_ABCbD_1232040(MapType& m) {
+  return (m.size() == 5) && (m["A"] == "1") && (m["B"] == "2") &&
+         (m["C"] == "3") && (m["b"] == "20") && (m["D"] == "40");
+}
+
+template <class MapType>
+bool AssertMapContent_AC_1030(MapType& m) {
+  return (m.size() == 2) && (m["A"] == "10") && (m["C"] == "30");
+}
+}  // namespace
+
+TEST(OrderedMap, Merge) {
+  {
+    OrderedFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    OrderedFlatMap<std::string, std::string> m2;
+    m1.merge(m2);
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+    EXPECT_TRUE(m2.empty());
+    m2.merge(m1);
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+    EXPECT_TRUE(m1.empty());
+  }
+
+  {
+    OrderedFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    OrderedFlatMap<std::string, std::string> m2{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+  }
+
+  {
+    OrderedFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    OrderedFlatMap<std::string, std::string> m2{
+        {"A", "10"}, {"b", "20"}, {"C", "30"}, {"D", "40"}};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertMapContent_ABCbD_1232040(m1));
+    EXPECT_TRUE(AssertMapContent_AC_1030(m2));
+  }
+
+  {
+    InlineOrderedFlatMap<std::string, std::string, 3> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    OrderedFlatMap<std::string, std::string> m2;
+    m1.merge(m2);
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+    EXPECT_TRUE(m2.empty());
+    m2.merge(m1);
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+    EXPECT_TRUE(m1.empty());
+  }
+
+  {
+    InlineOrderedFlatMap<std::string, std::string, 3> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineOrderedFlatMap<std::string, std::string, 3> m2{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+  }
+
+  {
+    InlineOrderedFlatMap<std::string, std::string, 3> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineOrderedFlatMap<std::string, std::string, 4> m2{
+        {"A", "10"}, {"b", "20"}, {"C", "30"}, {"D", "40"}};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertMapContent_ABCbD_1232040(m1));
+    EXPECT_TRUE(AssertMapContent_AC_1030(m2));
+  }
+}
+
+TEST(LinearMap, Merge) {
+  {
+    LinearFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    LinearFlatMap<std::string, std::string> m2;
+    m1.merge(m2);
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+    EXPECT_TRUE(m2.empty());
+    m2.merge(m1);
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+    EXPECT_TRUE(m1.empty());
+  }
+
+  {
+    LinearFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    LinearFlatMap<std::string, std::string> m2{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+  }
+
+  {
+    LinearFlatMap<std::string, std::string> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    LinearFlatMap<std::string, std::string> m2{
+        {"A", "10"}, {"b", "20"}, {"C", "30"}, {"D", "40"}};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertMapContent_ABCbD_1232040(m1));
+    EXPECT_TRUE(AssertMapContent_AC_1030(m2));
+  }
+
+  {
+    InlineLinearFlatMap<std::string, std::string, 3> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    LinearFlatMap<std::string, std::string> m2;
+    m1.merge(m2);
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+    EXPECT_TRUE(m2.empty());
+    m2.merge(m1);
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+    EXPECT_TRUE(m1.empty());
+  }
+
+  {
+    InlineLinearFlatMap<std::string, std::string, 3> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineLinearFlatMap<std::string, std::string, 3> m2{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertMapContent_ABC_123(m1));
+    EXPECT_TRUE(AssertMapContent_ABC_123(m2));
+  }
+
+  {
+    InlineLinearFlatMap<std::string, std::string, 3> m1{
+        {"A", "1"}, {"B", "2"}, {"C", "3"}};
+    InlineLinearFlatMap<std::string, std::string, 4> m2{
+        {"A", "10"}, {"b", "20"}, {"C", "30"}, {"D", "40"}};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertMapContent_ABCbD_1232040(m1));
+    EXPECT_TRUE(AssertMapContent_AC_1030(m2));
+  }
+}
+
+namespace {
+template <class SetType>
+bool AssertSetContent_ABCbD(SetType& m) {
+  return m.size() == 5 && m.contains("A") && m.contains("B") &&
+         m.contains("C") && m.contains("b") && m.contains("D");
+}
+
+template <class SetType>
+bool AssertMapContent_AC(SetType& m) {
+  return m.size() == 2 && m.contains("A") && m.contains("C");
+}
+}  // namespace
+
+TEST(OrderedSet, Merge) {
+  {
+    OrderedFlatSet<std::string> m1{"A", "B", "C"};
+    OrderedFlatSet<std::string> m2;
+    m1.merge(m2);
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+    EXPECT_TRUE(m2.empty());
+    m2.merge(m1);
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+    EXPECT_TRUE(m1.empty());
+  }
+
+  {
+    OrderedFlatSet<std::string> m1{"A", "B", "C"};
+    OrderedFlatSet<std::string> m2{"A", "B", "C"};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+  }
+
+  {
+    OrderedFlatSet<std::string> m1{"A", "B", "C"};
+    OrderedFlatSet<std::string> m2{"A", "b", "C", "D"};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertSetContent_ABCbD(m1));
+    EXPECT_TRUE(AssertMapContent_AC(m2));
+  }
+
+  {
+    InlineOrderedFlatSet<std::string, 3> m1{"A", "B", "C"};
+    OrderedFlatSet<std::string> m2;
+    m1.merge(m2);
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+    EXPECT_TRUE(m2.empty());
+    m2.merge(m1);
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+    EXPECT_TRUE(m1.empty());
+  }
+
+  {
+    InlineOrderedFlatSet<std::string, 3> m1{"A", "B", "C"};
+    InlineOrderedFlatSet<std::string, 3> m2{"A", "B", "C"};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+  }
+
+  {
+    InlineOrderedFlatSet<std::string, 3> m1{"A", "B", "C"};
+    InlineOrderedFlatSet<std::string, 4> m2{"A", "b", "C", "D"};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertSetContent_ABCbD(m1));
+    EXPECT_TRUE(AssertMapContent_AC(m2));
+  }
+}
+
+TEST(LinearSet, Merge) {
+  {
+    LinearFlatSet<std::string> m1{"A", "B", "C"};
+    LinearFlatSet<std::string> m2;
+    m1.merge(m2);
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+    EXPECT_TRUE(m2.empty());
+    m2.merge(m1);
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+    EXPECT_TRUE(m1.empty());
+  }
+
+  {
+    LinearFlatSet<std::string> m1{"A", "B", "C"};
+    LinearFlatSet<std::string> m2{"A", "B", "C"};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+  }
+
+  {
+    LinearFlatSet<std::string> m1{"A", "B", "C"};
+    LinearFlatSet<std::string> m2{"A", "b", "C", "D"};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertSetContent_ABCbD(m1));
+    EXPECT_TRUE(AssertMapContent_AC(m2));
+  }
+
+  {
+    InlineLinearFlatSet<std::string, 3> m1{"A", "B", "C"};
+    LinearFlatSet<std::string> m2;
+    m1.merge(m2);
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+    EXPECT_TRUE(m2.empty());
+    m2.merge(m1);
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+    EXPECT_TRUE(m1.empty());
+  }
+
+  {
+    InlineLinearFlatSet<std::string, 3> m1{"A", "B", "C"};
+    InlineLinearFlatSet<std::string, 3> m2{"A", "B", "C"};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertSetContent_ABC(m1));
+    EXPECT_TRUE(AssertSetContent_ABC(m2));
+  }
+
+  {
+    InlineLinearFlatSet<std::string, 3> m1{"A", "B", "C"};
+    InlineLinearFlatSet<std::string, 4> m2{"A", "b", "C", "D"};
+    m1.merge(m2);
+    EXPECT_TRUE(AssertSetContent_ABCbD(m1));
+    EXPECT_TRUE(AssertMapContent_AC(m2));
   }
 }
 
