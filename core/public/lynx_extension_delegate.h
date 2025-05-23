@@ -28,6 +28,7 @@ namespace pub {
 class LynxExtensionDelegate {
  public:
   virtual ~LynxExtensionDelegate() = default;
+  virtual void OnDevicePixelRatioChanged(float device_pixel_ratio){};
   virtual void SetRuntimeActor(
       std::shared_ptr<shell::LynxActor<runtime::LynxRuntime>> actor) = 0;
 };
