@@ -9,6 +9,7 @@
 #include <string>
 #include <utility>
 
+#include "base/include/base_export.h"
 #include "base/include/compiler_specific.h"
 #include "core/public/pipeline_option.h"
 #include "core/runtime/vm/lepus/array.h"
@@ -29,8 +30,8 @@ bool CheckTableDeepUpdated(const lepus::Value& target,
 bool CheckTableShadowUpdated(const lepus::Value& target,
                              const lepus::Value& update);
 
-void ForEachLepusValue(const lepus::Value& value,
-                       lepus::LepusValueIterator func);
+BASE_EXPORT_FOR_DEVTOOL void ForEachLepusValue(const lepus::Value& value,
+                                               lepus::LepusValueIterator func);
 
 std::string GetTimingFlag(const lepus_value& table);
 

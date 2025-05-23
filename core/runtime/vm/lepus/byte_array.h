@@ -7,13 +7,14 @@
 #include <memory>
 #include <utility>
 
+#include "base/include/base_export.h"
 #include "core/runtime/vm/lepus/ref_counted_class.h"
 #include "core/runtime/vm/lepus/ref_type.h"
 
 namespace lynx {
 namespace lepus {
 
-class ByteArray : public lepus::RefCounted {
+class BASE_EXPORT_FOR_DEVTOOL ByteArray : public lepus::RefCounted {
  public:
   static fml::RefPtr<ByteArray> Create() {
     return fml::AdoptRef<ByteArray>(new ByteArray());

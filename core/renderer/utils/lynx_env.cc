@@ -45,6 +45,11 @@ void LynxEnv::onPiperResponsed(const std::string& module_name,
 #endif
 }
 
+bool LynxEnv::ContainKey(const std::string& key) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  return local_env_map_.count(key) > 0;
+}
+
 void LynxEnv::SetBoolLocalEnv(const std::string& key, bool value) {
   SetLocalEnv(key, value ? kLocalEnvValueTrue : kLocalEnvValueFalse);
 }
@@ -97,25 +102,36 @@ long LynxEnv::GetLongEnv(Key key, int default_value, EnvType type) {
   return result;
 }
 
+bool LynxEnv::ConvertToBool(const std::string& value) {
+  if (value == kLocalEnvValueTrue) {
+    return true;
+  } else if (value == kLocalEnvValueFalse) {
+    return false;
+  } else {
+    static const std::string true_result = "true";
+    return value.size() == true_result.size() &&
+           std::equal(value.begin(), value.end(), true_result.begin(),
+                      [](char a, char b) {
+                        return std::tolower(a) == std::tolower(b);
+                      });
+  }
+}
+
+bool LynxEnv::GetBoolEnv(const std::string& key, bool default_value) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  auto it = local_env_map_.find(key);
+  if (it != local_env_map_.end()) {
+    return ConvertToBool(it->second);
+  }
+  return default_value;
+}
+
 bool LynxEnv::GetBoolEnv(Key key, bool default_value, EnvType type) {
   std::optional<std::string> string_result = GetStringEnv(key, type);
   if (!string_result.has_value() || (*string_result).empty()) {
     return default_value;
   }
-
-  std::string string = *string_result;
-  if (string == kLocalEnvValueTrue) {
-    return true;
-  } else if (string == kLocalEnvValueFalse) {
-    return false;
-  } else {
-    static const std::string true_result = "true";
-    return string.size() == true_result.size() &&
-           std::equal(string.begin(), string.end(), true_result.begin(),
-                      [](char a, char b) {
-                        return std::tolower(a) == std::tolower(b);
-                      });
-  }
+  return ConvertToBool(*string_result);
 }
 
 std::optional<std::string> LynxEnv::GetStringEnv(Key key, EnvType type) {

@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <utility>
 
+#include "base/include/base_export.h"
 #include "core/public/jsb/lynx_native_module.h"
 
 // TODO(liyanbo.monster): after platform module refactored, remove this
@@ -28,7 +29,7 @@ namespace piper {
 
 using ModuleCreator = std::function<std::shared_ptr<LynxNativeModule>()>;
 
-class NativeModuleFactory {
+class BASE_EXPORT_FOR_DEVTOOL NativeModuleFactory {
  public:
   virtual ~NativeModuleFactory() = default;
 

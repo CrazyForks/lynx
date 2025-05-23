@@ -227,7 +227,12 @@ class BASE_EXPORT_FOR_DEVTOOL LynxEnv {
   constexpr static const char* const kLynxDevToolComponentAttach =
       "devtool_component_attach";
   constexpr static const char* const kLynxDevToolEnable = "enable_devtool";
+  constexpr static const char* const kLynxDebugEnabled = "lynx_debug_enabled";
   constexpr static const char* const kLynxEnableDomTree = "enable_dom_tree";
+  constexpr static const char* const kLynxEnableQuickJS =
+      "enable_quickjs_debug";
+  constexpr static const char* const kLynxEnableLongPressMenu =
+      "enable_long_press_menu";
   constexpr static const char* const kLynxEnableTableDeepCheck =
       "enable_table_deep_check";
   constexpr static const char* const kLynxEnableLogBox = "enable_logbox";
@@ -259,6 +264,7 @@ class BASE_EXPORT_FOR_DEVTOOL LynxEnv {
   void SetEnvMask(const std::string& key, bool value);
   bool GetBoolEnv(Key key, bool default_value,
                   EnvType type = EnvType::EXTERNAL);
+  bool GetBoolEnv(const std::string& key, bool default_value);
   long GetLongEnv(Key key, int default_value, EnvType type = EnvType::EXTERNAL);
   std::optional<std::string> GetStringEnv(Key key,
                                           EnvType type = EnvType::EXTERNAL);
@@ -276,6 +282,8 @@ class BASE_EXPORT_FOR_DEVTOOL LynxEnv {
   inline void SetStorageDirectory(const std::string& path) {
     SetLocalEnv(GetEnvKeyString(Key::STORAGE_DIR), path);
   }
+
+  bool ContainKey(const std::string& key);
 
   bool IsDevToolComponentAttach();
   bool IsDevToolEnabled();
@@ -339,6 +347,7 @@ class BASE_EXPORT_FOR_DEVTOOL LynxEnv {
   LynxEnv() = default;
 
   bool GetEnvMask(Key key);
+  bool ConvertToBool(const std::string& value);
   std::optional<std::string> GetLocalEnv(Key key);
   std::optional<std::string> GetExternalEnv(Key key);
 
