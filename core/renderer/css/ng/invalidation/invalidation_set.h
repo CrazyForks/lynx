@@ -306,7 +306,7 @@ class DescendantInvalidationSet : public InvalidationSet {
       : InvalidationSet(InvalidationType::kInvalidateDescendants) {}
 };
 
-using InvalidationSetVector = base::InlineVector<InvalidationSet*, 4>;
+using InvalidationSetVector = base::Vector<InvalidationSet*>;
 
 struct InvalidationLists {
   InvalidationSetVector descendants;

@@ -27,17 +27,17 @@ namespace tasm {
 constexpr const static size_t kChildrenInlineVectorSize = 6;
 
 // 8-CSS-classes covers most cases.
-using ClassList = base::InlineVector<base::String, 8>;
-using AttrMap = std::unordered_map<base::String, lepus::Value>;
-using DataMap = std::unordered_map<base::String, lepus::Value>;
+using ClassList = base::InlineVector<base::String, 4>;
+using AttrMap = base::LinearFlatMap<base::String, lepus::Value>;
+using DataMap = base::LinearFlatMap<base::String, lepus::Value>;
 using EventMap =
-    std::unordered_map<base::String, std::unique_ptr<EventHandler>>;
+    base::LinearFlatMap<base::String, std::unique_ptr<EventHandler>>;
 using GestureMap =
-    std::unordered_map<uint32_t, std::shared_ptr<GestureDetector>>;
+    base::LinearFlatMap<uint32_t, std::shared_ptr<GestureDetector>>;
 
-using AttrUMap = std::unordered_map<base::String, lepus::Value>;
+using AttrUMap = AttrMap;
 
-using BuiltinAttrMap = std::unordered_map<uint32_t, lepus::Value>;
+using BuiltinAttrMap = base::LinearFlatMap<uint32_t, lepus::Value>;
 
 static constexpr const char kListNodeTag[] = "list";
 static constexpr const char kGlobalBind[] = "global-bindEvent";

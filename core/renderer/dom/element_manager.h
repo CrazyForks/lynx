@@ -5,18 +5,20 @@
 #ifndef CORE_RENDERER_DOM_ELEMENT_MANAGER_H_
 #define CORE_RENDERER_DOM_ELEMENT_MANAGER_H_
 
+#include <functional>
 #include <list>
 #include <map>
 #include <memory>
 #include <optional>
-#include <set>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
 #include <vector>
 
+#include "base/include/boost/unordered.h"
 #include "base/include/closure.h"
+#include "base/include/vector.h"
 #include "core/base/threading/task_runner_manufactor.h"
 #include "core/base/utils/any.h"
 #include "core/inspector/observer/inspector_element_observer.h"
@@ -110,7 +112,9 @@ class NodeManager {
   }
 
  private:
-  std::unordered_map<int, Element *> node_map_;
+  using NodeMap = boost::unordered_flat_map<int, Element *, std::hash<int>,
+                                            std::equal_to<int>>;
+  NodeMap node_map_;
 };
 
 /*
@@ -743,7 +747,7 @@ class ElementManager : public ElementContextDelegate {
   void SetGlobalBindElementId(const base::String &name,
                               const base::String &type, const int node_id);
 
-  const std::set<int32_t> &GetGlobalBindElementIds(
+  const base::LinearFlatSet<int32_t> &GetGlobalBindElementIds(
       const std::string &name) const;
 
   void EraseGlobalBindElementId(const EventMap &global_event_map,
@@ -1202,18 +1206,22 @@ class ElementManager : public ElementContextDelegate {
       {BASE_STATIC_STRING(kElementPageTag), LayoutNodeType::COMMON},
       {BASE_STATIC_STRING(kElementWrapperElementTag), LayoutNodeType::COMMON},
       {BASE_STATIC_STRING(kElementNoneElementTag), LayoutNodeType::COMMON}};
-  std::unordered_map<std::string, std::set<int32_t>> global_bind_name_to_ids_;
+  base::LinearFlatMap<std::string, base::LinearFlatSet<int32_t>>
+      global_bind_name_to_ids_;
   std::shared_ptr<tasm::PropBundleCreator> prop_bundle_creator_ =
       std::make_shared<lynx::tasm::PropBundleCreatorDefault>();
 
-  std::unordered_set<ElementContainer *> dirty_stacking_contexts_;
+  base::InlineLinearFlatSet<ElementContainer *, 4> dirty_stacking_contexts_;
 
+  // TODO(yuyang), check this
   // This set holds the unique_id of the already flushed keyframes to ensure
   // that they are not flushed repeatedly.
   std::unordered_set<std::string> resolved_keyframes_set_;
 
   // Animation proxy class
   std::shared_ptr<ElementVsyncProxy> element_vsync_proxy_;
+
+  // TODO(yuyang), optimize these two to reduce memory repeatedly allocations.
   std::unordered_set<tasm::Element *> animation_element_set_;
   std::unordered_set<tasm::Element *> paused_animation_element_set_;  // paused
 

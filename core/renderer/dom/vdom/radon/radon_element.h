@@ -65,6 +65,7 @@ class RadonElement : public Element {
       const lepus::Value& args,
       std::shared_ptr<PipelineOptions>& pipeline_options) override;
 
+  virtual void ReserveForAttribute(size_t count) override;
   virtual void SetAttribute(const base::String& key, const lepus::Value& value,
                             bool need_update_data_model = true) override;
 

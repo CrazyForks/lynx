@@ -8,7 +8,6 @@
 #include <array>
 #include <map>
 #include <memory>
-#include <set>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -159,6 +158,7 @@ class Element : public lepus::RefCounted {
       const base::Vector<CSSPropertyID>& style_names);
 
   // For attr op
+  virtual void ReserveForAttribute(size_t count) {}
   BASE_EXPORT_FOR_DEVTOOL virtual void SetAttribute(
       const base::String& key, const lepus::Value& value,
       bool need_update_data_model = true) = 0;
@@ -811,7 +811,7 @@ class Element : public lepus::RefCounted {
   // Save increase key of the Animate API.
   base::String will_removed_keyframe_name_;
   // for global-bind event
-  std::set<std::string> global_bind_target_set_;
+  base::LinearFlatSet<std::string> global_bind_target_set_;
 
   // Using to record some previous element styles which New Animator needs.
   std::unordered_map<tasm::CSSPropertyID, CSSValue> animation_previous_styles_;

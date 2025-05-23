@@ -2298,6 +2298,7 @@ struct BinarySearchSet : public BinarySearchArray<K, void, N, Compare, Stat> {
 
  public:
   using typename BinarySearchArray<K, void, N, Compare, Stat>::value_type;
+  using typename BinarySearchArray<K, void, N, Compare, Stat>::iterator;
   using BinarySearchArray<K, void, N, Compare, Stat>::insert;
 
   BinarySearchSet() = default;
@@ -2329,6 +2330,11 @@ struct BinarySearchSet : public BinarySearchArray<K, void, N, Compare, Stat> {
     array_ = std::move(other.array_);
     UpdateMaxCount(array_.size());
     return *this;
+  }
+
+  template <class... Args>
+  std::pair<iterator, bool> emplace(Args&&... args) {
+    return insert(K(std::forward<Args>(args)...));
   }
 
   template <size_t N2>
@@ -2567,6 +2573,7 @@ struct LinearSearchSet : public LinearSearchArray<K, void, N, Stat> {
  public:
   using typename LinearSearchArray<K, void, N, Stat>::value_type;
   using typename LinearSearchArray<K, void, N, Stat>::store_value_type;
+  using typename LinearSearchArray<K, void, N, Stat>::iterator;
   using LinearSearchArray<K, void, N, Stat>::insert;
 
   LinearSearchSet() = default;
@@ -2606,6 +2613,11 @@ struct LinearSearchSet : public LinearSearchArray<K, void, N, Stat> {
     array_ = std::move(other.array_);
     UpdateMaxCount(array_.size());
     return *this;
+  }
+
+  template <class... Args>
+  std::pair<iterator, bool> emplace(Args&&... args) {
+    return insert(K(std::forward<Args>(args)...));
   }
 
   template <size_t N2>

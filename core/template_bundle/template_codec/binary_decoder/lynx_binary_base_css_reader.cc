@@ -137,6 +137,7 @@ bool LynxBinaryBaseCSSReader::DecodeCSSFragment(SharedCSSFragment* fragment,
 
   TRACE_EVENT_BEGIN(LYNX_TRACE_CATEGORY,
                     BINARY_BASE_CSS_READER_DECODE_CSS_KEYFRAMES_TOKEN);
+  fragment->keyframes_.reserve(keyframes_size);
   for (size_t i = 0; i < keyframes_size; ++i) {
     DECODE_STDSTR(name);
     CSSKeyframesToken* token = new CSSKeyframesToken(parser_config);
@@ -153,6 +154,7 @@ bool LynxBinaryBaseCSSReader::DecodeCSSFragment(SharedCSSFragment* fragment,
     DECODE_COMPACT_U32(typed_size);
     switch (type) {
       case CSS_BINARY_FONT_FACE_TYPE:
+        fragment->fontfaces_.reserve(typed_size);
         for (size_t i = 0; i < typed_size; ++i) {
           std::vector<std::shared_ptr<CSSFontFaceRule>> token_list;
           if (enable_css_font_face_extension_) {

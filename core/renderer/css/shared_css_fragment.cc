@@ -159,9 +159,11 @@ void SharedCSSFragment::ImportOtherFragment(const SharedCSSFragment* fragment) {
   for (auto& universal : fragment->universal_map_) {
     universal_map_[universal.first] = universal.second;
   }
+  keyframes_.reserve(fragment->keyframes_.size());
   for (auto& frame : fragment->keyframes_) {
     keyframes_[frame.first] = frame.second;
   }
+  fontfaces_.reserve(fragment->fontfaces_.size());
   for (auto& face : fragment->fontfaces_) {
     fontfaces_[face.first] = face.second;
   }

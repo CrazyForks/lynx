@@ -4097,6 +4097,26 @@ bool AssertSetContent_abc(const SetType& m) {
 }
 }  // namespace
 
+TEST(SetStringTest, emplace) {
+  OrderedFlatSet<std::string> s;
+  s.emplace("ABC", 2);
+  s.emplace("D");
+  s.insert("AB");
+  EXPECT_EQ(s.size(), 2);
+  EXPECT_TRUE(s.contains("AB"));
+  EXPECT_TRUE(s.contains("D"));
+}
+
+TEST(SetStringTest, linear_emplace) {
+  LinearFlatSet<std::string> s;
+  s.emplace("ABC", 2);
+  s.emplace("D");
+  s.insert("AB");
+  EXPECT_EQ(s.size(), 2);
+  EXPECT_TRUE(s.contains("AB"));
+  EXPECT_TRUE(s.contains("D"));
+}
+
 TEST(SetStringTest, MixedInlineSize) {
   OrderedFlatSet<std::string> m_src{"A", "B", "C"};
   EXPECT_TRUE(AssertSetContent_ABC(m_src));

@@ -524,6 +524,7 @@ void ElementManager::ResolveAttributesAndStyle(AttributeHolder *node,
 
   shadow_node->ConsumeStyle(styles);
 
+  shadow_node->ReserveForAttribute(node->attributes().size());
   for (const auto &attribute : node->attributes()) {
     shadow_node->SetAttribute(attribute.first, attribute.second);
   }
@@ -953,13 +954,13 @@ void ElementManager::EraseGlobalBindElementId(const EventMap &global_event_map,
   }
 }
 
-const std::set<int32_t> &ElementManager::GetGlobalBindElementIds(
+const base::LinearFlatSet<int32_t> &ElementManager::GetGlobalBindElementIds(
     const std::string &name) const {
   auto iter = global_bind_name_to_ids_.find(name);
   if (iter != global_bind_name_to_ids_.end()) {
     return iter->second;
   }
-  static std::set<int32_t> kEmpty;
+  static base::LinearFlatSet<int32_t> kEmpty;
   return kEmpty;
 }
 

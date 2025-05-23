@@ -104,12 +104,12 @@ class CSSKeyframeManager : public AnimationDelegate {
 
   base::InlineVector<starlight::AnimationData, 1> animation_data_;
   // The collection of animations running on the current element.
-  std::unordered_map<base::String, std::shared_ptr<Animation>> animations_map_;
+  base::LinearFlatMap<base::String, std::shared_ptr<Animation>> animations_map_;
   // The collection of animations that no need to update states during the diff.
-  std::unordered_map<base::String, std::shared_ptr<Animation>>
+  base::LinearFlatMap<base::String, std::shared_ptr<Animation>>
       temp_keep_animations_map_;
   // The collection of animations that need to update states during the diff.
-  std::unordered_map<base::String, std::shared_ptr<Animation>>
+  base::LinearFlatMap<base::String, std::shared_ptr<Animation>>
       temp_active_animations_map_;
 
  private:

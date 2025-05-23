@@ -24,14 +24,15 @@ class CSSStyleUtils;
 
 namespace tasm {
 
+// Used by encoder
 typedef std::unordered_map<std::string, std::shared_ptr<StyleMap>>
     CSSKeyframesMap;
 typedef std::unordered_map<std::string, std::shared_ptr<RawStyleMap>>
     CSSRawKeyframesMap;
 
-typedef std::unordered_map<float, std::shared_ptr<StyleMap>>
+typedef base::LinearFlatMap<float, std::shared_ptr<StyleMap>>
     CSSKeyframesContent;
-typedef std::unordered_map<float, std::shared_ptr<RawStyleMap>>
+typedef base::LinearFlatMap<float, std::shared_ptr<RawStyleMap>>
     CSSRawKeyframesContent;
 
 class CSSKeyframesToken {

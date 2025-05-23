@@ -421,8 +421,8 @@ void FiberElement::AsyncPostResolveTaskToThreadPool() {
 }
 
 void FiberElement::ReplaceElements(
-    const std::deque<fml::RefPtr<FiberElement>> &inserted,
-    const std::deque<fml::RefPtr<FiberElement>> &removed, FiberElement *ref) {
+    const base::Vector<fml::RefPtr<FiberElement>> &inserted,
+    const base::Vector<fml::RefPtr<FiberElement>> &removed, FiberElement *ref) {
   if (removed.empty()) {
     for (const auto &child : inserted) {
       InsertNodeBeforeInternal(child, ref);
@@ -744,6 +744,10 @@ void FiberElement::SetBuiltinAttribute(ElementBuiltInAttributeEnum key,
   if (key_is_legal) {
     builtin_attr_map_.try_emplace(static_cast<uint32_t>(key), value);
   }
+}
+
+void FiberElement::ReserveForAttribute(size_t count) {
+  updated_attr_map_.reserve(count);
 }
 
 void FiberElement::SetAttribute(const base::String &key,
@@ -1466,7 +1470,7 @@ void FiberElement::FlushActions() {
   for (auto *invalidation_set : invalidation_lists_.descendants) {
     InvalidateChildren(invalidation_set);
   }
-  invalidation_lists_.descendants.clear();
+  invalidation_lists_.descendants.clear_and_shrink();
 
   // Step III: recursively call FlushActions for each child
   for (const auto &child : scoped_children_) {
@@ -1477,7 +1481,7 @@ void FiberElement::FlushActions() {
   }
   // below flags should be delayed until children flushed
   children_propagate_inherited_styles_flag_ = false;
-  reset_inherited_ids_.clear();
+  reset_inherited_ids_.clear_and_shrink();
 
   flush_required_ = false;
 }
@@ -2106,7 +2110,7 @@ bool FiberElement::ConsumeAllAttributes() {
     }
 
     updated_attr_map_.clear();
-    reset_attr_vec_.clear();
+    reset_attr_vec_.clear_and_shrink();
     dirty_ &= ~kDirtyAttr;
   }
   return need_update;

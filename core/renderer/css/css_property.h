@@ -14,6 +14,7 @@
 #include "base/include/linked_hash_map.h"
 #include "base/include/no_destructor.h"
 #include "base/include/value/base_string.h"
+#include "base/include/vector.h"
 #include "core/renderer/css/css_property_id.h"
 #include "core/renderer/css/css_value.h"
 
@@ -172,8 +173,9 @@ static constexpr PseudoState kPseudoStateSelection = 1 << 11;
     kPropertyIDRelativeLeftOf)
 
 using StyleMap = base::LinkedHashMap<CSSPropertyID, tasm::CSSValue>;
-using CSSVariableMap = base::LinkedHashMap<base::String, base::String>;
+using CSSVariableMap = base::LinearFlatMap<base::String, base::String>;
 using ParsedStyles = std::pair<StyleMap, CSSVariableMap>;
+// TODO(yuyang), choose proper map type
 using ParsedStylesMap =
     std::unordered_map<std::string, std::shared_ptr<ParsedStyles>>;
 

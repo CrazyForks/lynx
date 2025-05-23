@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "base/include/linked_hash_map.h"
+#include "base/include/vector.h"
 #include "core/runtime/vm/lepus/lepus_value.h"
 #include "core/template_bundle/template_codec/magic_number.h"
 
@@ -94,39 +95,30 @@ struct Range {
 
 typedef Range PageRange;
 struct PageRoute {
-  std::unordered_map<int, PageRange> page_ranges;
+  // Use linear map for reader to read as array of best performance.
+  base::LinearFlatMap<int, PageRange> page_ranges;
 };
 
 typedef Range ComponentRange;
 struct ComponentRoute {
-  std::unordered_map<int, ComponentRange> component_ranges;
+  // Use linear map for reader to read as array of best performance.
+  base::LinearFlatMap<int, ComponentRange> component_ranges;
 };
 
 typedef Range DynamicComponentRange;
 struct DynamicComponentRoute {
-  std::unordered_map<int, DynamicComponentRange> dynamic_component_ranges;
+  // Use linear map for reader to read as array of best performance.
+  base::LinearFlatMap<int, DynamicComponentRange> dynamic_component_ranges;
 };
 
 typedef Range CSSRange;
 struct CSSRoute {
-  std::unordered_map<int, CSSRange> fragment_ranges;
+  base::OrderedFlatMap<int, CSSRange> fragment_ranges;
 };
 
 typedef Range LepusChunkRange;
 struct LepusChunkRoute {
   std::unordered_map<std::string, LepusChunkRange> lepus_chunk_ranges;
-};
-
-typedef Range ElementTemplateRange;
-struct ElementTemplateRoute {
-  uint32_t descriptor_offset_;
-  std::unordered_map<std::string, ElementTemplateRange> template_ranges_;
-};
-
-typedef Range ParsedStylesRange;
-struct ParsedStylesRoute {
-  uint32_t descriptor_offset_;
-  std::unordered_map<std::string, ParsedStylesRange> parsed_styles_ranges_;
 };
 
 struct StringKeyRouter {

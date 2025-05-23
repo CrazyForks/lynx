@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "base/include/value/base_string.h"
+#include "base/include/vector.h"
 #include "core/renderer/css/css_font_face_token.h"
 #include "core/renderer/css/css_keyframes_token.h"
 #include "core/renderer/css/css_parser_token.h"
@@ -35,7 +36,7 @@ using CSSParserTokenMap =
     std::unordered_map<std::string, std::shared_ptr<CSSParseToken>>;
 
 using CSSKeyframesTokenMap =
-    std::unordered_map<base::String, std::shared_ptr<CSSKeyframesToken>>;
+    base::LinearFlatMap<base::String, std::shared_ptr<CSSKeyframesToken>>;
 
 struct PseudoNotStyle {
   PseudoClassStyleMap pseudo_not_for_tag;

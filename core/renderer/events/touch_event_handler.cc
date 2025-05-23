@@ -1051,7 +1051,7 @@ bool TouchEventHandler::HandleEventInternal(
             << id);
         continue;
       }
-      auto set = cur_target->GlobalBindTarget();
+      const auto &set = cur_target->GlobalBindTarget();
       if (set.empty()) {
         // if set is empty, means the target is all other elements
         operation.append(
@@ -1801,7 +1801,8 @@ PushGlobalBindOperation TouchEventHandler::push_global_bind_operation_f_ =
 
 GetGlobalBindOperations TouchEventHandler::get_global_bind_operations_f_ =
     [](const std::string &event_name, Element *cur_target, Element *target,
-       const std::set<std::string> &global_bind_targets) -> EventOpsVector {
+       const base::LinearFlatSet<std::string> &global_bind_targets)
+    -> EventOpsVector {
   EventOpsVector res;
   for (const auto &id_selector : global_bind_targets) {
     // if set not empty, means the target should have not empty id,

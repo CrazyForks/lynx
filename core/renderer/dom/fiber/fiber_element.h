@@ -5,15 +5,11 @@
 #ifndef CORE_RENDERER_DOM_FIBER_FIBER_ELEMENT_H_
 #define CORE_RENDERER_DOM_FIBER_FIBER_ELEMENT_H_
 
-#include <deque>
 #include <list>
 #include <memory>
-#include <stack>
 #include <string>
 #include <tuple>
-#include <unordered_map>
 #include <utility>
-#include <vector>
 
 #include "base/include/fml/memory/ref_counted.h"
 #include "base/include/vector.h"
@@ -107,7 +103,7 @@ class FiberElement : public Element, public SelectorItem {
     bool children_propagate_inherited_styles_flag_{false};
 
     const StyleMap* inherited_styles_{nullptr};
-    const std::vector<tasm::CSSPropertyID>* reset_inherited_ids_{nullptr};
+    const base::Vector<tasm::CSSPropertyID>* reset_inherited_ids_{nullptr};
   };
 
   struct PerfStatistic {
@@ -325,8 +321,8 @@ class FiberElement : public Element, public SelectorItem {
    * @param inserted inserted elements
    * @param removed removed elements
    */
-  void ReplaceElements(const std::deque<fml::RefPtr<FiberElement>>& inserted,
-                       const std::deque<fml::RefPtr<FiberElement>>& removed,
+  void ReplaceElements(const base::Vector<fml::RefPtr<FiberElement>>& inserted,
+                       const base::Vector<fml::RefPtr<FiberElement>>& removed,
                        FiberElement* ref_node);
 
   /**
@@ -392,6 +388,11 @@ class FiberElement : public Element, public SelectorItem {
    * Destroy the related platform node of this element
    */
   void DestroyPlatformNode();
+
+  /**
+   * Before SetAttribute(), reserve array size.
+   */
+  virtual void ReserveForAttribute(size_t count) override;
 
   /**
    * Element API for appending single attribute to element
@@ -972,8 +973,7 @@ class FiberElement : public Element, public SelectorItem {
       scoped_children_;
 
   // for air virtual node
-  base::InlineVector<fml::RefPtr<FiberElement>, kChildrenInlineVectorSize>
-      scoped_virtual_children_;
+  base::Vector<fml::RefPtr<FiberElement>> scoped_virtual_children_;
   FiberElement* virtual_parent_{nullptr};
 
   // layout_parent/child to indicate current real tree hierarchy after
@@ -995,7 +995,6 @@ class FiberElement : public Element, public SelectorItem {
   FiberElement* enclosing_none_wrapper_{nullptr};
 
   std::string path_{};
-  std::unordered_map<base::String, ClassList> external_classes_;
   std::shared_ptr<CSSStyleSheetManager> css_style_sheet_manager_{nullptr};
   CSSFragment* fragment_{nullptr};
   std::shared_ptr<CSSFragmentDecorator> style_sheet_{nullptr};
@@ -1063,16 +1062,16 @@ class FiberElement : public Element, public SelectorItem {
   StyleMap extreme_parsed_styles_;
 
   StyleMap inherited_styles_;
-  std::vector<tasm::CSSPropertyID> reset_inherited_ids_;
+  base::Vector<tasm::CSSPropertyID> reset_inherited_ids_;
 
   //{origin_css_id, {css_value, is_logic_style}}
-  std::unordered_map<tasm::CSSPropertyID, std::pair<CSSValue, IsLogic>>
+  base::LinearFlatMap<tasm::CSSPropertyID, std::pair<CSSValue, IsLogic>>
       pending_updated_direction_related_styles_;
 
-  std::vector<ActionParam> action_param_list_;
+  base::Vector<ActionParam> action_param_list_;
 
   AttrUMap updated_attr_map_;
-  std::vector<base::String> reset_attr_vec_;
+  base::Vector<base::String> reset_attr_vec_;
 
   // Configuration set for elements through the LepusRuntime will be stored in
   // the config variable
@@ -1090,7 +1089,7 @@ class FiberElement : public Element, public SelectorItem {
 
   BuiltinAttrMap builtin_attr_map_;
 
-  std::unordered_map<PseudoState, std::unique_ptr<PseudoElement>>
+  base::LinearFlatMap<PseudoState, std::unique_ptr<PseudoElement>>
       pseudo_elements_;
 
   std::shared_ptr<ListItemSchedulerAdapter> scheduler_adapter_;

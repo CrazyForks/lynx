@@ -119,7 +119,7 @@ void CSSTransitionManager::setTransitionData(
     const base::Vector<starlight::TransitionData>& transition_data) {
   transition_data_.clear();
   property_types_.clear();
-  std::unordered_map<base::String, std::shared_ptr<Animation>>
+  base::LinearFlatMap<base::String, std::shared_ptr<Animation>>
       active_animations_map;
   for (const auto& data : transition_data) {
     if (data.property == starlight::AnimationPropertyType::kAll ||
@@ -161,11 +161,12 @@ void CSSTransitionManager::setTransitionData(
 
 void CSSTransitionManager::SetTransitionDataInternal(
     const starlight::TransitionData& data,
-    std::unordered_map<base::String, std::shared_ptr<Animation>>&
+    base::LinearFlatMap<base::String, std::shared_ptr<Animation>>&
         active_animations_map) {
   // 1. Constructor animation_data according to transition_data
   property_types_.emplace(static_cast<unsigned int>(data.property));
-  starlight::AnimationData animation_data;
+  auto& animation_data =
+      transition_data_[static_cast<unsigned int>(data.property)];
   animation_data.name = ConvertAnimationPropertyTypeToString(data.property);
   animation_data.duration = data.duration;
   animation_data.delay = data.delay;
@@ -174,8 +175,6 @@ void CSSTransitionManager::SetTransitionDataInternal(
   animation_data.fill_mode = starlight::AnimationFillModeType::kForwards;
   animation_data.direction = starlight::AnimationDirectionType::kNormal;
   animation_data.play_state = starlight::AnimationPlayStateType::kRunning;
-
-  transition_data_[static_cast<unsigned int>(data.property)] = animation_data;
 
   // 2. Update data to the existing animation, and temporarily save them to
   // active_animations_map.

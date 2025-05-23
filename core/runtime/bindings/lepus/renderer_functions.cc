@@ -2976,9 +2976,9 @@ RENDERER_FUNCTION_CC(FiberReplaceElements) {
     RETURN_UNDEFINED();
   }
 
-  std::function<void(std::deque<fml::RefPtr<FiberElement>>&,
+  std::function<void(base::Vector<fml::RefPtr<FiberElement>>&,
                      const lepus::Value&)>
-      convert_function = [&](std::deque<fml::RefPtr<FiberElement>>& elements,
+      convert_function = [&](base::Vector<fml::RefPtr<FiberElement>>& elements,
                              const lepus::Value& input) {
         if (input.IsRefCounted()) {
           elements.emplace_back(
@@ -2993,11 +2993,11 @@ RENDERER_FUNCTION_CC(FiberReplaceElements) {
       };
 
   // Get inserted elements.
-  std::deque<fml::RefPtr<FiberElement>> inserted_elements{};
+  base::InlineVector<fml::RefPtr<FiberElement>, 16> inserted_elements{};
   convert_function(inserted_elements, *arg1);
 
   // Get removed elements.
-  std::deque<fml::RefPtr<FiberElement>> removed_elements{};
+  base::InlineVector<fml::RefPtr<FiberElement>, 16> removed_elements{};
   convert_function(removed_elements, *arg2);
 
   // Perform a simple diff on the inserted_elements and removed_elements,

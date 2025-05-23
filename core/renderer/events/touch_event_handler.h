@@ -112,7 +112,7 @@ typedef EventOpsVector (*PushGlobalBindOperation)(const std::string &event_name,
 
 typedef EventOpsVector (*GetGlobalBindOperations)(
     const std::string &event_name, Element *cur_target, Element *target,
-    const std::set<std::string> &global_bind_targets);
+    const base::LinearFlatSet<std::string> &global_bind_targets);
 
 class TouchEventHandler {
  public:

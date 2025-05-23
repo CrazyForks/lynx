@@ -11948,8 +11948,8 @@ TEST_P(FiberElementTest, TestAsyncResolveProperty_ReplaceElements) {
   EXPECT_TRUE(element0->resolve_status_ >=
               FiberElement::AsyncResolveStatus::kPrepareTriggered);
 
-  std::deque<fml::RefPtr<FiberElement>> inserted_elements{};
-  std::deque<fml::RefPtr<FiberElement>> removed_elements{};
+  base::Vector<fml::RefPtr<FiberElement>> inserted_elements{};
+  base::Vector<fml::RefPtr<FiberElement>> removed_elements{};
   inserted_elements.emplace_back(element0);
   page->ReplaceElements(inserted_elements, removed_elements, nullptr);
 

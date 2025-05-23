@@ -7,11 +7,9 @@
 
 #include <memory>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <vector>
 
 #include "base/include/value/base_string.h"
+#include "base/include/vector.h"
 #include "core/animation/css_keyframe_manager.h"
 #include "core/style/transition_data.h"
 
@@ -47,7 +45,7 @@ class CSSTransitionManager : public CSSKeyframeManager {
                     const tasm::CSSParserConfigs& configs);
   void SetTransitionDataInternal(
       const starlight::TransitionData& data,
-      std::unordered_map<base::String, std::shared_ptr<Animation>>&
+      base::LinearFlatMap<base::String, std::shared_ptr<Animation>>&
           active_animations_map);
 
   static starlight::AnimationPropertyType GetAnimationPropertyType(
@@ -56,9 +54,9 @@ class CSSTransitionManager : public CSSKeyframeManager {
   bool IsShouldTransitionType(starlight::AnimationPropertyType type);
 
  protected:
-  std::unordered_map<unsigned int, starlight::AnimationData> transition_data_;
-  std::unordered_map<base::String, tasm::CSSKeyframesContent> keyframe_tokens_;
-  std::unordered_set<unsigned int> property_types_;
+  base::LinearFlatMap<unsigned int, starlight::AnimationData> transition_data_;
+  base::LinearFlatMap<base::String, tasm::CSSKeyframesContent> keyframe_tokens_;
+  base::LinearFlatSet<unsigned int> property_types_;
 };
 
 }  // namespace animation

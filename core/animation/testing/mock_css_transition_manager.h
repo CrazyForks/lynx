@@ -23,10 +23,7 @@ class MockCSSTransitionManager : public CSSTransitionManager {
       : CSSTransitionManager(element) {}
   ~MockCSSTransitionManager() = default;
 
-  std::unordered_map<unsigned int, starlight::AnimationData>&
-  transition_data() {
-    return transition_data_;
-  }
+  auto& transition_data() { return transition_data_; }
 
   base::Vector<starlight::AnimationData>& animation_data() {
     return animation_data_;
