@@ -1090,6 +1090,12 @@ class ElementManager : public ElementContextDelegate {
     return enable_batch_layout_task_with_sync_layout_;
   }
 
+  bool CSSFragmentParsingOnTASMWorkerMTSRender();
+
+  inline void SetCSSFragmentParsingOnTASMWorkerMTSRender(bool enable) {
+    css_fragment_parsing_tasm_worker_thread_ = enable;
+  }
+
  protected:
   /**
    * call this function after exec OnPatchFinishForFiber
@@ -1186,6 +1192,8 @@ class ElementManager : public ElementContextDelegate {
   bool enable_layout_only_{true};
   bool dom_tree_enabled_{true};
   bool enable_batch_layout_task_with_sync_layout_{false};
+
+  bool css_fragment_parsing_tasm_worker_thread_{false};
 
   LynxEnvConfig lynx_env_config_;
   std::shared_ptr<PageConfig> config_;
