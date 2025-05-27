@@ -210,10 +210,7 @@ const GestureMap& Element::gesture_map() {
   if (data_model()) {
     return data_model()->gesture_detectors();
   }
-
-  // Create a static, empty GestureMap if the data model is not available.
-  static base::NoDestructor<GestureMap> kEmptyGestureMap;
-  return *kEmptyGestureMap;
+  return AttributeHolder::DefaultEmptyGestureMap();
 }
 
 // Sets a GestureDetector for the Element.

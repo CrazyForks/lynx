@@ -9,6 +9,7 @@
 #include <utility>
 #include <vector>
 
+#include "base/include/auto_create_optional.h"
 #include "base/include/vector.h"
 #include "core/renderer/css/css_fragment.h"
 #include "core/renderer/css/css_property.h"
@@ -32,20 +33,23 @@ class AttributeHolder : public fml::RefCountedThreadSafeStorage,
       : classes_(holder.classes_),
         inline_styles_(holder.inline_styles_),
         attributes_(holder.attributes_),
-        data_set_(holder.data_set_),
         id_selector_(holder.id_selector_),
         is_ssr_attribute_holder_(holder.is_ssr_attribute_holder_),
         pseudo_state_(holder.pseudo_state_),
         pseudo_element_owner_(holder.pseudo_element_owner_),
         element_(holder.element_),
         radon_node_ptr_(holder.radon_node_ptr_) {
-    for (auto& static_event : holder.static_events_) {
-      SetStaticEvent(static_event.second->type(), static_event.second->name(),
-                     static_event.second->function());
+    if (holder.data_set_.has_value()) {
+      *data_set_ = *holder.data_set_;
+    }
+
+    if (holder.events_.has_value()) {
+      for (auto& static_event : holder.events_->static_events_) {
+        SetStaticEvent(static_event.second->type(), static_event.second->name(),
+                       static_event.second->function());
+      }
     }
   }
-
-  virtual ~AttributeHolder() = default;
 
   void ReleaseSelf() const override { delete this; }
 
@@ -127,7 +131,7 @@ class AttributeHolder : public fml::RefCountedThreadSafeStorage,
   void RemoveAttribute(const base::String& key) { attributes_.erase(key); }
 
   void SetDataSet(const base::String& key, const lepus::Value& value) {
-    data_set_.insert_or_assign(key, value);
+    data_set_->insert_or_assign(key, value);
   }
 
   void SetDataSet(const lepus::Value& data_set);
@@ -135,9 +139,10 @@ class AttributeHolder : public fml::RefCountedThreadSafeStorage,
   // Update CSSVariable From Render.
   void UpdateCSSVariable(const base::String& key, const base::String& value,
                          CSSVariableMap* changed_css_vars = nullptr) {
-    auto it = css_variables_.find(key);
-    if (it == css_variables_.end() || !it->second.IsEqual(value)) {
-      css_variables_.insert_or_assign(key, value);
+    auto& map = css_variables_->css_variables_;
+    auto it = map.find(key);
+    if (it == map.end() || !it->second.IsEqual(value)) {
+      map.insert_or_assign(key, value);
       if (changed_css_vars != nullptr) {
         changed_css_vars->insert_or_assign(key, value);
       }
@@ -153,23 +158,29 @@ class AttributeHolder : public fml::RefCountedThreadSafeStorage,
 
   void SetStaticEvent(const base::String& type, const base::String& name,
                       const base::String& value) {
-    (type == kGlobalBind ? global_bind_events_ : static_events_)
+    (type == kGlobalBind ? events_->global_bind_events_
+                         : events_->static_events())
         .insert_or_assign(name,
                           std::make_unique<EventHandler>(type, name, value));
   }
 
   // set gesture detector to map
   void SetGestureDetector(const uint32_t key, const GestureDetector& detector) {
-    gesture_detectors_.insert_or_assign(
+    gesture_detectors_->insert_or_assign(
         key, std::make_unique<GestureDetector>(detector));
   }
 
   // remove gesture detector from map
   void RemoveGestureDetector(const uint32_t key) {
-    gesture_detectors_.erase(key);
+    if (gesture_detectors_.has_value()) {
+      gesture_detectors_->erase(key);
+    }
   }
 
-  const GestureMap& gesture_detectors() const { return gesture_detectors_; }
+  const GestureMap& gesture_detectors() const {
+    return gesture_detectors_.has_value() ? *gesture_detectors_
+                                          : DefaultEmptyGestureMap();
+  }
 
   // constructor for ssr server events
   void SetStaticEvent(
@@ -180,14 +191,16 @@ class AttributeHolder : public fml::RefCountedThreadSafeStorage,
       auto an_event = PiperEventContent(iter.first, iter.second);
       piper_event_vec.push_back(an_event);
     }
-    (type == kGlobalBind ? global_bind_events_ : static_events_)
+    (type == kGlobalBind ? events_->global_bind_events_
+                         : events_->static_events())
         .insert_or_assign(
             name, std::make_unique<EventHandler>(type, name, piper_event_vec));
   }
 
   void SetLepusEvent(const base::String& type, const base::String& name,
                      const lepus::Value& script, const lepus::Value& func) {
-    (type == kGlobalBind ? global_bind_events_ : static_events_)
+    (type == kGlobalBind ? events_->global_bind_events_
+                         : events_->static_events())
         .insert_or_assign(
             name, std::make_unique<EventHandler>(type, name, script, func));
   }
@@ -195,7 +208,8 @@ class AttributeHolder : public fml::RefCountedThreadSafeStorage,
   void SetWorkletEvent(const base::String& type, const base::String& name,
                        const lepus::Value& worklet_info, lepus::Context* ctx) {
     // TODO(luochangan.adrian): Add UI Worklet Event
-    (type == kGlobalBind ? global_bind_events_ : lepus_events_)
+    (type == kGlobalBind ? events_->global_bind_events_
+                         : events_->lepus_events_)
         .insert_or_assign(name, std::make_unique<EventHandler>(
                                     type, name, worklet_info, ctx));
   }
@@ -224,24 +238,40 @@ class AttributeHolder : public fml::RefCountedThreadSafeStorage,
 
   AttrMap& attributes() { return attributes_; }
 
-  const DataMap& dataset() const { return data_set_; }
+  const DataMap& dataset() const {
+    return data_set_.has_value() ? *data_set_ : DefaultEmptyDataMap();
+  }
 
   void set_css_variables_map(const CSSVariableMap& css_variables) {
-    css_variables_ = css_variables;
+    if (!css_variables_.has_value() && css_variables.empty()) {
+      return;
+    }
+    css_variables_->css_variables_ = css_variables;
   }
 
   void set_css_variables_map(CSSVariableMap&& css_variables) {
-    css_variables_ = std::move(css_variables);
+    if (!css_variables_.has_value() && css_variables.empty()) {
+      return;
+    }
+    css_variables_->css_variables_ = std::move(css_variables);
   }
 
-  const CSSVariableMap& css_variables_map() const { return css_variables_; }
+  const CSSVariableMap& css_variables_map() const {
+    return css_variables_.has_value()
+               ? css_variables_->css_variables_
+               : CSSVariableBundle::DefaultEmptyCSSVariableMap();
+  }
 
   void AddCSSVariableRelated(const base::String& key,
                              const base::String& value) {
-    css_variable_related_.insert_or_assign(key, value);
+    css_variables_->css_variable_related_.insert_or_assign(key, value);
   }
 
-  const auto& css_variable_related() { return css_variable_related_; }
+  const CSSVariableMap& css_variable_related() {
+    return css_variables_.has_value()
+               ? css_variables_->css_variable_related_
+               : CSSVariableBundle::DefaultEmptyCSSVariableMap();
+  }
 
   // GetCSSVariableValue.
   // variable_from_js first. css_variable_ from comes second.
@@ -259,9 +289,18 @@ class AttributeHolder : public fml::RefCountedThreadSafeStorage,
            }) != std::end(classes_);
   }
 
-  const EventMap& static_events() const { return static_events_; }
-  const EventMap& lepus_events() const { return lepus_events_; }
-  const EventMap& global_bind_events() const { return global_bind_events_; }
+  const EventMap& static_events() const {
+    return events_.has_value() ? events_->static_events()
+                               : EventBundle::DefaultEmptyEventMap();
+  }
+  const EventMap& lepus_events() const {
+    return events_.has_value() ? events_->lepus_events_
+                               : EventBundle::DefaultEmptyEventMap();
+  }
+  const EventMap& global_bind_events() const {
+    return events_.has_value() ? events_->global_bind_events_
+                               : EventBundle::DefaultEmptyEventMap();
+  }
 
   void PresetInlineStyleMapCapacity(size_t count);
 
@@ -294,15 +333,6 @@ class AttributeHolder : public fml::RefCountedThreadSafeStorage,
   bool GetCascadePseudoEnabled() const;
   bool GetRemoveDescendantSelectorScope() const;
   bool IsComponent() const;
-
-  void CloneAttributes(const AttributeHolder& src) {
-    this->classes_ = src.classes_;
-    this->inline_styles_ = src.inline_styles_;
-    this->attributes_ = src.attributes_;
-    this->data_set_ = src.data_set_;
-    this->id_selector_ = src.id_selector_;
-    this->css_variables_ = src.css_variables_;
-  }
 
   void OnPseudoStateChanged(PseudoState, PseudoState);
 
@@ -354,36 +384,61 @@ class AttributeHolder : public fml::RefCountedThreadSafeStorage,
   bool ContainsAttributeSelector(const std::string& selector) const;
   void SetElement(Element* element) { element_ = element; }
 
+ public:
+  struct EventBundle {
+    // Test data shows that in actual business pages, setting the capacity to 2
+    // can accommodate more than 99% of the data. And because EventBundle is
+    // created on demand, when creating EventBundle, it is likely that events
+    // need to be added, so 2 initial capacities are set for static_events_.
+    base::Inlined<EventMap, 2>::type static_events_;
+    EventMap lepus_events_;
+    EventMap global_bind_events_;
+
+    EventMap& static_events() {
+      // base::FlatMap guarantees the reinterpret_cast is safe.
+      return reinterpret_cast<EventMap&>(static_events_);
+    }
+
+    BASE_EXPORT_FOR_DEVTOOL static const EventMap& DefaultEmptyEventMap();
+  };
+
+  struct CSSVariableBundle {
+    // css variable definition on this node. such as:
+    // `--bg-color: red`
+    CSSVariableMap css_variables_;
+
+    // css variable definition on this node that updated from JS. such as:
+    // `background-color: var(--bg-color)`
+    // this map will hold value like this:
+    // `key: --bg-color value: red`
+    CSSVariableMap css_variables_from_js_;
+
+    // css variable related on this node, such as:
+    // `background-color: var(--bg-color)`
+    // this map will hold value like this:
+    // `key: --bg-color value: red`
+    CSSVariableMap css_variable_related_;
+
+    BASE_EXPORT_FOR_DEVTOOL static const CSSVariableMap&
+    DefaultEmptyCSSVariableMap();
+  };
+
+  BASE_EXPORT_FOR_DEVTOOL static const GestureMap& DefaultEmptyGestureMap();
+  BASE_EXPORT_FOR_DEVTOOL static const DataMap& DefaultEmptyDataMap();
+
  protected:
   ClassList classes_;
   StyleMap inline_styles_{kCSSStyleMapFuzzyAllocationSize};
   AttrMap attributes_;
-  DataMap data_set_;
-  EventMap static_events_;
-  EventMap lepus_events_;
-  EventMap global_bind_events_;
-  GestureMap gesture_detectors_;
+  base::auto_create_optional<DataMap> data_set_;
+  base::auto_create_optional<GestureMap> gesture_detectors_;
+  base::auto_create_optional<EventBundle> events_;
+  base::auto_create_optional<CSSVariableBundle> css_variables_;
 
   base::String tag_;
 
   // Should be unique in component
   base::String id_selector_;
-
-  // css variable definition on this node. such as:
-  // `--bg-color: red`
-  CSSVariableMap css_variables_;
-
-  // css variable definition on this node that updated from JS. such as:
-  // `background-color: var(--bg-color)`
-  // this map will hold value like this:
-  // `key: --bg-color value: red`
-  CSSVariableMap css_variables_from_js_;
-
-  // css variable related on this node, such as:
-  // `background-color: var(--bg-color)`
-  // this map will hold value like this:
-  // `key: --bg-color value: red`
-  CSSVariableMap css_variable_related_;
 
   bool is_ssr_attribute_holder_{false};
   PseudoState pseudo_state_{kPseudoStateNone};

@@ -444,12 +444,12 @@ rapidjson::Value ElementDumpHelper::DumpAttributeToJSON(
     value.AddMember("Attributes", attributes_value, allocator);
   }
 
-  if (holder->data_set_.size() > 0) {
+  if (holder->data_set_.has_value() && holder->data_set_->size() > 0) {
     auto comp = [](const base::String& lhs, const base::String& rhs) {
       return lhs.str() < rhs.str();
     };
     std::map<base::String, lepus::Value, decltype(comp)> ordered_data_set(
-        holder->data_set_.begin(), holder->data_set_.end(), comp);
+        holder->data_set_->begin(), holder->data_set_->end(), comp);
     rapidjson::Value data_set_value;
     data_set_value.SetObject();
     for (auto it = ordered_data_set.begin(); it != ordered_data_set.end();
@@ -466,19 +466,20 @@ rapidjson::Value ElementDumpHelper::DumpAttributeToJSON(
     value.AddMember("Data Set", data_set_value, allocator);
   }
 
-  if (holder->static_events_.size() > 0) {
+  if (holder->events_.has_value() &&
+      holder->events_->static_events_.size() > 0) {
     auto comp = [](const base::String& lhs, const base::String& rhs) {
       return lhs.str() < rhs.str();
     };
     std::set<base::String, decltype(comp)> keys(comp);
-    for (auto it = holder->static_events_.begin();
-         it != holder->static_events_.end(); ++it) {
+    for (auto it = holder->events_->static_events_.begin();
+         it != holder->events_->static_events_.end(); ++it) {
       keys.insert(it->first);
     }
     rapidjson::Value static_events_value;
     static_events_value.SetObject();
     for (auto it = keys.begin(); it != keys.end(); ++it) {
-      EventHandler* handler = holder->static_events_[*it].get();
+      EventHandler* handler = holder->events_->static_events_[*it].get();
       rapidjson::Value event_value;
       event_value.SetObject();
       event_value.AddMember("name", handler->name().str(), allocator);
@@ -535,29 +536,30 @@ void ElementDumpHelper::DumpAttributeToLepusValue(
     }
   }
 
-  if (holder->data_set_.size() > 0) {
+  if (holder->data_set_.has_value() && holder->data_set_->size() > 0) {
     auto comp = [](const base::String& lhs, const base::String& rhs) {
       return lhs.str() < rhs.str();
     };
     std::map<base::String, lepus::Value, decltype(comp)> ordered_data_set(
-        holder->data_set_.begin(), holder->data_set_.end(), comp);
+        holder->data_set_->begin(), holder->data_set_->end(), comp);
 
     for (auto& it : ordered_data_set) {
       props->SetValue("data-" + it.first.str(), it.second);
     }
   }
 
-  if (holder->static_events_.size() > 0) {
+  if (holder->events_.has_value() &&
+      holder->events_->static_events_.size() > 0) {
     auto comp = [](const base::String& lhs, const base::String& rhs) {
       return lhs.str() < rhs.str();
     };
     std::set<base::String, decltype(comp)> keys(comp);
-    for (auto& static_event : holder->static_events_) {
+    for (auto& static_event : holder->events_->static_events_) {
       keys.insert(static_event.first);
     }
 
     for (const auto& key : keys) {
-      EventHandler* handler = holder->static_events_[key].get();
+      EventHandler* handler = holder->events_->static_events_[key].get();
 
       if (handler->IsBindEvent()) {
         props->SetValue("bind" + handler->name().str(),
@@ -631,12 +633,12 @@ void ElementDumpHelper::DumpAttributeToMarkup(std::ostringstream& ss,
     }
   }
 
-  if (holder->data_set_.size() > 0) {
+  if (holder->data_set_.has_value() && holder->data_set_->size() > 0) {
     auto comp = [](const base::String& lhs, const base::String& rhs) {
       return lhs.str() < rhs.str();
     };
     std::map<base::String, lepus::Value, decltype(comp)> ordered_data_set(
-        holder->data_set_.begin(), holder->data_set_.end(), comp);
+        holder->data_set_->begin(), holder->data_set_->end(), comp);
 
     for (auto& it : ordered_data_set) {
       ss << " data-" << it.first.str() << "=\"" << it.second.StdString()
@@ -644,17 +646,18 @@ void ElementDumpHelper::DumpAttributeToMarkup(std::ostringstream& ss,
     }
   }
 
-  if (holder->static_events_.size() > 0) {
+  if (holder->events_.has_value() &&
+      holder->events_->static_events_.size() > 0) {
     auto comp = [](const base::String& lhs, const base::String& rhs) {
       return lhs.str() < rhs.str();
     };
     std::set<base::String, decltype(comp)> keys(comp);
-    for (auto& static_event : holder->static_events_) {
+    for (auto& static_event : holder->events_->static_events_) {
       keys.insert(static_event.first);
     }
 
     for (const auto& key : keys) {
-      EventHandler* handler = holder->static_events_[key].get();
+      EventHandler* handler = holder->events_->static_events_[key].get();
 
       if (handler->IsBindEvent()) {
         ss << " bind" << handler->name().str() << "=\""

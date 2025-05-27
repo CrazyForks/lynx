@@ -109,6 +109,7 @@ source_set("base") {
 
   sources = [
     "../include/algorithm.h",
+    "../include/auto_create_optional.h",
     "../include/auto_reset.h",
     "../include/base_export.h",
     "../include/boost/unordered.h",
@@ -313,6 +314,7 @@ if (enable_unittests) {
     testonly = true
     sources = [
       "algorithm_unittest.cc",
+      "auto_create_optional_unittest.cc",
       "auto_reset_unittest.cc",
       "boost/unordered_unittest.cc",
       "closure_unittest.cc",

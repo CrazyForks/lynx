@@ -1665,6 +1665,7 @@ struct BinarySearchArray : public KeyValueArray<K, T, N, Stat> {
   using KeyValueArray<K, T, N, Stat>::_swap;
 
  public:
+  using key_compare = Compare;
   using typename KeyValueArray<K, T, N, Stat>::value_type;
   using typename KeyValueArray<K, T, N, Stat>::store_value_type;
   using typename KeyValueArray<K, T, N, Stat>::iterator;
@@ -1881,6 +1882,7 @@ struct LinearSearchArray : public KeyValueArray<K, T, N, Stat> {
   using KeyValueArray<K, T, N, Stat>::_swap;
 
  public:
+  using key_compare = void;
   using typename KeyValueArray<K, T, N, Stat>::value_type;
   using typename KeyValueArray<K, T, N, Stat>::store_value_type;
   using typename KeyValueArray<K, T, N, Stat>::iterator;
@@ -2654,6 +2656,46 @@ using LinearFlatSet = LinearSearchSet<K, 0, false>;
 
 template <class K, size_t N>
 using InlineLinearFlatSet = LinearSearchSet<K, N, false>;
+
+/**
+ Helper to declare inlined version of existing map type.
+    using MapType = OrderedFlatMap<int, int>;
+    Inlined<MapType, 5> inlined_map;
+ */
+template <class From, size_t N>
+struct Inlined {
+  using type = std::conditional_t<
+      std::is_same_v<From, OrderedFlatMap<typename From::key_type,
+                                          typename From::mapped_type,
+                                          typename From::key_compare>>,
+      InlineOrderedFlatMap<typename From::key_type, typename From::mapped_type,
+                           N, typename From::key_compare>,
+      std::conditional_t<
+          std::is_same_v<From, OrderedFlatSet<typename From::key_type,
+                                              typename From::key_compare>>,
+          InlineOrderedFlatSet<typename From::key_type, N,
+                               typename From::key_compare>,
+
+          std::conditional_t<
+              std::is_same_v<From, LinearFlatMap<typename From::key_type,
+                                                 typename From::mapped_type>>,
+              InlineLinearFlatMap<typename From::key_type,
+                                  typename From::mapped_type, N>,
+
+              std::conditional_t<
+                  std::is_same_v<From, LinearFlatSet<typename From::key_type>>,
+                  InlineLinearFlatSet<typename From::key_type, N>, void>>>>;
+};
+
+static_assert(std::is_same_v<Inlined<OrderedFlatMap<int, int>, 5>::type,
+                             InlineOrderedFlatMap<int, int, 5>>);
+static_assert(std::is_same_v<Inlined<LinearFlatMap<int, int>, 5>::type,
+                             InlineLinearFlatMap<int, int, 5>>);
+
+static_assert(std::is_same_v<Inlined<OrderedFlatSet<int>, 5>::type,
+                             InlineOrderedFlatSet<int, 5>>);
+static_assert(std::is_same_v<Inlined<LinearFlatSet<int>, 5>::type,
+                             InlineLinearFlatSet<int, 5>>);
 
 static_assert(sizeof(OrderedFlatMap<int, int>) ==
               sizeof(Vector<std::pair<int, int>>));

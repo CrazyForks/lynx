@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "base/include/no_destructor.h"
 #include "core/renderer/dom/element.h"
 #include "core/renderer/dom/selector/matching/attribute_selector_matching.h"
 #include "core/renderer/dom/vdom/radon/radon_component.h"
@@ -15,6 +16,27 @@
 
 namespace lynx {
 namespace tasm {
+
+const EventMap& AttributeHolder::EventBundle::DefaultEmptyEventMap() {
+  static base::NoDestructor<EventMap> kEmptyEventMap;
+  return *kEmptyEventMap.get();
+}
+
+const CSSVariableMap&
+AttributeHolder::CSSVariableBundle::DefaultEmptyCSSVariableMap() {
+  static base::NoDestructor<CSSVariableMap> kEmptyCSSVariableMap;
+  return *kEmptyCSSVariableMap.get();
+}
+
+const GestureMap& AttributeHolder::DefaultEmptyGestureMap() {
+  static base::NoDestructor<GestureMap> kEmptyGestureMap;
+  return *kEmptyGestureMap.get();
+}
+
+const DataMap& AttributeHolder::DefaultEmptyDataMap() {
+  static base::NoDestructor<DataMap> kEmptyDataMap;
+  return *kEmptyDataMap.get();
+}
 
 void AttributeHolder::OnStyleChange() {
   if (radon_node_ptr_) {
@@ -108,27 +130,28 @@ bool AttributeHolder::ContainsSelector(const std::string& selector) const {
 
 void AttributeHolder::UpdateCSSVariableFromSetProperty(
     const base::String& key, const base::String& value) {
-  css_variables_from_js_[key] = value;
+  css_variables_->css_variables_from_js_[key] = value;
   OnStyleChange();
 }
 
 void AttributeHolder::MergeWithCSSVariables(
     lepus::Value& css_variable_updated) {
-  if (css_variable_updated.IsTable()) {
+  if (css_variables_.has_value() && css_variable_updated.IsTable()) {
     // in most cases, node does not has its own variables, clone only if needed.
-    if (!(css_variables_from_js_.empty() && css_variables_.empty())) {
+    if (!(css_variables_->css_variables_from_js_.empty() &&
+          css_variables_->css_variables_.empty())) {
       css_variable_updated = lepus::Value::Clone(css_variable_updated);
     }
     auto& css_variable_updated_table = *css_variable_updated.Table();
     for (auto& pair : css_variable_updated_table) {
-      auto it = css_variables_from_js_.find(pair.first);
-      if (it != css_variables_from_js_.end()) {
+      auto it = css_variables_->css_variables_from_js_.find(pair.first);
+      if (it != css_variables_->css_variables_from_js_.end()) {
         pair.second.SetString(it->second);
         continue;
       }
 
-      it = css_variables_.find(pair.first);
-      if (it != css_variables_.end()) {
+      it = css_variables_->css_variables_.find(pair.first);
+      if (it != css_variables_->css_variables_.end()) {
         pair.second.SetString(it->second);
       }
     }
@@ -139,14 +162,15 @@ base::String AttributeHolder::GetCSSVariableValue(
     const base::String& key) const {
   const AttributeHolder* base = this;
   while (base != nullptr) {
-    base::String value;
-    auto it = base->css_variables_from_js_.find(key);
-    if (it != base->css_variables_from_js_.end()) {
-      return value = it->second;
-    }
-    it = base->css_variables_.find(key);
-    if (it != base->css_variables_.end()) {
-      return value = it->second;
+    if (base->css_variables_.has_value()) {
+      auto it = base->css_variables_->css_variables_from_js_.find(key);
+      if (it != base->css_variables_->css_variables_from_js_.end()) {
+        return it->second;
+      }
+      it = base->css_variables_->css_variables_.find(key);
+      if (it != base->css_variables_->css_variables_.end()) {
+        return it->second;
+      }
     }
     base = static_cast<AttributeHolder*>(base->HolderParent());
   }
@@ -157,9 +181,11 @@ void AttributeHolder::Reset() {
   classes_.clear();
   inline_styles_.clear();
   attributes_.clear();
-  data_set_.clear();
-  static_events_.clear();
-  lepus_events_.clear();
+  data_set_.reset();
+  events_.reset();
+  // TODO, if reset these members, some unittests fail.
+  // css_variables_.reset();
+  // gesture_detectors_.reset();
   id_selector_ = base::String();
   OnStyleChange();
 }
@@ -167,24 +193,23 @@ void AttributeHolder::Reset() {
 void AttributeHolder::SetDataSet(const lepus::Value& data_set) {
   ForEachLepusValue(data_set,
                     [this](const lepus::Value& key, const lepus::Value& val) {
-                      data_set_[key.String()] = val;
+                      (*data_set_)[key.String()] = val;
                     });
 }
 
 void AttributeHolder::RemoveEvent(const base::String& name,
                                   const base::String& type) {
+  if (!events_.has_value()) {
+    return;
+  }
   if (type == kGlobalBind) {
-    global_bind_events_.erase(name);
+    events_->global_bind_events_.erase(name);
   } else {
-    static_events_.erase(name);
+    events_->static_events_.erase(name);
   }
 }
 
-void AttributeHolder::RemoveAllEvents() {
-  static_events_.clear();
-  lepus_events_.clear();
-  global_bind_events_.clear();
-}
+void AttributeHolder::RemoveAllEvents() { events_.reset(); }
 
 css::StyleNode* AttributeHolder::SelectorMatchingParent() const {
   if (!element_ || (element_ && element_->IsRadonArch())) {  // Radon mode

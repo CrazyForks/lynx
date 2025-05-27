@@ -573,15 +573,13 @@ class FiberElement : public Element, public SelectorItem {
     if (data_model_) {
       return data_model_->static_events();
     }
-    static base::NoDestructor<EventMap> kEmptyEventMap;
-    return *kEmptyEventMap.get();
+    return AttributeHolder::EventBundle::DefaultEmptyEventMap();
   }
   const EventMap& lepus_event_map() override {
     if (data_model_) {
       return data_model_->lepus_events();
     }
-    static base::NoDestructor<EventMap> kEmptyLepusEventMap;
-    return *kEmptyLepusEventMap.get();
+    return AttributeHolder::EventBundle::DefaultEmptyEventMap();
   }
 
   bool InComponent() const override;
