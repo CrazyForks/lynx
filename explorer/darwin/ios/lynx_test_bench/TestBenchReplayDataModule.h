@@ -6,12 +6,19 @@
 #import <Lynx/LynxModule.h>
 
 NS_ASSUME_NONNULL_BEGIN
+@protocol TestBenchReplayDataProvider <NSObject>
+@required
+- (NSArray *)getFunctionCall;
+@required
+- (NSDictionary *)getCallbackData;
+@required
+- (NSArray *)getJSbIgnoredInfo;
+@required
+- (NSDictionary *)getJsbSettings;
+@end
 
 @interface TestBenchReplayDataModule : NSObject <LynxModule>
-+ (void)addFunctionCallArray:(NSArray *)responseData;
-+ (void)addCallbackDictionary:(NSDictionary *)callbackDictionary;
-+ (void)setJSbIgnoredInfo:(NSArray *)info;
-+ (void)setJsbSettings:(NSDictionary *)settings;
+- (id)initWithParam:(id)param;
 @end
 
 NS_ASSUME_NONNULL_END

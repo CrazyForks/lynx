@@ -46,6 +46,30 @@ static const int kVirtual = 1 << 2;
 }
 @end
 
+@interface TestBenchReplayDataProviderInternal : NSObject <TestBenchReplayDataProvider>
+@property NSArray* functionCall;
+@property NSDictionary* callbackData;
+@property NSArray* jsbIgnoredInfo;
+@property NSDictionary* jsbSettings;
+@end
+
+@implementation TestBenchReplayDataProviderInternal
+- (NSDictionary*)getJsbSettings {
+  return _jsbSettings;
+}
+- (NSArray*)getFunctionCall {
+  return _functionCall;
+}
+
+- (NSDictionary*)getCallbackData {
+  return _callbackData;
+}
+
+- (NSArray*)getJSbIgnoredInfo {
+  return _jsbIgnoredInfo;
+}
+@end
+
 @interface TestBenchActionManager ()
 @property UIView* parentUI;
 @property CGPoint origin;
@@ -75,6 +99,7 @@ static const int kVirtual = 1 << 2;
 @property CGSize screenSize;
 @property(nonatomic, strong) NSMutableArray* actionCallbacks;
 @property(nonatomic, strong) id<TestBenchTouchHelper> touchHelper;
+@property TestBenchReplayDataProviderInternal* dataProvider;
 
 @end
 
@@ -210,6 +235,7 @@ static const int kVirtual = 1 << 2;
         replayConfig:(TestBenchReplayConfig*)replayConfig
               NavBar:(CGSize)navBarSize {
   [self setReplayConfig:replayConfig];
+  _dataProvider = [[TestBenchReplayDataProviderInternal alloc] init];
   _parentUI = parentView;
   [_parentUI setBackgroundColor:self.replayConfig.backgroundColor];
   _origin = point;
@@ -296,18 +322,18 @@ static const int kVirtual = 1 << 2;
     _config = json[@"Config"];
     // Set jsb ignored info
     if ([_config objectForKey:@"jsbIgnoredInfo"]) {
-      [TestBenchReplayDataModule setJSbIgnoredInfo:[_config objectForKey:@"jsbIgnoredInfo"]];
+      self.dataProvider.jsbIgnoredInfo = [_config objectForKey:@"jsbIgnoredInfo"];
     }
 
     if ([_config objectForKey:@"jsbSettings"]) {
-      [TestBenchReplayDataModule setJsbSettings:[_config objectForKey:@"jsbSettings"]];
+      self.dataProvider.jsbSettings = [_config objectForKey:@"jsbSettings"];
     }
   }
   if ([json objectForKey:@"Invoked Method Data"]) {
-    [self mockInvokeMethod:json[@"Invoked Method Data"]];
+    self.dataProvider.functionCall = json[@"Invoked Method Data"];
   }
   if ([json objectForKey:@"Callback"]) {
-    [self mockCallBack:json[@"Callback"]];
+    self.dataProvider.callbackData = json[@"Callback"];
   }
   if ([json objectForKey:@"Component List"]) {
     [self mockComponent:json[@"Component List"]];
@@ -537,7 +563,8 @@ static const int kVirtual = 1 << 2;
       __strong __typeof(weakSelf) strongSelf = weakSelf;
       builder.config =
           [[LynxConfig alloc] initWithProvider:LynxConfig.globalConfig.templateProvider];
-      [builder.config registerModule:[TestBenchReplayDataModule class]];
+      [builder.config registerModule:[TestBenchReplayDataModule class]
+                               param:strongSelf.dataProvider];
       [builder.config registerModule:[TestBenchOpenUrlModule class]];
       [builder setFrame:CGRectMake(strongSelf->_origin.x, strongSelf->_origin.y,
                                    strongSelf->_screenSize.width, strongSelf->_screenSize.height)];
@@ -620,14 +647,6 @@ static const int kVirtual = 1 << 2;
   } else {
     _rawFontScaleValue = scale;
   }
-}
-
-- (void)mockInvokeMethod:(NSArray*)methodDataList {
-  [TestBenchReplayDataModule addFunctionCallArray:methodDataList];
-}
-
-- (void)mockCallBack:(NSDictionary*)callbackDictionary {
-  [TestBenchReplayDataModule addCallbackDictionary:callbackDictionary];
 }
 
 - (void)mockComponent:(NSArray*)componentList {

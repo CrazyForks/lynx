@@ -4,14 +4,12 @@
 
 #import "TestBenchReplayDataModule.h"
 
-// "Invoked Method Data" field from record json file
-static NSArray *functionCall;
-// "Callback" field from record json file
-static NSDictionary *callbackData;
-
-static NSArray *jsbIgnoredInfo;
-
-static NSDictionary *jsbSettings;
+@interface TestBenchReplayDataModule ()
+@property NSArray *functionCall;
+@property NSDictionary *callbackData;
+@property NSArray *jsbIgnoredInfo;
+@property NSDictionary *jsbSettings;
+@end
 
 @implementation TestBenchReplayDataModule
 
@@ -25,19 +23,17 @@ static NSDictionary *jsbSettings;
   };
 }
 
-+ (void)addFunctionCallArray:(NSArray *)responseData {
-  functionCall = responseData;
-}
-+ (void)addCallbackDictionary:(NSDictionary *)callbackDictionary {
-  callbackData = callbackDictionary;
-}
-
-+ (void)setJSbIgnoredInfo:(NSArray *)info {
-  jsbIgnoredInfo = info;
-}
-
-+ (void)setJsbSettings:(NSDictionary *)settings {
-  jsbSettings = settings;
+- (id)initWithParam:(id)param {
+  if (self = [super init]) {
+    if ([param conformsToProtocol:@protocol(TestBenchReplayDataProvider)]) {
+      id<TestBenchReplayDataProvider> provider = (id<TestBenchReplayDataProvider>)param;
+      _functionCall = [provider getFunctionCall];
+      _callbackData = [provider getCallbackData];
+      _jsbSettings = [provider getJsbSettings];
+      _jsbIgnoredInfo = [provider getJSbIgnoredInfo];
+    }
+  }
+  return self;
 }
 
 - (void)getData:(LynxCallbackBlock)callback {
@@ -52,8 +48,8 @@ static NSDictionary *jsbSettings;
 
 - (NSString *)getRecordData {
   NSMutableDictionary<NSString *, NSMutableArray *> *json = [NSMutableDictionary new];
-  for (int index = 0; index < [functionCall count]; index++) {
-    NSDictionary *funcInvoke = functionCall[index];
+  for (int index = 0; index < [_functionCall count]; index++) {
+    NSDictionary *funcInvoke = _functionCall[index];
     NSString *moduleName = [funcInvoke objectForKey:@"Module Name"];
     if (![json objectForKey:moduleName]) {
       [json setObject:[NSMutableArray new] forKey:moduleName];
@@ -77,7 +73,7 @@ static NSDictionary *jsbSettings;
 
     NSString *functionInvokeLabel = @"";
     for (int i = 0; i < callbackIDs.count; i++) {
-      NSDictionary *callbackInfo = [callbackData objectForKey:callbackIDs[i]];
+      NSDictionary *callbackInfo = [_callbackData objectForKey:callbackIDs[i]];
       if (callbackInfo != nil) {
         long responseTime = [[callbackInfo objectForKey:@"Record Time"] doubleValue] * 1000;
         if ([callbackInfo objectForKey:@"RecordMillisecond"]) {
@@ -109,8 +105,8 @@ static NSDictionary *jsbSettings;
 }
 
 - (NSString *)getJsbIgnoredInfo {
-  if (jsbIgnoredInfo != nil) {
-    NSData *reData = [NSJSONSerialization dataWithJSONObject:jsbIgnoredInfo options:0 error:0];
+  if (_jsbIgnoredInfo != nil) {
+    NSData *reData = [NSJSONSerialization dataWithJSONObject:_jsbIgnoredInfo options:0 error:0];
     NSString *infoData = [[NSString alloc] initWithData:reData encoding:NSUTF8StringEncoding];
     return infoData;
   } else {
@@ -119,8 +115,8 @@ static NSDictionary *jsbSettings;
 }
 
 - (NSString *)getJsbSettings {
-  if (jsbSettings != nil) {
-    NSData *reData = [NSJSONSerialization dataWithJSONObject:jsbSettings options:0 error:0];
+  if (_jsbSettings != nil) {
+    NSData *reData = [NSJSONSerialization dataWithJSONObject:_jsbSettings options:0 error:0];
     NSString *settingData = [[NSString alloc] initWithData:reData encoding:NSUTF8StringEncoding];
     return settingData;
   } else {
