@@ -1466,6 +1466,10 @@ void VMContext::SetGlobalData(const base::String& name, Value value) {
   global_.Add(name, std::move(value));
 }
 
+void VMContext::ResetGlobalData(const base::String& name, Value value) {
+  global_.Set(name, std::move(value));
+}
+
 lepus::Value VMContext::GetGlobalData(const base::String& name) {
   auto ptr = global_.Find(name);
   if (ptr == nullptr) {

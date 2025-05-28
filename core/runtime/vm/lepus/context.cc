@@ -330,8 +330,8 @@ void Context::EnsureDelegate() {
   if (delegate_ != nullptr) {
     return;
   }
-  BASE_STATIC_STRING_DECL(kTemplateAssembler, "$kTemplateAssembler");
-  Value delegate_point = GetGlobalData(kTemplateAssembler);
+  Value delegate_point =
+      GetGlobalData(BASE_STATIC_STRING(tasm::kTemplateAssembler));
   if (delegate_point.IsCPointer()) {
     delegate_ = reinterpret_cast<Context::Delegate*>(delegate_point.CPoint());
   } else {

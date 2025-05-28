@@ -683,6 +683,10 @@ void QuickContext::SetGlobalData(const base::String& name, Value value) {
   }
 }
 
+void QuickContext::ResetGlobalData(const base::String& name, Value value) {
+  SetGlobalData(name, std::move(value));
+}
+
 lepus::Value QuickContext::GetGlobalData(const base::String& name) {
   return MK_JS_LEPUS_VALUE(context(), SearchGlobalData(name.str()));
 }

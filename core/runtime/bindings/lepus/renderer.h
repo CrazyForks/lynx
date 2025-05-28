@@ -19,6 +19,9 @@ class Value;
 
 namespace tasm {
 
+// Pointer of TempateAssembler
+constexpr char kTemplateAssembler[] = "$kTemplateAssembler";
+
 static const char* kCFuncGetLength = "_GetLength";
 static const char* kCFuncIndexOf = "_IndexOf";
 static const char* kCFuncSetValueToMap = "_SetValueToMap";

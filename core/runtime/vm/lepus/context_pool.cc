@@ -54,6 +54,14 @@ void LynxContextPool::AddContextSafely(int32_t count) {
     if (context_bundle_) {
       context->SetSdkVersion(target_sdk_version_);
       context->Initialize();
+      if (!is_lepus_ng_) {
+        // For lepus context, kTemplateAssembler needs to maintain a placeholder
+        // to ensure the function index remains unchanged; otherwise, the
+        // context cannot run correctly. It will be reset to the pointer of tasm
+        // on runtime.
+        context->SetGlobalData(BASE_STATIC_STRING(tasm::kTemplateAssembler),
+                               lepus::Value());
+      }
       context->RegisterCtxBuiltin(arch_option_);
       context->RegisterLynx(enable_signal_api_);
       // if context_bundle_ exists, should call DeSerialize. And if DeSerialize

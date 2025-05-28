@@ -360,9 +360,9 @@ void TemplateEntry::RegisterBuiltin() {
 
 void TemplateEntry::SetTemplateAssembler(TemplateAssembler* assembler) {
   TRACE_EVENT(LYNX_TRACE_CATEGORY, TEMPLATE_ENTRY_SET_TEMPLATE_ASSEMBLER);
-  BASE_STATIC_STRING_DECL(kTemplateAssembler, "$kTemplateAssembler");
-  vm_context_->SetGlobalData(
-      kTemplateAssembler,
+  // kTemplateAssembler may has been set by context pool, reset it here
+  vm_context_->ResetGlobalData(
+      BASE_STATIC_STRING(tasm::kTemplateAssembler),
       lepus::Value(static_cast<lepus::Context::Delegate*>(assembler)));
 }
 

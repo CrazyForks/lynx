@@ -407,7 +407,12 @@ void DataBindingLoadTemplateBundleShell::TasmLoadTemplate(
   if (template_bundle.page_configs_) {
     template_bundle.page_configs_->SetEnableUseContextPool(true);
   }
+  // Some tasks of ContextPool will be executed in background threads. In
+  // order to prevent affecting the stability of the unit test, the background
+  // thread needs to be terminated in advance.
+  base::TaskRunnerManufactor::GetNormalPriorityLoop().Terminate();
   template_bundle.PrepareVMByConfigs();
+  template_bundle.PrepareLepusContext(1);
 
   auto pipeline_options = std::make_shared<PipelineOptions>();
   tasm_->LoadTemplateBundle(url, std::move(template_bundle), template_data,

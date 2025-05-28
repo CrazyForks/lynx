@@ -65,7 +65,8 @@ class QuickContext : private LEPUSRuntimeData, public Context {
   bool GetTopLevelVariableByName(const base::String& name,
                                  lepus::Value* ret) override;
 
-  virtual void SetGlobalData(const base::String& name, Value value) override;
+  void SetGlobalData(const base::String& name, Value value) override;
+  void ResetGlobalData(const base::String& name, Value value) override;
   virtual lepus::Value GetGlobalData(const base::String& name) override;
 
   virtual void SetGCThreshold(int64_t threshold) override;

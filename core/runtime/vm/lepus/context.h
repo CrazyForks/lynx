@@ -138,6 +138,10 @@ class Context {
   virtual long GetParamsSize() = 0;
   virtual Value* GetParam(long index) = 0;
   virtual void SetGlobalData(const base::String& name, Value value) = 0;
+  /**
+   * This value will overwrite the origin value
+   */
+  virtual void ResetGlobalData(const base::String& name, Value value) = 0;
   virtual lepus::Value GetGlobalData(const base::String& name) = 0;
 
   virtual void SetGCThreshold(int64_t threshold){};

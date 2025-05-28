@@ -112,6 +112,7 @@ class VMContext : public Context {
   inline Global* global() { return &global_; }
   inline Global* builtin() { return &builtin_; }
   void SetGlobalData(const base::String& name, Value value) override;
+  void ResetGlobalData(const base::String& name, Value value) override;
   lepus::Value GetGlobalData(const base::String& name) override;
 
   void SetBuiltinData(const base::String& name, Value value) {
