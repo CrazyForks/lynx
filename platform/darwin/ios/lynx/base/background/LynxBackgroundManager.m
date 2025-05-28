@@ -1458,10 +1458,9 @@ const LynxBorderRadii LynxBorderRadiiZero = {{0, 0}, {0, 0}, {0, 0}, {0, 0},
 }
 
 - (void)setFilters:(nullable NSArray*)array {
-  if (!_opacityView) {
-    [self autoAddOpacityViewWithOpacity:_opacity];
-  }
-  _opacityView.layer.filters = array;
+  _backgroundLayer.filters = array;
+  _borderLayer.filters = array;
+  _outlineLayer.filters = array;
 }
 
 #pragma mark getter
