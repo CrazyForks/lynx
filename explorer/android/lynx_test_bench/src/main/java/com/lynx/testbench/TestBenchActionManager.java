@@ -65,7 +65,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class TestBenchActionManager implements TestBenchReplayDataProvider {
+public class TestBenchActionManager {
   private static final String TAG = "TestBenchActionManager";
   private static final int UPDATE_PRE_DATA = 0;
   private static final int UPDATE_VIEW_PORT = 1;
@@ -97,6 +97,30 @@ public class TestBenchActionManager implements TestBenchReplayDataProvider {
     mCanMockFuncMap.put("updateFontScale", UPDATE_FONT_SCALE);
     mCanMockFuncMap.put("updateMetaData", UPDATE_META_DATA);
     mCanMockFuncMap.put("switchEngineFromUIThread", SWITCH_ENGINE_FROM_UI_THREAD);
+  }
+
+  private class TestBenchReplayDataProviderInternal implements TestBenchReplayDataProvider {
+    // "Invoked Method Data" field from record json file
+    public JSONArray functionCall;
+    // "Callback" field from record json file
+    public JSONObject callbackData;
+    // replay additional info
+    public JSONArray jsbIgnoredInfo;
+    // "jsbSettings" field from record json file
+    public JSONObject jsbSettings;
+
+    public JSONArray getFunctionCall() {
+      return functionCall;
+    }
+    public JSONObject getCallbackData() {
+      return callbackData;
+    }
+    public JSONArray getJsbIgnoredInfo() {
+      return jsbIgnoredInfo;
+    }
+    public JSONObject getJsbSettings() {
+      return jsbSettings;
+    }
   }
 
   // these functions should be call again, when push reload button
@@ -187,14 +211,7 @@ public class TestBenchActionManager implements TestBenchReplayDataProvider {
   private JSONObject mTemplateBundleParams;
   private TemplateBundle mTemplateBundle;
   private TemplateBundleOption mTemplateBundleOptions;
-  // "Invoked Method Data" field from record json file
-  private JSONArray mFunctionCall;
-  // "Callback" field from record json file
-  private JSONObject mCallbackData;
-  // replay additional info
-  private JSONArray mJsbIgnoredInfo;
-  // "jsbSettings" field from record json file
-  private JSONObject mJsbSettings;
+  private TestBenchReplayDataProviderInternal mDataProvider;
 
   public static final int sEndForFirstScreen = 0;
   public static final int sEndForAll = 1;
@@ -276,18 +293,18 @@ public class TestBenchActionManager implements TestBenchReplayDataProvider {
         if (json.has("Config") && !(json.get("Config").toString().equals("null"))) {
           mConfig = json.getJSONObject("Config");
           if (mConfig.has("jsbIgnoredInfo")) {
-            mJsbIgnoredInfo = mConfig.getJSONArray("jsbIgnoredInfo");
+            mDataProvider.jsbIgnoredInfo = mConfig.getJSONArray("jsbIgnoredInfo");
           }
 
           if (mConfig.has("jsbSettings")) {
-            mJsbSettings = mConfig.getJSONObject("jsbSettings");
+            mDataProvider.jsbSettings = mConfig.getJSONObject("jsbSettings");
           }
         }
         if (json.has("Invoked Method Data")) {
-          mFunctionCall = json.getJSONArray("Invoked Method Data");
+          mDataProvider.functionCall = json.getJSONArray("Invoked Method Data");
         }
         if (json.has("Callback")) {
-          mCallbackData = json.getJSONObject("Callback");
+          mDataProvider.callbackData = json.getJSONObject("Callback");
         }
         if (json.has("Component List")) {
           mockComponent(json.getJSONArray("Component List"));
@@ -342,6 +359,7 @@ public class TestBenchActionManager implements TestBenchReplayDataProvider {
                                  .setContextPoolSize(5)
                                  .setEnableContextAutoRefill(true)
                                  .build();
+    mDataProvider = new TestBenchReplayDataProviderInternal();
     mTemplateBundleParams = null;
     mReplayGesture = false;
     mPreDecode = false;
@@ -967,7 +985,8 @@ public class TestBenchActionManager implements TestBenchReplayDataProvider {
         builder.setEnableAirStrictMode(enableAir());
         builder.setPresetMeasuredSpec(measureSpec[0], measureSpec[1]);
         addExtraComponent(builder);
-        builder.registerModule("TestBenchReplayDataModule", TestBenchReplayDataModule.class, this);
+        builder.registerModule(
+            "TestBenchReplayDataModule", TestBenchReplayDataModule.class, mDataProvider);
         builder.registerModule("TestBenchOpenUrlModule", TestBenchOpenUrlModule.class);
         if (BuildConfig.enable_frozen_mode) {
           builder.setThreadStrategyForRendering(ThreadStrategyForRendering.ALL_ON_UI);
@@ -1329,19 +1348,4 @@ public class TestBenchActionManager implements TestBenchReplayDataProvider {
     }
     mHandler.removeCallbacksAndMessages(null);
   }
-
-  // The implementation part of the interface TestBenchReplayDataProvider. start
-  public JSONArray getFunctionCall() {
-    return mFunctionCall;
-  }
-  public JSONObject getCallbackData() {
-    return mCallbackData;
-  }
-  public JSONArray getJsbIgnoredInfo() {
-    return mJsbIgnoredInfo;
-  }
-  public JSONObject getJsbSettings() {
-    return mJsbSettings;
-  }
-  // The implementation part of the interface TestBenchReplayDataProvider.end
 }
