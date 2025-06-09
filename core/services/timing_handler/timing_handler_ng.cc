@@ -25,9 +25,9 @@ TimingHandlerNg::TimingHandlerNg(TimingHandlerDelegate* delegate)
 void TimingHandlerNg::OnPipelineStart(
     const PipelineID& pipeline_id, const PipelineOrigin& pipeline_origin,
     const TimestampUs pipeline_start_timestamp) {
-  pipeline_id_to_origin_map_.emplace(pipeline_id, pipeline_origin);
-  if (pipeline_origin == kReloadBundleFromNative ||
-      pipeline_origin == kLoadBundle ||
+  timing_info_.BindPipelineOriginWithPipelineId(pipeline_id, pipeline_origin);
+  if (pipeline_origin == kLoadBundle ||
+      pipeline_origin == kReloadBundleFromNative ||
       pipeline_origin == kReloadBundleFromBts) {
     timing_info_.SetLoadBundlePipelineId(pipeline_id);
   }
@@ -66,13 +66,6 @@ void TimingHandlerNg::SetTiming(const TimestampKey& timing_key,
   } else {
     ProcessPipelineTiming(timing_key, us_timestamp, pipeline_id);
   }
-}
-
-void TimingHandlerNg::SetTimingWithTimingFlag(
-    const tasm::timing::TimingFlag& timing_flag,
-    const std::string& timestamp_key,
-    const tasm::timing::TimestampUs timestamp) {
-  timing_info_.SetTimingWithTimingFlag(timing_flag, timestamp_key, timestamp);
 }
 
 void TimingHandlerNg::ProcessInitTiming(
@@ -134,33 +127,29 @@ void TimingHandlerNg::DispatchPerformanceEventIfNeeded(
 void TimingHandlerNg::DispatchInitContainerEntryIfNeeded(
     const TimestampKey& current_key) {
   auto init_container_entry = timing_info_.GetInitContainerEntry(current_key);
-  if (init_container_entry != nullptr) {
-    init_container_entry->PushStringToMap(kEntryType, kEntryTypeInit);
-    init_container_entry->PushStringToMap(kEntryName, kEntryNameContainer);
-    SendPerformanceEntry(std::move(init_container_entry));
+  if (init_container_entry == nullptr) {
+    return;
   }
+  SendPerformanceEntry(std::move(init_container_entry));
 }
 
 void TimingHandlerNg::DispatchInitLynxViewEntryIfNeeded(
     const TimestampKey& current_key) {
   auto init_lynxview_entry = timing_info_.GetInitLynxViewEntry(current_key);
-  if (init_lynxview_entry != nullptr) {
-    init_lynxview_entry->PushStringToMap(kEntryType, kEntryTypeInit);
-    init_lynxview_entry->PushStringToMap(kEntryName, kEntryNameLynxView);
-    SendPerformanceEntry(std::move(init_lynxview_entry));
+  if (init_lynxview_entry == nullptr) {
+    return;
   }
+  SendPerformanceEntry(std::move(init_lynxview_entry));
 }
 
 void TimingHandlerNg::DispatchInitBackgroundRuntimeEntryIfNeeded(
     const TimestampKey& current_key) {
   auto init_background_runtime_entry =
       timing_info_.GetInitBackgroundRuntimeEntry(current_key);
-  if (init_background_runtime_entry != nullptr) {
-    init_background_runtime_entry->PushStringToMap(kEntryType, kEntryTypeInit);
-    init_background_runtime_entry->PushStringToMap(kEntryName,
-                                                   kEntryNameBackgroundRuntime);
-    SendPerformanceEntry(std::move(init_background_runtime_entry));
+  if (init_background_runtime_entry == nullptr) {
+    return;
   }
+  SendPerformanceEntry(std::move(init_background_runtime_entry));
 }
 
 void TimingHandlerNg::DispatchMetricFcpEntryIfNeeded(
@@ -172,8 +161,6 @@ void TimingHandlerNg::DispatchMetricFcpEntryIfNeeded(
   if (entry == nullptr) {
     return;
   }
-  entry->PushStringToMap(kEntryType, kEntryTypeMetric);
-  entry->PushStringToMap(kEntryName, kEntryNameFCP);
   SendPerformanceEntry(std::move(entry));
 }
 
@@ -202,113 +189,51 @@ void TimingHandlerNg::DispatchMetricFmpEntryIfNeeded(
   if (entry == nullptr) {
     return;
   }
-  entry->PushStringToMap(kEntryType, kEntryTypeMetric);
-  entry->PushStringToMap(kEntryName, kEntryNameActualFMP);
   SendPerformanceEntry(std::move(entry));
-}
-
-void TimingHandlerNg::DispatchLoadBundleEntryIfNeeded(
-    const TimestampKey& current_key,
-    const lynx::tasm::PipelineID& pipeline_id) {
-  const auto& name = pipeline_id_to_origin_map_.find(pipeline_id);
-  auto timing_flag_iter = pipeline_id_to_timing_flags_map_.find(pipeline_id);
-  bool is_timing_flags_empty =
-      (timing_flag_iter == pipeline_id_to_timing_flags_map_.end());
-
-  auto process_load_bundle_entry = [&](auto load_bundle_entry,
-                                       const std::string& flag = {}) {
-    load_bundle_entry->PushStringToMap(kEntryType, kEntryTypePipeline);
-    if (name != pipeline_id_to_origin_map_.end()) {
-      load_bundle_entry->PushStringToMap(kEntryName, name->second);
-    } else {
-      load_bundle_entry->PushStringToMap(kEntryName, kEntryNameLoadBundle);
-    }
-    if (!flag.empty()) {
-      load_bundle_entry->PushStringToMap(kIdentifier, flag);
-    }
-    SendPerformanceEntry(std::move(load_bundle_entry));
-  };
-
-  if (is_timing_flags_empty) {
-    auto load_bundle_entry =
-        timing_info_.GetLoadBundleEntry(current_key, pipeline_id);
-    if (load_bundle_entry != nullptr) {
-      process_load_bundle_entry(std::move(load_bundle_entry));
-    }
-    return;
-  } else {
-    // Iterate over the vector of TimingFlags for the specific ID
-    for (const TimingFlag& flag : timing_flag_iter->second) {
-      if (has_dispatched_timing_flags_.count(flag)) {
-        continue;
-      }
-      auto load_bundle_entry =
-          timing_info_.GetLoadBundleEntry(current_key, pipeline_id);
-      if (load_bundle_entry == nullptr) {
-        continue;
-      }
-      process_load_bundle_entry(std::move(load_bundle_entry), flag);
-      has_dispatched_timing_flags_.emplace(flag);
-    }
-  }
 }
 
 void TimingHandlerNg::DispatchPipelineEntryIfNeeded(
     const TimestampKey& current_key,
     const lynx::tasm::PipelineID& pipeline_id) {
-  if (IsLoadBundlePipeline(pipeline_id)) {
-    DispatchLoadBundleEntryIfNeeded(current_key, pipeline_id);
+  auto pipeline_entry = timing_info_.GetPipelineEntry(current_key, pipeline_id);
+  if (pipeline_entry == nullptr) {
     return;
   }
-
-  auto timing_flag_iter = pipeline_id_to_timing_flags_map_.find(pipeline_id);
-  if (timing_flag_iter == pipeline_id_to_timing_flags_map_.end()) {
-    return;
-  }
-  const auto& name = pipeline_id_to_origin_map_.find(pipeline_id);
-  /* A PipelineID may correspond to multiple flags. The rule for releasing a
+  /* To optimize the memory usage of TimingHandlerNg, we have formulated the
+   * following rules to release Lynx Pipeline.
+   *
+   * A PipelineID may correspond to multiple flags. The rule for releasing a
    * PipelineID is that all flags corresponding to this PipelineID have been
    * dispatched.
    *
-   * Based on the principle that each TimingFlag can only send performance
-   * events once, the following two release methods are defined:
-   *
-   * anyTimingFlagHasDispatched: If a TimingFlag corresponding to this
-   * pipelineId has sent performance events in this dispatch, then the
-   * corresponding timing data for this pipelineId no longer holds value and can
-   * be released.
-   *
-   * allTimingFlagHasDispatched: If all TimingFlags corresponding to this
-   * pipelineId have been dispatched, then all timing data corresponding to this
-   * pipelineId is useless and can be released.
+   * So, if a LynxPipeline can form a PipelineEntry, we will clear the timing
+   * associated with it regardless of whether the PipelineEntry is sent. Unless
+   * the Pipeline is a LoadBundle or ReloadBundle Pipeline, we cannot clear them
+   * because they need to be used for subsequent metric calculations.
    */
-  bool anyTimingFlagHasDispatched = false;
-  bool allTimingFlagHasDispatched = true;
-  for (const TimingFlag& flag : timing_flag_iter->second) {
-    if (has_dispatched_timing_flags_.count(flag)) {
-      continue;
-    } else {
-      allTimingFlagHasDispatched = false;
+  auto timing_flag_iter = pipeline_id_to_timing_flags_map_.find(pipeline_id);
+  if (timing_flag_iter != pipeline_id_to_timing_flags_map_.end()) {
+    for (const TimingFlag& flag : timing_flag_iter->second) {
+      if (has_dispatched_timing_flags_.count(flag)) {
+        continue;
+      }
+      // TODO(zhangkaijie.9): Removed multiple Get behavior after changing
+      // PipelineEntry.identifier to string[]
+      auto pipeline_entry =
+          timing_info_.GetPipelineEntry(current_key, pipeline_id);
+      if (pipeline_entry == nullptr) {
+        return;
+      }
+      pipeline_entry->PushStringToMap(kIdentifier, flag);
+      SendPerformanceEntry(std::move(pipeline_entry));
+      has_dispatched_timing_flags_.emplace(flag);
     }
-    auto pipeline_entry =
-        timing_info_.GetPipelineEntry(current_key, pipeline_id, flag);
-    if (pipeline_entry == nullptr) {
-      continue;
-    }
-
-    pipeline_entry->PushStringToMap(kEntryType, kEntryTypePipeline);
-    if (name != pipeline_id_to_origin_map_.end()) {
-      pipeline_entry->PushStringToMap(kEntryName, name->second);
-    } else {
-      pipeline_entry->PushStringToMap(kEntryName, kEntryTypePipeline);
-    }
-    pipeline_entry->PushStringToMap(kIdentifier, flag);
+  } else {
     SendPerformanceEntry(std::move(pipeline_entry));
-    has_dispatched_timing_flags_.emplace(flag);
-    anyTimingFlagHasDispatched = true;
   }
-  if (anyTimingFlagHasDispatched || allTimingFlagHasDispatched) {
-    ReleaseTiming(pipeline_id);
+
+  if (!IsLoadBundlePipeline(pipeline_id)) {
+    ReleasePipelineTiming(pipeline_id);
   }
 }
 
@@ -347,10 +272,9 @@ bool TimingHandlerNg::ReadyToDispatch() const {
          !timing_info_.GetEnableBackgroundRuntime();
 }
 
-void TimingHandlerNg::ReleaseTiming(const PipelineID& pipeline_id) {
+void TimingHandlerNg::ReleasePipelineTiming(const PipelineID& pipeline_id) {
   pipeline_id_to_timing_flags_map_.erase(pipeline_id);
-  pipeline_id_to_origin_map_.erase(pipeline_id);
-  timing_info_.ReleaseTiming(pipeline_id);
+  timing_info_.ReleasePipelineTiming(pipeline_id);
 }
 
 }  // namespace timing

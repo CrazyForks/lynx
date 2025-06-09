@@ -68,6 +68,10 @@ class TimingMap {
 
  private:
   // All of the timestamp is saved as microsecond
+  // TODO(zhangkaijie.9): This is an unordered map, which means the order of the
+  // TimestampKey cannot always be set as expected. This may affect the
+  // aggregation logic of our data reporting, and we need to modify it into an
+  // ordered queue.
   using TimestampMap = std::unordered_map<TimestampKey, TimestampUs>;
   TimestampMap timing_infos_;
 };

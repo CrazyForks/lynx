@@ -76,6 +76,8 @@ class TimingHandler {
   void SetTiming(tasm::Timing timing);
   void SetTiming(TimestampKey& timing_key, TimestampUs us_timestamp,
                  const PipelineID& pipeline_id);
+  void SetFrameworkTiming(TimestampKey& timing_key, TimestampUs us_timestamp,
+                          const PipelineID& pipeline_id);
   // This logic is to ensure compatibility with the old js_app markTiming
   // API. The old js_app markTiming API takes TimingFlag as a parameter and
   // uses it as the dimension for marking.

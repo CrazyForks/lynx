@@ -37,19 +37,6 @@ class TimingHandlerNg {
                           const TimestampUs us_timestamp,
                           const PipelineID &pipeline_id);
 
-  // This logic is to ensure compatibility with the old js_app markTiming
-  // API. The old js_app markTiming API takes TimingFlag as a parameter and
-  // uses it as the dimension for marking.
-  // Now, we need to mark Timing using pipeline_id as the dimension.
-  // However, The old js_app markTiming lacks the context related to
-  // pipeline_id, so we can only mark using TimingFlag as the dimension. We
-  // will additionally store this data using TimingFlag and later associate
-  // it. In the long term, this API will be deprecated after most of the
-  // business front-end frameworks are upgraded.
-  void SetTimingWithTimingFlag(const tasm::timing::TimingFlag &timing_flag,
-                               const std::string &timestamp_key,
-                               const tasm::timing::TimestampUs timestamp);
-
   // for framework to store the extra info like dsl, stage, etc.
   void SetFrameworkExtraTimingInfo(const PipelineID &pipeline_id,
                                    const std::string &key,
@@ -80,7 +67,6 @@ class TimingHandlerNg {
   TimingHandlerDelegate *delegate_;
   std::unordered_map<PipelineID, base::InlineVector<TimingFlag, 2>>
       pipeline_id_to_timing_flags_map_;
-  std::unordered_map<PipelineID, PipelineOrigin> pipeline_id_to_origin_map_;
 
   std::unordered_set<TimingFlag> has_dispatched_timing_flags_;
   bool is_background_runtime_ready_ = false;
@@ -108,8 +94,6 @@ class TimingHandlerNg {
                                       const PipelineID &pipeline_id);
   void DispatchMetricFmpEntryIfNeeded(const TimestampKey &current_key,
                                       const PipelineID &pipeline_id);
-  void DispatchLoadBundleEntryIfNeeded(const TimestampKey &current_key,
-                                       const PipelineID &pipeline_id);
   void DispatchPipelineEntryIfNeeded(const TimestampKey &current_key,
                                      const PipelineID &pipeline_id);
   // Send all pending performance entries. Note that the pending queue will be
@@ -121,7 +105,7 @@ class TimingHandlerNg {
   bool ReadyToDispatch() const;
   void SendPerformanceEntry(std::unique_ptr<lynx::pub::Value> entry);
 
-  void ReleaseTiming(const PipelineID &pipeline_id);
+  void ReleasePipelineTiming(const PipelineID &pipeline_id);
 };
 }  // namespace timing
 }  // namespace tasm

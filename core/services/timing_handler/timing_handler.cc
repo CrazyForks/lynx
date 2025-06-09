@@ -50,12 +50,32 @@ void TimingHandler::BindPipelineIDWithTimingFlag(
 // Methods for setting timing information.
 void TimingHandler::SetTiming(tasm::Timing timing) {
   for (auto& [timing_key, timestamp] : timing.framework_timings_) {
-    SetTiming(timing_key, timestamp, timing.pipeline_id_);
-
-    handler_ng_.SetFrameworkTiming(timing_key, timestamp, timing.pipeline_id_);
+    SetFrameworkTiming(timing_key, timestamp, timing.pipeline_id_);
   }
   for (auto& [timing_key, timestamp] : timing.timings_) {
     SetTiming(timing_key, timestamp, timing.pipeline_id_);
+  }
+}
+
+void TimingHandler::SetFrameworkTiming(TimestampKey& timing_key,
+                                       TimestampUs us_timestamp,
+                                       const PipelineID& pipeline_id) {
+  if (timing_key.empty() || us_timestamp == 0) {
+    LOGE("Invalid timing key or timestamp in TimingHandler::SetTiming");
+    return;
+  }
+  handler_ng_.SetFrameworkTiming(timing_key, us_timestamp, pipeline_id);
+
+  TimestampKey polyfillKey = "";
+  if (!TryUpdatePolyfillTimingKey(timing_key, polyfillKey)) {
+    return;
+  }
+  if (IsInitTiming(polyfillKey)) {
+    ProcessInitTiming(polyfillKey, us_timestamp);
+  } else if (IsExtraTiming(polyfillKey)) {
+    ProcessExtraTiming(polyfillKey, us_timestamp);
+  } else if (!pipeline_id.empty()) {
+    ProcessPipelineTiming(polyfillKey, us_timestamp, pipeline_id);
   }
 }
 
@@ -84,8 +104,6 @@ void TimingHandler::SetTiming(TimestampKey& timing_key,
 void TimingHandler::SetTimingWithTimingFlag(
     const tasm::timing::TimingFlag& timing_flag,
     const std::string& timestamp_key, tasm::timing::TimestampUs timestamp) {
-  handler_ng_.SetTimingWithTimingFlag(timing_flag, timestamp_key, timestamp);
-
   TimestampKey polyfillKey = "";
   if (!TryUpdatePolyfillTimingKey(timestamp_key, polyfillKey)) {
     return;

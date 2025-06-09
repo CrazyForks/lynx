@@ -60,6 +60,11 @@ class TimingInfoNg {
     return load_bundle_pipeline_id_;
   }
 
+  inline void BindPipelineOriginWithPipelineId(
+      const PipelineID& pipeline_id, const PipelineOrigin& pipeline_origin) {
+    pipeline_id_to_origin_map_.emplace(pipeline_id, pipeline_origin);
+  }
+
   // This logic is to ensure compatibility with the old js_app markTiming
   // API. The old js_app markTiming API takes TimingFlag as a parameter and
   // uses it as the dimension for marking.
@@ -115,11 +120,10 @@ class TimingInfoNg {
   std::unique_ptr<lynx::pub::Value> GetLoadBundleEntry(
       const TimestampKey& current_key, const PipelineID& pipeline_id);
   std::unique_ptr<lynx::pub::Value> GetPipelineEntry(
-      const TimestampKey& current_key, const PipelineID& pipeline_id,
-      const tasm::timing::TimingFlag& timing_flag = "");
+      const TimestampKey& current_key, const PipelineID& pipeline_id);
 
   void ClearAllTimingInfo();
-  void ReleaseTiming(const PipelineID& pipeline_id);
+  void ReleasePipelineTiming(const PipelineID& pipeline_id);
 
  private:
   bool UpdateMetrics(const std::string& name, const std::string& start_name,
@@ -158,12 +162,7 @@ class TimingInfoNg {
   // data structure is also used to control the frequency of metric sending.
   std::unordered_map<TimestampKey, std::unique_ptr<lynx::pub::Value>> metrics_;
 
-  // timing_infos_with_timing_flag_ is used to ensure compatibility with the
-  // old js_app markTiming API. We store the data using TimingFlag and
-  // later associate it in PrepareBeforeDispatchUpdate.
-  // In the long term, this data structure will be deprecated after most of the
-  // business front-end frameworks are upgraded.
-  std::unordered_map<TimingFlag, TimingMap> timing_infos_with_timing_flag_;
+  std::unordered_map<PipelineID, PipelineOrigin> pipeline_id_to_origin_map_;
 
   // Other properties for tracking state and configuration.
   bool enable_engine_callback_{false};
