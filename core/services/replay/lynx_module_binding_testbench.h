@@ -15,22 +15,22 @@
 namespace lynx {
 namespace piper {
 
-class LynxModuleBindingTestBench : public piper::HostObject {
+class LynxJSIModuleBindingTestBench : public piper::HostObject {
  public:
-  explicit LynxModuleBindingTestBench(
+  explicit LynxJSIModuleBindingTestBench(
       const LynxModuleProviderFunction &moduleProvider);
-  ~LynxModuleBindingTestBench() override = default;
+  ~LynxJSIModuleBindingTestBench() override = default;
 
   piper::Value get(Runtime *rt, const PropNameID &prop) override;
 
-  void setLynxModuleManagerPtr(const LynxModuleBindingPtr moduleProvider);
-  LynxModuleBindingPtr getLynxModuleManagerPtr();
+  void setLynxModuleManagerPtr(const LynxJSIModuleBindingPtr moduleProvider);
+  LynxJSIModuleBindingPtr getLynxModuleManagerPtr();
 
  private:
   // replay module Manager
   LynxModuleProviderFunction moduleProvider_;
   // lynx module Manager's ptr
-  LynxModuleBindingPtr moduleBindingPtrLynx_;
+  LynxJSIModuleBindingPtr moduleBindingPtrLynx_;
 
   // these modules will be called by moduleBindingPtrLynx_
   std::set<std::string> lynxModuleSet{

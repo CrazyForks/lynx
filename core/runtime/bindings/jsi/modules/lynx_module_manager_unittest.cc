@@ -8,8 +8,8 @@
 
 #include "core/public/jsb/native_module_factory.h"
 #include "core/runtime/bindings/jsi/mock_module_delegate.h"
+#include "core/runtime/bindings/jsi/modules/lynx_jsi_module.h"
 #include "core/runtime/bindings/jsi/modules/lynx_jsi_module_callback.h"
-#include "core/runtime/bindings/jsi/modules/lynx_module_impl.h"
 #include "core/runtime/bindings/jsi/modules/lynx_module_timing.h"
 #include "core/runtime/bindings/jsi/modules/module_delegate.h"
 #include "core/value_wrapper/value_impl_lepus.h"

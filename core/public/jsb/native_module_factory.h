@@ -19,7 +19,7 @@
 #include "core/runtime/bindings/jsi/modules/lynx_module.h"
 namespace lynx {
 namespace piper {
-class LynxModuleBinding;
+class LynxJSIModuleBinding;
 class LynxModuleManager;
 }  // namespace piper
 }  // namespace lynx

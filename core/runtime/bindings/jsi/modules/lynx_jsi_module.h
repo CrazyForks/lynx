@@ -2,8 +2,8 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 
-#ifndef CORE_RUNTIME_BINDINGS_JSI_MODULES_LYNX_MODULE_IMPL_H_
-#define CORE_RUNTIME_BINDINGS_JSI_MODULES_LYNX_MODULE_IMPL_H_
+#ifndef CORE_RUNTIME_BINDINGS_JSI_MODULES_LYNX_JSI_MODULE_H_
+#define CORE_RUNTIME_BINDINGS_JSI_MODULES_LYNX_JSI_MODULE_H_
 
 #include <memory>
 #include <string>
@@ -20,9 +20,9 @@ namespace lynx {
 namespace piper {
 struct InvokeInfo;
 
-class LynxModuleImpl : public LynxModule, public LynxNativeModule::Delegate {
+class LynxJSIModule : public LynxModule, public LynxNativeModule::Delegate {
  public:
-  LynxModuleImpl(
+  LynxJSIModule(
       const std::string& name, const std::shared_ptr<ModuleDelegate>& delegate,
       const std::shared_ptr<lynx::piper::LynxNativeModule>& native_module)
       : LynxModule(name, delegate), native_module_(native_module) {
@@ -65,4 +65,4 @@ class LynxModuleImpl : public LynxModule, public LynxNativeModule::Delegate {
 }  // namespace piper
 }  // namespace lynx
 
-#endif  // CORE_RUNTIME_BINDINGS_JSI_MODULES_LYNX_MODULE_IMPL_H_
+#endif  // CORE_RUNTIME_BINDINGS_JSI_MODULES_LYNX_JSI_MODULE_H_

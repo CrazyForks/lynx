@@ -10,21 +10,22 @@
 namespace lynx {
 namespace piper {
 
-LynxModuleBindingTestBench::LynxModuleBindingTestBench(
+LynxJSIModuleBindingTestBench::LynxJSIModuleBindingTestBench(
     const LynxModuleProviderFunction &moduleProvider)
     : moduleProvider_(moduleProvider) {}
 
-void LynxModuleBindingTestBench::setLynxModuleManagerPtr(
-    const LynxModuleBindingPtr moduleProvider) {
+void LynxJSIModuleBindingTestBench::setLynxModuleManagerPtr(
+    const LynxJSIModuleBindingPtr moduleProvider) {
   moduleBindingPtrLynx_ = moduleProvider;
 }
 
-LynxModuleBindingPtr LynxModuleBindingTestBench::getLynxModuleManagerPtr() {
+LynxJSIModuleBindingPtr
+LynxJSIModuleBindingTestBench::getLynxModuleManagerPtr() {
   return moduleBindingPtrLynx_;
 }
 
-piper::Value LynxModuleBindingTestBench::get(Runtime *rt,
-                                             const PropNameID &prop) {
+piper::Value LynxJSIModuleBindingTestBench::get(Runtime *rt,
+                                                const PropNameID &prop) {
   piper::Scope scope(*rt);
   std::string moduleName = prop.utf8(*rt);
   std::shared_ptr<LynxModule> module = nullptr;

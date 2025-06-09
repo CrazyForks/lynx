@@ -10,7 +10,7 @@
 
 #include "base/include/fml/thread.h"
 #include "base/include/string/string_utils.h"
-#include "core/runtime/bindings/jsi/modules/lynx_module_impl.h"
+#include "core/runtime/bindings/jsi/modules/lynx_jsi_module.h"
 #include "core/runtime/bindings/jsi/modules/module_delegate.h"
 #include "core/runtime/jsi/jsi.h"
 #include "third_party/rapidjson/document.h"
@@ -28,11 +28,11 @@ typedef std::function<void(const std::string&, Runtime& runtime,
                            InvokeMethodCallback callback)>
     FetchDataHandler;
 
-class ModuleTestBench : public LynxModuleImpl {
+class ModuleTestBench : public LynxJSIModule {
  public:
   ModuleTestBench(const std::string& name,
                   const std::shared_ptr<ModuleDelegate>& delegate)
-      : LynxModuleImpl(name, delegate, nullptr),
+      : LynxJSIModule(name, delegate, nullptr),
         testbench_thread_("test_bench_thread") {}
   ~ModuleTestBench() override = default;
   void initModuleData(

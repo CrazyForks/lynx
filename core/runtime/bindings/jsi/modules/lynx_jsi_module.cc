@@ -2,7 +2,7 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 
-#include "core/runtime/bindings/jsi/modules/lynx_module_impl.h"
+#include "core/runtime/bindings/jsi/modules/lynx_jsi_module.h"
 
 #include <memory>
 #include <optional>
@@ -40,8 +40,8 @@ class InvokeScope {
   std::vector<InvokeInfo*>& infos_;
 };
 
-void LynxModuleImpl::Destroy() {
-  LOGI("LynxModuleImpl Destroy " << name_);
+void LynxJSIModule::Destroy() {
+  LOGI("LynxJSIModule Destroy " << name_);
   if (native_module_) {
     native_module_->Destroy();
     native_module_ = nullptr;
@@ -49,8 +49,8 @@ void LynxModuleImpl::Destroy() {
 }
 
 base::expected<piper::Value, piper::JSINativeException>
-LynxModuleImpl::invokeMethod(const MethodMetadata& method, Runtime* rt,
-                             const piper::Value* args, size_t count) {
+LynxJSIModule::invokeMethod(const MethodMetadata& method, Runtime* rt,
+                            const piper::Value* args, size_t count) {
   uint64_t call_func_start = lynx::base::CurrentSystemTimeMilliseconds();
   piper::Scope scope(*rt);
 #if ENABLE_TESTBENCH_RECORDER
@@ -271,7 +271,7 @@ LynxModuleImpl::invokeMethod(const MethodMetadata& method, Runtime* rt,
   return response;
 }
 
-void LynxModuleImpl::InvokeCallback(
+void LynxJSIModule::InvokeCallback(
     const std::shared_ptr<LynxModuleCallback>& callback) {
   auto module_callback = std::static_pointer_cast<ModuleCallback>(callback);
   if (module_callback->timing_collector_) {
@@ -280,21 +280,21 @@ void LynxModuleImpl::InvokeCallback(
   delegate_->CallJSCallback(module_callback);
 }
 
-void LynxModuleImpl::RunOnJSThread(base::closure func) {
+void LynxJSIModule::RunOnJSThread(base::closure func) {
   delegate_->RunOnJSThread(std::move(func));
 }
 
-void LynxModuleImpl::RunOnPlatformThread(base::closure func) {
+void LynxJSIModule::RunOnPlatformThread(base::closure func) {
   delegate_->RunOnPlatformThread(std::move(func));
 }
 
-const std::shared_ptr<pub::PubValueFactory>& LynxModuleImpl::GetValueFactory() {
+const std::shared_ptr<pub::PubValueFactory>& LynxJSIModule::GetValueFactory() {
   return value_factory_;
 }
 
-void LynxModuleImpl::OnErrorOccurred(const std::string& module_name,
-                                     const std::string& method_name,
-                                     base::LynxError error) {
+void LynxJSIModule::OnErrorOccurred(const std::string& module_name,
+                                    const std::string& method_name,
+                                    base::LynxError error) {
   int error_code = error.error_code_;
   NativeModuleStatusCode timing_error_code(NativeModuleStatusCode::SUCCESS);
   if (error_code == error::E_NATIVE_MODULES_COMMON_WRONG_PARAM_TYPE ||
@@ -325,7 +325,7 @@ void LynxModuleImpl::OnErrorOccurred(const std::string& module_name,
 }
 
 // private
-void LynxModuleImpl::SetMethodMetadata() {
+void LynxJSIModule::SetMethodMetadata() {
   if (!native_module_) {
     return;
   }
@@ -336,7 +336,7 @@ void LynxModuleImpl::SetMethodMetadata() {
   }
 }
 
-InvokeInfo* LynxModuleImpl::CurrentInvokeInfo() {
+InvokeInfo* LynxJSIModule::CurrentInvokeInfo() {
   if (invoke_scopes_.size() > 0) {
     return invoke_scopes_.back();
   }

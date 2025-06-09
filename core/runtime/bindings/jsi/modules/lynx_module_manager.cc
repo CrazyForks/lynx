@@ -4,7 +4,7 @@
 
 #include "core/runtime/bindings/jsi/modules/lynx_module_manager.h"
 
-#include "core/runtime/bindings/jsi/modules/lynx_module_impl.h"
+#include "core/runtime/bindings/jsi/modules/lynx_jsi_module.h"
 #include "lynx/core/runtime/bindings/jsi/interceptor/interceptor_factory.h"
 
 namespace lynx {
@@ -20,7 +20,7 @@ LynxModuleManager::~LynxModuleManager() {
 void LynxModuleManager::initBindingPtr(
     std::weak_ptr<LynxModuleManager> weak_manager,
     const std::shared_ptr<ModuleDelegate> &delegate) {
-  bindingPtr = std::make_shared<lynx::piper::LynxModuleBinding>(
+  bindingPtr = std::make_shared<lynx::piper::LynxJSIModuleBinding>(
       BindingFunc(weak_manager, delegate));
 #if ENABLE_TESTBENCH_REPLAY
   this->delegate = delegate;
@@ -50,7 +50,7 @@ std::shared_ptr<LynxModule> LynxModuleManager::GetModule(
 
   if (native_module) {
     auto lynx_module_impl =
-        std::make_shared<LynxModuleImpl>(name, delegate, native_module);
+        std::make_shared<LynxJSIModule>(name, delegate, native_module);
     native_module->SetDelegate(lynx_module_impl);
     native_module->SetRuntimeProxy(runtime_proxy);
     lynx_module = std::move(lynx_module_impl);

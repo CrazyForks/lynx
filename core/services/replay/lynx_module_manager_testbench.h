@@ -17,8 +17,8 @@ namespace lynx {
 namespace piper {
 
 using ModuleTestBenchPtr = std::shared_ptr<lynx::piper::ModuleTestBench>;
-using LynxModuleBindingPtrTestBench =
-    std::shared_ptr<lynx::piper::LynxModuleBindingTestBench>;
+using LynxJSIModuleBindingPtrTestBench =
+    std::shared_ptr<lynx::piper::LynxJSIModuleBindingTestBench>;
 
 typedef std::function<void()> InitRecordModuleDataCallback;
 
@@ -28,8 +28,8 @@ class ModuleManagerTestBench {
   void Destroy();
   void initBindingPtr(std::weak_ptr<ModuleManagerTestBench> weak_manager,
                       const std::shared_ptr<ModuleDelegate> &delegate,
-                      LynxModuleBindingPtr lynxPtr);
-  LynxModuleBindingPtrTestBench bindingPtr;
+                      LynxJSIModuleBindingPtr lynxPtr);
+  LynxJSIModuleBindingPtrTestBench bindingPtr;
   void initRecordModuleData(Runtime *rt,
                             InitRecordModuleDataCallback callback = nullptr);
 

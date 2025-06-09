@@ -23,14 +23,14 @@ lynx_core_source_set("js_common") {
 
 # jsbridge_shared_sources
 jsbridge_shared_sources = [
+  "bindings/jsi/modules/lynx_jsi_module.cc",
+  "bindings/jsi/modules/lynx_jsi_module.h",
+  "bindings/jsi/modules/lynx_jsi_module_binding.cc",
+  "bindings/jsi/modules/lynx_jsi_module_binding.h",
   "bindings/jsi/modules/lynx_jsi_module_callback.cc",
   "bindings/jsi/modules/lynx_jsi_module_callback.h",
   "bindings/jsi/modules/lynx_module.cc",
   "bindings/jsi/modules/lynx_module.h",
-  "bindings/jsi/modules/lynx_module_binding.cc",
-  "bindings/jsi/modules/lynx_module_binding.h",
-  "bindings/jsi/modules/lynx_module_impl.cc",
-  "bindings/jsi/modules/lynx_module_impl.h",
   "bindings/jsi/modules/lynx_module_manager.cc",
   "bindings/jsi/modules/lynx_module_manager.h",
   "bindings/jsi/modules/lynx_module_timing.cc",

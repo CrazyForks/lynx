@@ -16,8 +16,8 @@
 #include "base/include/vector.h"
 #include "core/public/jsb/native_module_factory.h"
 #include "core/public/lynx_runtime_proxy.h"
+#include "core/runtime/bindings/jsi/modules/lynx_jsi_module_binding.h"
 #include "core/runtime/bindings/jsi/modules/lynx_module.h"
-#include "core/runtime/bindings/jsi/modules/lynx_module_binding.h"
 #include "core/runtime/bindings/jsi/modules/module_delegate.h"
 #include "core/runtime/bindings/jsi/modules/module_interceptor.h"
 
@@ -36,11 +36,12 @@ struct LynxModuleManagerAllowList {
 };
 }  // namespace LynxModuleUtils
 
-using LynxModuleBindingPtr = std::shared_ptr<lynx::piper::LynxModuleBinding>;
+using LynxJSIModuleBindingPtr =
+    std::shared_ptr<lynx::piper::LynxJSIModuleBinding>;
 
 class LynxModuleManager {
  public:
-  LynxModuleBindingPtr bindingPtr;
+  LynxJSIModuleBindingPtr bindingPtr;
 
   LynxModuleManager() = default;
   virtual ~LynxModuleManager();

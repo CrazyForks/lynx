@@ -57,8 +57,8 @@ void ModuleManagerTestBench::initRecordModuleData(
 void ModuleManagerTestBench::initBindingPtr(
     std::weak_ptr<ModuleManagerTestBench> weak_manager,
     const std::shared_ptr<ModuleDelegate> &delegate,
-    LynxModuleBindingPtr lynxPtr) {
-  bindingPtr = std::make_shared<lynx::piper::LynxModuleBindingTestBench>(
+    LynxJSIModuleBindingPtr lynxPtr) {
+  bindingPtr = std::make_shared<lynx::piper::LynxJSIModuleBindingTestBench>(
       BindingFunc(weak_manager, delegate));
   // be used to call modules from Lynx SDK.
   bindingPtr->setLynxModuleManagerPtr(lynxPtr);

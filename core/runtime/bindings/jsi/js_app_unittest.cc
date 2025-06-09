@@ -18,7 +18,7 @@
 #include "core/runtime/bindings/jsi/js_object_destruction_observer.h"
 #include "core/runtime/bindings/jsi/lynx.h"
 #include "core/runtime/bindings/jsi/mock_module_delegate.h"
-#include "core/runtime/bindings/jsi/modules/lynx_module_impl.h"
+#include "core/runtime/bindings/jsi/modules/lynx_jsi_module.h"
 #include "core/runtime/bindings/jsi/modules/lynx_module_manager.h"
 #include "core/runtime/common/utils.h"
 #include "core/runtime/jsi/jsi.h"
