@@ -19,6 +19,10 @@
 #include "core/runtime/vm/lepus/lepus_value.h"
 
 namespace lynx {
+namespace style {
+class SimpleStyleNode;
+class StyleObject;
+}  // namespace style
 namespace tasm {
 class FiberElement;
 class RadonElement;
@@ -41,6 +45,21 @@ class StyleResolver {
   void HandlePseudoElement(CSSFragment* fragment);
 
   void ResolvePlaceHolder();
+  /**
+   * @brief Resolves differences between an old and new list of style objects,
+   *        applying changes to a target node.
+   * @param old_ptr Pointer to the array of old style objects.
+   * @param new_ptr Pointer to the array of new style objects.
+   * @param target The SimpleStyleNode to which style changes are applied.
+   *
+   * This function iterates through both old and new style object lists to
+   * determine which styles were added, removed, or remained unchanged.
+   * It calls helper functions to handle the application or removal of styles
+   * from the target node.
+   */
+  static void ResolveStyleObjects(style::StyleObject** old_ptr,
+                                  style::StyleObject** new_ptr,
+                                  style::SimpleStyleNode* target);
 
  private:
   enum class PseudoClassType { kFocus, kHover, kActive };

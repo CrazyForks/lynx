@@ -37,6 +37,7 @@
 #include "core/renderer/dom/vdom/radon/node_select_options.h"
 #include "core/renderer/dom/vdom/radon/node_selector.h"
 #include "core/renderer/page_proxy.h"
+#include "core/renderer/simple_styling/style_object.h"
 #include "core/renderer/starlight/layout/layout_object.h"
 #include "core/renderer/starlight/style/default_layout_style.h"
 #include "core/renderer/template_assembler.h"
@@ -395,6 +396,54 @@ bool FiberElement::WillResolveStyle(StyleMap &merged_styles) {
   ProcessFullRawInlineStyle();
   return true;
 }
+
+#pragma region simple styling
+
+void FiberElement::SetStyleObjects(
+    std::unique_ptr<style::StyleObject *, void (*)(style::StyleObject **)>
+        style_objects) {
+  last_style_objects_ = std::move(style_objects_);
+
+  style_objects_ = std::move(style_objects);
+
+  MarkDirty(kDirtyForceUpdate | kDirtyStyleObjects);
+}
+
+void FiberElement::UpdateSimpleStyles(const tasm::StyleMap &style_map) {
+  std::for_each(
+      style_map.begin(), style_map.end(), [this](const auto &pair) -> void {
+        EXEC_EXPR_FOR_INSPECTOR(
+            if (element_manager_ && element_manager_->IsDomTreeEnabled()) {
+              if (pair.second.IsEmpty()) {
+                data_model()->ResetInlineStyle(pair.first);
+              } else {
+                data_model()->SetInlineStyle(pair.first, pair.second);
+              }
+            });
+        if (pair.second.IsEmpty()) {
+          ResetSimpleStyle(pair.first);
+        } else {
+          this->SetStyleInternal(pair.first, pair.second);
+        }
+      });
+  EXEC_EXPR_FOR_INSPECTOR(
+      element_manager()->OnElementNodeSetForInspector(this););
+  MarkDirty(kDirtyForceUpdate);
+}
+
+void FiberElement::ResetSimpleStyle(const tasm::CSSPropertyID id) {
+  if (id == kPropertyIDFontSize) {
+    ResetFontSize();
+  }
+  ResetStyleInternal(id);
+  EXEC_EXPR_FOR_INSPECTOR({
+    if (element_manager_ && element_manager_->IsDomTreeEnabled()) {
+      data_model()->ResetInlineStyle(id);
+    }
+  });
+}
+
+#pragma endregion  // simple styling
 
 void FiberElement::AsyncResolveProperty() {
   if ((dirty_ & ~kDirtyTree) != 0) {
@@ -915,29 +964,10 @@ void FiberElement::HandleBeforeFlushActionsTask(
   }
 }
 
-ParallelFlushReturn FiberElement::PrepareForCreateOrUpdate() {
-  TRACE_EVENT(LYNX_TRACE_CATEGORY, FIBER_ELEMENT_PREPARE_FOR_CRATE_OR_UPDATE,
-              [this](lynx::perfetto::EventContext ctx) {
-                UpdateTraceDebugInfo(ctx.event());
-              });
-  bool need_update = false;
-
-  // Need process attributes first.
-  need_update = ConsumeAllAttributes();
-
-  // If it's the first flush of the element and parsed_styles_map_ is empty, we
-  // can take the fast path, directly using parsed_styles_map_ as the updated
-  // style. If the element is cloned, its parsed_styles_map_ may not be empty
-  // and be in the kDirtyCreated state at the same time.
-  bool force_use_current_parsed_style_map =
-      (dirty_ & kDirtyCreated) && parsed_styles_map_.empty();
-  StyleMap parsed_styles;
-  base::InlineVector<CSSPropertyID, 16> reset_style_ids;
-
-  if (this->parallel_flush_ && IsCSSInheritanceEnabled()) {
-    MarkDirtyLite(kDirtyPropagateInherited);
-  }
-
+void FiberElement::ResolveCSSStyles(
+    StyleMap &parsed_styles,
+    base::InlineVector<CSSPropertyID, 16> &reset_style_ids, bool &need_update,
+    bool &force_use_current_parsed_style_map) {
   if (dirty_ & kDirtyStyle) {
     TRACE_EVENT(LYNX_TRACE_CATEGORY, FIBER_ELEMENT_HANDLE_STYLE,
                 [this](lynx::perfetto::EventContext ctx) {
@@ -974,8 +1004,8 @@ ParallelFlushReturn FiberElement::PrepareForCreateOrUpdate() {
             *(inherited_property.inherited_styles_);
         if (parent_inherited_styles.find(*it) !=
             parent_inherited_styles.end()) {
-          // we need to mark flag to do self recalculation for inherited styles,
-          // if the style is updated instead of reset
+          // we need to mark flag to do self recalculation for inherited
+          // styles, if the style is updated instead of reset
           MarkDirtyLite(kDirtyPropagateInherited);
           it = reset_style_ids.erase(it);
         } else {
@@ -1021,20 +1051,20 @@ ParallelFlushReturn FiberElement::PrepareForCreateOrUpdate() {
 
     // kDirtyPropagateInherited flag is expected to be consumed in above logic
     // Special case: When PrepareForCreateOrUpdate function is executing
-    // parallel flush pass, and CSS Inheritance is enabled, CSS Styles inherited
-    // from parent element cannot be fully resolved in parallel flush pass, thus
-    // only in such scenario, kDirtyPropagateInherited flag need to preserved to
-    // force refresh in next pass
+    // parallel flush pass, and CSS Inheritance is enabled, CSS Styles
+    // inherited from parent element cannot be fully resolved in parallel
+    // flush pass, thus only in such scenario, kDirtyPropagateInherited flag
+    // need to preserved to force refresh in next pass
     dirty_ &= ~kDirtyPropagateInherited;
   }
 
   // Process reset before update styles.
 
-  // If the new animator is activated and this element has been created before,
-  // we need to reset the transition styles in advance. Additionally, the
-  // transition manager should verify each property to decide whether to
-  // intercept the reset. Therefore, we break down the operations related to the
-  // transition reset process into three steps:
+  // If the new animator is activated and this element has been created
+  // before, we need to reset the transition styles in advance. Additionally,
+  // the transition manager should verify each property to decide whether to
+  // intercept the reset. Therefore, we break down the operations related to
+  // the transition reset process into three steps:
   // 1. We check whether we need to reset transition styles in advance.
   // 2. If these styles have been reset beforehand, we can skip the transition
   // styles in the later steps.
@@ -1081,8 +1111,8 @@ ParallelFlushReturn FiberElement::PrepareForCreateOrUpdate() {
     }
 
     // Since the previous element styles cannot be accessed in element, we
-    // need to record some necessary styles which New Animator transition needs,
-    // and it needs to be saved before rtl converted logic.
+    // need to record some necessary styles which New Animator transition
+    // needs, and it needs to be saved before rtl converted logic.
     ResetElementPreviousStyle(id);
     ResetStyleInternal(id);
     need_update = true;
@@ -1098,7 +1128,8 @@ ParallelFlushReturn FiberElement::PrepareForCreateOrUpdate() {
         update_map.find(CSSPropertyID::kPropertyIDDirection) !=
         update_map.end();
     auto direction_changed = direction_reset || direction_updated;
-    // #5.3 Update element text_align depending on whether direction is changed
+    // #5.3 Update element text_align depending on whether direction is
+    // changed
     ResetTextAlign(update_map, direction_changed);
   }
 
@@ -1186,7 +1217,8 @@ ParallelFlushReturn FiberElement::PrepareForCreateOrUpdate() {
                 [this](lynx::perfetto::EventContext ctx) {
                   UpdateTraceDebugInfo(ctx.event());
                 });
-    // if kDirtyPropagateInherited, need to delay to SetStyle in inherit process
+    // if kDirtyPropagateInherited, need to delay to SetStyle in inherit
+    // process
     ConsumeStyle(update_map, IsCSSInheritanceEnabled()
                                  ? updated_inherited_styles_.get()
                                  : nullptr);
@@ -1210,15 +1242,15 @@ ParallelFlushReturn FiberElement::PrepareForCreateOrUpdate() {
                   UpdateTraceDebugInfo(ctx.event());
                 });
     do {
-      // If `dirty_ & kDirtyCreated`, the `parsed_styles_map_` has already been
-      // fully consumed, so there is no possibility of `update_map` being
+      // If `dirty_ & kDirtyCreated`, the `parsed_styles_map_` has already
+      // been fully consumed, so there is no possibility of `update_map` being
       // different from `parsed_styles_map_`. Therefore, skip this logic.
       if (dirty_ & kDirtyCreated) {
         break;
       }
 
-      // If `dynamic_style_flags_ & DynamicCSSStylesManager::kUpdateEm == false`
-      // and `root_font_size_changed` and `dynamic_style_flags_ &
+      // If `dynamic_style_flags_ & DynamicCSSStylesManager::kUpdateEm ==
+      // false` and `root_font_size_changed` and `dynamic_style_flags_ &
       // DynamicCSSStylesManager::kUpdateRem == false`, it indicates that the
       // current `parsed_styles_map_` does not contain any font size-sensitive
       // styles, and thus this part of the processing logic can be skipped.
@@ -1228,8 +1260,8 @@ ParallelFlushReturn FiberElement::PrepareForCreateOrUpdate() {
         break;
       }
 
-      // We need to reset the styles for the following style pairs because they
-      // are possibly font size-sensitive:
+      // We need to reset the styles for the following style pairs because
+      // they are possibly font size-sensitive:
       // 1. If the unit of the style property value is EM, CALC, MAP or ARRAY
       // 2. If the unit of the style property value is REM and
       // `root_font_size_changed`
@@ -1306,6 +1338,42 @@ ParallelFlushReturn FiberElement::PrepareForCreateOrUpdate() {
     }
     has_transition_props_changed_ = false;
     need_update = true;
+  }
+}
+
+ParallelFlushReturn FiberElement::PrepareForCreateOrUpdate() {
+  TRACE_EVENT(LYNX_TRACE_CATEGORY, FIBER_ELEMENT_PREPARE_FOR_CRATE_OR_UPDATE,
+              [this](lynx::perfetto::EventContext ctx) {
+                UpdateTraceDebugInfo(ctx.event());
+              });
+  bool need_update = false;
+
+  // Need process attributes first.
+  need_update = ConsumeAllAttributes();
+
+  // If it's the first flush of the element and parsed_styles_map_ is empty, we
+  // can take the fast path, directly using parsed_styles_map_ as the updated
+  // style. If the element is cloned, its parsed_styles_map_ may not be empty
+  // and be in the kDirtyCreated state at the same time.
+  bool force_use_current_parsed_style_map =
+      (dirty_ & kDirtyCreated) && parsed_styles_map_.empty();
+  StyleMap parsed_styles;
+  base::InlineVector<CSSPropertyID, 16> reset_style_ids;
+
+  if (this->parallel_flush_ && IsCSSInheritanceEnabled()) {
+    MarkDirtyLite(kDirtyPropagateInherited);
+  }
+
+  if (dirty_ & kDirtyStyleObjects) {
+    TRACE_EVENT(LYNX_TRACE_CATEGORY, "FiberElement::HandleStyleObjects");
+    StyleResolver::ResolveStyleObjects(
+        last_style_objects_ ? last_style_objects_.get() : nullptr,
+        style_objects_ ? style_objects_.get() : nullptr, this);
+    // Animation and Direction should be handled here
+    dirty_ &= ~kDirtyStyleObjects;
+  } else {
+    ResolveCSSStyles(parsed_styles, reset_style_ids, need_update,
+                     force_use_current_parsed_style_map);
   }
 
   // If above props and styles need to be updated, this patch needs trigger

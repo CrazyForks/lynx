@@ -475,6 +475,10 @@ bool LynxBinaryBaseTemplateReader::DecodeSpecificSection(
       ERROR_UNLESS(DecodeCSSDescriptor());
       break;
     }
+    case BinarySection::STYLE_OBJECT: {
+      ERROR_UNLESS(DecodeStyleObjects());
+      break;
+    }
     case BinarySection::APP: {
       ERROR_UNLESS(DecodeAppDescriptor());
       break;

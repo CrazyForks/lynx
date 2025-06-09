@@ -26,6 +26,7 @@
 #include "core/renderer/dom/fiber/pseudo_element.h"
 #include "core/renderer/dom/layout_bundle.h"
 #include "core/renderer/dom/selector/selector_item.h"
+#include "core/renderer/simple_styling/simple_style_node.h"
 #include "core/renderer/utils/base/element_template_info.h"
 
 namespace lynx {
@@ -35,7 +36,9 @@ using ParallelFlushReturn = base::closure;
 using ParallelReduceTaskQueue =
     std::list<base::OnceTaskRefptr<ParallelFlushReturn>>;
 
-class FiberElement : public Element, public SelectorItem {
+class FiberElement : public Element,
+                     public SelectorItem,
+                     public style::SimpleStyleNode {
  public:
   FiberElement(ElementManager* manager, const base::String& tag);
   FiberElement(ElementManager* manager, const base::String& tag,
@@ -151,6 +154,10 @@ class FiberElement : public Element, public SelectorItem {
   // flag used in parallel flush strategy, indicating that css variables need to
   // be resolved in next pass
   static const uint32_t kDirtyRefreshCSSVariables = 0x01 << 12;
+
+  // Flag used for SimpleStyling, if the style_object_list is modified, we need
+  // to resolve the styles again to reset those properties which are removed.
+  static constexpr uint32_t kDirtyStyleObjects = 0x01 << 13;
 
   // TODO(zhouzhitao): kSyncResolving and kResolving status will be merged later
   // with the removal of parallel_flush_ flag
@@ -513,6 +520,51 @@ class FiberElement : public Element, public SelectorItem {
   virtual StyleMap GetStylesForWorklet() override;
 
   virtual const AttrMap& GetAttributesForWorklet() override;
+
+  /**
+   * @brief Set the style objects for the current element.
+   *
+   * This method is used to assign a list of style objects to the element.
+   * The object list is managed by a custom deleter, which will be called
+   * when the unique pointer goes out of scope.
+   * @note This function is not implemented yet.
+   * @param object_list A unique pointer to an array of StyleObject pointers,
+   *                    along with a custom deleter function for the array.
+   */
+  void SetStyleObjects(
+      std::unique_ptr<style::StyleObject*, void (*)(style::StyleObject**)>
+          object_list) override final;
+
+  /**
+   * @brief Update the simple styles of the current element.
+   *
+   * This method is used to update the simple styles of the element based on
+   * the provided style map. The style map contains key-value pairs representing
+   * CSS properties and their values.
+   *
+   * @note This function is not implemented yet.
+   *
+   * @param style_map A constant reference to a tasm::StyleMap containing the
+   *                  styles to be updated.
+   */
+  void UpdateSimpleStyles(const tasm::StyleMap& style_map) override final;
+
+  /**
+   * @brief Reset the simple style associated with the specified CSS property
+   * ID.
+   *
+   * This method is intended to reset the simple style of the current element
+   * corresponding to the given CSS property ID.
+   *
+   * @note This function is not implemented yet.
+   *
+   * @param id The CSS property ID of the style to be reset.
+   */
+  void ResetSimpleStyle(const tasm::CSSPropertyID id) override final;
+  void ResolveCSSStyles(StyleMap& parsed_styles,
+                        base::InlineVector<CSSPropertyID, 16>& reset_style_ids,
+                        bool& need_update,
+                        bool& force_use_current_parsed_style_map);
 
   const base::String& GetRawInlineStyles();
 
@@ -1101,6 +1153,14 @@ class FiberElement : public Element, public SelectorItem {
       pseudo_elements_;
 
   std::unique_ptr<ListItemSchedulerAdapter> scheduler_adapter_;
+
+  // nullptr ended array for storing style objects.
+  std::unique_ptr<style::StyleObject*, void (*)(style::StyleObject**)>
+      style_objects_{nullptr, nullptr};
+
+  // For fast style object diff.
+  std::unique_ptr<style::StyleObject*, void (*)(style::StyleObject**)>
+      last_style_objects_{nullptr, nullptr};
 
  protected:
   ElementContextDelegate* element_context_delegate_{nullptr};

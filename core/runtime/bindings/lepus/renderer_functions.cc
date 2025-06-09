@@ -6983,7 +6983,7 @@ static void ReleaseStyleObjectArray(style::StyleObject** arr) {
   for (auto** p = arr; *p != nullptr; ++p) {
     (*p)->Release();
   }
-  delete[] arr;
+  free(arr);
 }
 
 static void PushStyleObjectToArray(const lepus::Value& value,
@@ -7051,14 +7051,14 @@ RENDERER_FUNCTION_CC(SetStyleObject) {
 
   if (const auto element_ref = arg0->RefCounted();
       element_ref->GetRefType() == lepus::RefType::kElement) {
-    // auto* element_ptr = static_cast<FiberElement*>(element_ref.get());
+    auto* element_ptr = static_cast<FiberElement*>(element_ref.get());
 
-    // element_ptr->SetStyleObjects(std::move(style_object_list));
-    // TRACE_EVENT(LYNX_TRACE_CATEGORY, "Devtool::ON_NODE_MODIFIED");
-    // EXEC_EXPR_FOR_INSPECTOR(GET_TASM_POINTER()
-    //                             ->page_proxy()
-    //                             ->element_manager()
-    //                             ->OnElementNodeSetForInspector(element_ptr););
+    element_ptr->SetStyleObjects(std::move(style_object_list));
+    TRACE_EVENT(LYNX_TRACE_CATEGORY, "Devtool::ON_NODE_MODIFIED");
+    EXEC_EXPR_FOR_INSPECTOR(GET_TASM_POINTER()
+                                ->page_proxy()
+                                ->element_manager()
+                                ->OnElementNodeSetForInspector(element_ptr););
   }
 
   RETURN_UNDEFINED();

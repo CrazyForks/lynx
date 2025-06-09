@@ -16,6 +16,7 @@
 #include "core/renderer/dom/fiber/fiber_element.h"
 #include "core/renderer/dom/vdom/radon/radon_element.h"
 #include "core/renderer/dom/vdom/radon/radon_node.h"
+#include "core/renderer/simple_styling/style_object.h"
 #include "core/services/feature_count/global_feature_counter.h"
 
 namespace lynx {
@@ -56,6 +57,84 @@ Element* StyleResolver::element() const {
       reinterpret_cast<uintptr_t>(this) -
       offsetof(Element, style_resolver_));  // NOLINT
 #pragma GCC diagnostic pop
+}
+
+/**
+ * @brief Handle the case where an old style object is removed.
+ *
+ * @param old_ptr Pointer to the old style object array.
+ */
+static void HandleRemovedStyleObject(style::StyleObject**& old_ptr,
+                                     style::SimpleStyleNode* element) {
+  if (old_ptr && *old_ptr) {
+    (*old_ptr)->ResetStylesInElement(element);
+    ++old_ptr;
+  }
+}
+
+/**
+ * @brief Handle the case where a new style object is added.
+ *
+ * @param new_ptr Pointer to the new style object array.
+ */
+static void HandleAddedStyleObject(style::StyleObject**& new_ptr,
+                                   style::SimpleStyleNode* element) {
+  if (new_ptr && *new_ptr) {
+    (*new_ptr)->FromBinary();
+    (*new_ptr)->BindToElement(element);
+    element->UpdateSimpleStyles((*new_ptr)->Properties()->GetStyleMap());
+    ++new_ptr;
+  }
+}
+
+/**
+ * @brief Check if a style object exists in the remaining part of the old array.
+ *
+ * @param old_ptr Pointer to the old style object array.
+ * @param new_obj Pointer to the new style object.
+ * @return true if the new object is found in the old array later, false
+ * otherwise.
+ */
+static bool IsNewObjectInOldArrayLater(style::StyleObject** old_ptr,
+                                       style::StyleObject* new_obj) {
+  style::StyleObject** temp_old_ptr = old_ptr;
+  while (temp_old_ptr && *temp_old_ptr) {
+    if (*temp_old_ptr == new_obj) {
+      return true;
+    }
+    ++temp_old_ptr;
+  }
+  return false;
+}
+
+void StyleResolver::ResolveStyleObjects(style::StyleObject** old_ptr,
+                                        style::StyleObject** new_ptr,
+                                        style::SimpleStyleNode* target) {
+  // Continue as long as there are elements in either the old or new list
+  while ((old_ptr && *old_ptr) || (new_ptr && *new_ptr)) {
+    // Case 1: New list is exhausted, so remaining old styles are removed.
+    if (!new_ptr || !(*new_ptr)) {
+      HandleRemovedStyleObject(old_ptr, target);
+      // Case 2: Old list is exhausted, so remaining new styles are added.
+    } else if (!old_ptr || !(*old_ptr)) {
+      HandleAddedStyleObject(new_ptr, target);
+      // Case 3: Both lists have elements, and they are the same.
+    } else if (*old_ptr == *new_ptr) {
+      // Elements match, move both pointers
+      ++old_ptr;
+      ++new_ptr;
+      // Case 4: Both lists have elements, but they are different.
+    } else {
+      // Check if the current new style object exists later in the old list.
+      // If it does, it means the current old style object was removed.
+      if (IsNewObjectInOldArrayLater(old_ptr, *new_ptr)) {
+        HandleRemovedStyleObject(old_ptr, target);
+        // Otherwise, the current new style object is a new addition.
+      } else {
+        HandleAddedStyleObject(new_ptr, target);
+      }
+    }
+  }
 }
 
 ElementManager* StyleResolver::manager() const {
