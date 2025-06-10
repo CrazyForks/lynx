@@ -15,9 +15,9 @@ namespace starlight {
 class LayoutObject;
 
 struct CacheEntry {
-  Constraints resolved_constraints_;
-  float border_bound_width_ = 0.f, border_bound_height_ = 0.f;
+  CompactConstraints resolved_constraints_;
   bool is_valid_ = false;
+  float border_bound_width_ = 0.f, border_bound_height_ = 0.f;
 };
 
 struct FindCacheResult {
@@ -26,7 +26,7 @@ struct FindCacheResult {
 };
 
 /*
- * The cache slots is 3 inlined and maximum to 8 to cover most cases of complex
+ * The cache slots is 2 inlined and maximum to 8 to cover most cases of complex
  * flex layout. The max size of cache(LAYOUT_RESULT_CACHE_SIZE) is determined by
  * experiment. A hand made deeply nested flex layout test case can reach almost
  * 100% cache reuse rate when the cache size is 8. Which means when cache size 8
@@ -49,7 +49,7 @@ class CacheManager {
                                           LayoutObject& target) const;
 
  private:
-  base::InlineVector<CacheEntry, 3> cache_data_;
+  base::InlineVector<CacheEntry, 2> cache_data_;
   size_t current_cache_index_ = LAYOUT_RESULT_CACHE_SIZE - 1;
 };
 

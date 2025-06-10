@@ -68,11 +68,38 @@ class OneSideConstraint {
   }
 
  private:
+  friend struct CompactConstraints;
+
   float size_;
   SLMeasureMode mode_;
 };
 
 using Constraints = DimensionValue<OneSideConstraint>;
+
+// Layout optimized struct for cache.
+struct __attribute__((packed, aligned(1))) CompactConstraints {
+  DimensionValue<float> sizes;
+  DimensionValue<SLMeasureMode> modes;
+
+  CompactConstraints() { *this = Constraints(); }
+
+  CompactConstraints& operator=(const Constraints& other) {
+    sizes[kHorizontal] = other[kHorizontal].size_;
+    sizes[kVertical] = other[kVertical].size_;
+    modes[kHorizontal] = other[kHorizontal].mode_;
+    modes[kVertical] = other[kVertical].mode_;
+    return *this;
+  }
+
+  bool operator==(const Constraints& other) const {
+    return (*this)[kHorizontal] == other[kHorizontal] &&
+           (*this)[kVertical] == other[kVertical];
+  }
+
+  OneSideConstraint operator[](Dimension dim) const {
+    return OneSideConstraint(sizes[dim], modes[dim]);
+  }
+};
 
 }  // namespace starlight
 }  // namespace lynx

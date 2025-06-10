@@ -5,7 +5,7 @@
 #ifndef CORE_RENDERER_STARLIGHT_LAYOUT_LAYOUT_GLOBAL_H_
 #define CORE_RENDERER_STARLIGHT_LAYOUT_LAYOUT_GLOBAL_H_
 
-typedef enum {
+typedef enum : unsigned char {
   SLMeasureModeIndefinite = 0,
   SLMeasureModeDefinite = 1,
   SLMeasureModeAtMost = 2
