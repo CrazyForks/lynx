@@ -708,6 +708,14 @@ export interface ListProps extends StandardProps {
   'upper-threshold-item-count'?: number;
 
   /**
+   * The property to control whether to update sticky item for diff. The default value is true if sdk version >= 3.4 and false if sdk version < 3.4.
+   * @defaultValue false
+   * @Android
+   * @iOS
+   */
+  'experimental-update-sticky-for-diff'?: boolean;
+
+  /**
    * During a single sliding process, when the upper_distance is first smaller than the value specified by upper-threshold, a scrolltoupper event is triggered. When upper_distance is already smaller than the value specified by upper-threshold, the scrolltoupper event will no longer be triggered.
    * @defaultValue  50
    * @Android

@@ -4,6 +4,7 @@
 
 - [Infra][Types] Codegen longhand and shorthand properties from css_defines
 - Add `experimental-recycle-sticky-item` and `sticky-buffer-count` for list
+- Add `experimental-update-sticky-for-diff` for list
 
 ## 3.3.2
 
