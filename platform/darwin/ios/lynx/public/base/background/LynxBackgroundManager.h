@@ -164,8 +164,8 @@ static inline bool LynxHasBorderRadii(LynxBorderRadii radii) {
 - (instancetype)initWithUI:(LynxUI*)ui;
 - (void)markBackgroundDirty;
 - (void)markMaskDirty;
-
 - (void)applyEffect;
+- (void)applyEffect:(BOOL)forceRedraw;
 - (void)updateShadow;
 - (void)removeAllAnimations;
 - (void)addAnimationToViewAndLayers:(CAAnimation*)anim forKey:(nullable NSString*)key;
@@ -201,6 +201,10 @@ static inline bool LynxHasBorderRadii(LynxBorderRadii radii) {
 
 - (void)updateBorderColor:(LynxBorderPosition)position value:(UIColor*)color;
 - (BOOL)updateBorderStyle:(LynxBorderPosition)position value:(LynxBorderStyle)style;
+
+// New methods for detaching/attaching UI
+- (nullable LynxBackgroundSubBackgroundLayer*)relinquishBackgroundLayer;
+- (nullable LynxBorderLayer*)relinquishBorderLayer;
 @end
 
 @interface LynxConverter (LynxBorderStyle)

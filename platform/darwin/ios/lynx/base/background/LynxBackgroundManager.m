@@ -1177,6 +1177,10 @@ const LynxBorderRadii LynxBorderRadiiZero = {{0, 0}, {0, 0}, {0, 0}, {0, 0},
 
 // for detailed comments, see them on LynxBackgroundManager.h
 - (void)applyEffect {
+  [self applyEffect:NO];
+}
+
+- (void)applyEffect:(BOOL)forceRedraw {
   if (!_ui || !_ui.view) {
     return;
   }
@@ -1185,7 +1189,7 @@ const LynxBorderRadii LynxBorderRadiiZero = {{0, 0}, {0, 0}, {0, 0}, {0, 0},
   CATransform3D layerTransform = _ui.view.layer.transform;
   _ui.view.layer.transform = CATransform3DIdentity;
   const CGSize newViewSize = CGSizeMake(_ui.view.frame.size.width, _ui.view.frame.size.height);
-  const BOOL isSizeChanged = !CGSizeEqualToSize(_backgroundSize, newViewSize);
+  const BOOL isSizeChanged = !CGSizeEqualToSize(_backgroundSize, newViewSize) || forceRedraw;
 
   if (isSizeChanged && [self hasBorder]) {
     // size changed, should use the new reference box calculate the borderRadius.
@@ -1231,7 +1235,7 @@ const LynxBorderRadii LynxBorderRadiiZero = {{0, 0}, {0, 0}, {0, 0}, {0, 0},
           ? LynxBgTypeShape
           : LynxBgTypeComplex;
 
-  if (borderChanged || [_backgroundInfo borderChanged]) {
+  if (borderChanged || [_backgroundInfo borderChanged] || forceRedraw) {
     if (noBorderLayer) {
       [self removeBorderLayer];
       [self applySimpleBorder];
@@ -1265,7 +1269,7 @@ const LynxBorderRadii LynxBorderRadiiZero = {{0, 0}, {0, 0}, {0, 0}, {0, 0},
   // added, we need create backgroundLayer to ensure background is below border.
   const BOOL needToCreateBackgroundLayer = _backgroundLayer == nil && !noBackgroundLayer;
   if (_isBGChangedImage || _isBGChangedNoneImage || [_backgroundInfo BGChangedImage] ||
-      [_backgroundInfo BGChangedNoneImage] || needToCreateBackgroundLayer) {
+      [_backgroundInfo BGChangedNoneImage] || needToCreateBackgroundLayer || forceRedraw) {
     if (noBackgroundLayer) {
       [self removeBackgroundLayer];
       _ui.view.layer.backgroundColor = [_backgroundInfo backgroundColor].CGColor;
@@ -1758,6 +1762,24 @@ const LynxBorderRadii LynxBorderRadiiZero = {{0, 0}, {0, 0}, {0, 0}, {0, 0},
 - (BOOL)updateBorderStyle:(LynxBorderPosition)position value:(LynxBorderStyle)style {
   return [_backgroundInfo updateBorderStyle:position value:style];
 }
+
+#pragma mark - Layer Management for Detach/Attach
+
+- (nullable LynxBackgroundSubBackgroundLayer*)relinquishBackgroundLayer {
+  LynxBackgroundSubBackgroundLayer* layer = _backgroundLayer;
+  _backgroundLayer = nil;
+  return layer;
+}
+
+- (nullable LynxBorderLayer*)relinquishBorderLayer {
+  LynxBorderLayer* layer = _borderLayer;
+  // If outlineLayer is a child of borderLayer, it goes with it.
+  // Nil out _outlineLayer in backgroundManager as its lifecycle is tied to borderLayer.
+  _outlineLayer = nil;
+  _borderLayer = nil;
+  return layer;
+}
+
 @end
 
 @implementation LynxConverter (LynxBorderStyle)

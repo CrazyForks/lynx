@@ -4114,6 +4114,48 @@ LYNX_PROP_DEFINE("hit-slop", setHitSlop, NSObject*) {
   [self applyOffset:resultPoint andRotate:rotateDeg toLayer:self.view.layer];
 }
 
+#pragma mark - Detach/Attach Layer Management
+
+- (void)detachManagedLayersFromView {
+  if (!self.view || !_backgroundManager) {
+    return;
+  }
+
+  // Detach and transfer backgroundLayer
+  LynxBackgroundSubBackgroundLayer* bgLayer = [_backgroundManager relinquishBackgroundLayer];
+
+  self.view.backgroundLayer = bgLayer;  // UIView category property takes ownership
+
+  // Detach and transfer borderLayer
+  LynxBorderLayer* borderLyr = [_backgroundManager relinquishBorderLayer];
+
+  self.view.borderLayer = borderLyr;  // UIView category property takes ownership
+}
+
+// Call this method after self.view has been set to the new UIView.
+- (void)attachManagedLayersToView {
+  if (!self.view || !_backgroundManager) {
+    return;
+  }
+
+  // Ensure the new view doesn't have stale layers from a previous LynxUI via category properties
+  self.view.backgroundLayer = nil;
+  self.view.borderLayer = nil;
+
+  // LynxBackgroundManager's internal layer references (_backgroundLayer, _borderLayer, _maskLayer,
+  // _opacityView) should be nil at this point due to the relinquish/dismantle calls during detach.
+
+  // Trigger BackgroundManager to regenerate and apply its layers and effects.
+  // applyEffect uses _ui.view (which is the new self.view) to determine size and add/configure
+  // layers.
+
+  [_backgroundManager applyEffect:YES];
+}
+
+- (void)detachView {
+  _view = nil;
+}
+
 @end
 
 @implementation LynxUITransformInfo

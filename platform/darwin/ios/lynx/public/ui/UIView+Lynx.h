@@ -3,17 +3,22 @@
 // LICENSE file in the root directory of this source tree.
 
 #import <Foundation/Foundation.h>
+#import <Lynx/LynxBackgroundManager.h>
 #import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface UIView (Lynx)
 
-@property(nonatomic, copy) NSNumber *lynxSign;
+@property(nonatomic, copy) NSNumber* lynxSign;
 
 @property(nonatomic, readwrite) BOOL lynxClickable;
 
 @property(nonatomic, readwrite) BOOL lynxEnableTapGestureSimultaneously;
+
+@property(nonatomic, readwrite, strong, nullable) LynxBackgroundSubLayer* backgroundLayer;
+
+@property(nonatomic, readwrite, strong, nullable) LynxBorderLayer* borderLayer;
 
 @end
 

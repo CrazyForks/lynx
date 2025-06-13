@@ -264,6 +264,26 @@ typedef void (^LynxNodeReadyBlock)(LynxUI*);
            forKeyPath:(nonnull NSString*)keyPath
          forAllLayers:(BOOL)forAllLayers;
 
+- (void)attachManagedLayersToView;
+
+/**
+ * @brief Detaches managed CALayers (background and border) from the LynxUI's view
+ *        and transfers their ownership to the view itself via category properties.
+ *
+ * This method is used to transfer the ownership of layers to the view itself, should call before
+ * `detachView`.
+ */
+- (void)detachManagedLayersFromView;
+
+/**
+ * @brief Detaches the underlying UIView from this LynxUI instance.
+ *
+ * This method sets the internal reference to the UIView (typically `_view`) to nil.
+ * It's used when the LynxUI no longer needs to manage the view, for example when reusing
+ * the LynxUIOwner to build another LynxView.
+ */
+- (void)detachView;
+
 @end
 
 NS_ASSUME_NONNULL_END

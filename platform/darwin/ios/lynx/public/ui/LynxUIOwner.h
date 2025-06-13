@@ -194,6 +194,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)initNewGestureInUIThread:(BOOL)enableNewGesture;
 
 - (NSInteger)getRootSign;
+
+#pragma mark - View Hierarchy Management
+- (void)detachAllUIViews;
+- (void)rebuildAllUIViewsAndHierarchy;
+
 @end
 
 NS_ASSUME_NONNULL_END

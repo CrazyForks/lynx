@@ -364,6 +364,7 @@ public class LynxBackgroundManager : NSObject, <CALayerDelegate> {
   public void LynxBackgroundManager::markBackgroundDirty();
   public void LynxBackgroundManager::markMaskDirty();
   public void LynxBackgroundManager::applyEffect();
+  public void LynxBackgroundManager::applyEffect:(BOOL forceRedraw);
   public void LynxBackgroundManager::updateShadow();
   public void LynxBackgroundManager::removeAllAnimations();
   public void LynxBackgroundManager::addAnimationToViewAndLayers:forKey:(CAAnimation *anim,[forKey] nullable NSString *key);
@@ -386,6 +387,8 @@ public class LynxBackgroundManager : NSObject, <CALayerDelegate> {
   public BOOL LynxBackgroundManager::updateOutlineStyle:(LynxBorderStyle outlineStyle);
   public void LynxBackgroundManager::updateBorderColor:value:(LynxBorderPosition position,[value] UIColor *color);
   public BOOL LynxBackgroundManager::updateBorderStyle:value:(LynxBorderPosition position,[value] LynxBorderStyle style);
+  public nullable LynxBackgroundSubBackgroundLayer * LynxBackgroundManager::relinquishBackgroundLayer();
+  public nullable LynxBorderLayer * LynxBackgroundManager::relinquishBorderLayer();
   public CGPathRef LynxBackgroundManager::createBezierPathWithRoundedRect:borderRadii:edgeInsets:(CGRect bounds,[borderRadii] LynxBorderRadii borderRadii,[edgeInsets] UIEdgeInsets edgeInsets);
   public CGPathRef LynxBackgroundManager::createBezierPathWithRoundedRect:borderRadii:(CGRect bounds,[borderRadii] LynxBorderRadii borderRadii);
 }
@@ -3639,6 +3642,9 @@ public class LynxUI : <__covariant V UIView> {
   public BOOL LynxUI::notifyParent();
   public CGFloat LynxUI::toPtWithUnitValue:fontSize:(NSString *unitValue,[fontSize] CGFloat fontSize);
   public void LynxUI::setLayerValue:forKeyPath:forAllLayers:(id value,[forKeyPath] nonnull NSString *keyPath,[forAllLayers] BOOL forAllLayers);
+  public void LynxUI::attachManagedLayersToView();
+  public void LynxUI::detachManagedLayersFromView();
+  public void LynxUI::detachView();
   public void LynxUI()::dispatchMoveToWindow:(UIWindow *window);
   public BOOL LynxUI()::containsPoint:(CGPoint point);
   public BOOL LynxUI()::containsPoint:inHitTestFrame:(CGPoint point, [inHitTestFrame] CGRect frame);
@@ -4204,6 +4210,8 @@ public class LynxUIOwner : NSObject {
   public void LynxUIOwner::updateContentOffsetForListContainer:contentSize:deltaX:deltaY:(NSInteger containerID,[contentSize] float contentSize,[deltaX] float deltaX,[deltaY] float deltaY);
   public void LynxUIOwner::initNewGestureInUIThread:(BOOL enableNewGesture);
   public NSInteger LynxUIOwner::getRootSign();
+  public void LynxUIOwner::detachAllUIViews();
+  public void LynxUIOwner::rebuildAllUIViewsAndHierarchy();
   public void LynxUIOwner(Accessibility)::addA11yMutation:sign:a11yID:toArray:(NSString *_Nonnull action, [sign] NSNumber *_Nonnull sign, [a11yID] NSString *_Nullable a11yID, [toArray] NSMutableArray *array);
   public void LynxUIOwner(Accessibility)::addA11yPropsMutation:sign:a11yID:toArray:(NSString *_Nonnull property, [sign] NSNumber *_Nonnull sign, [a11yID] NSString *_Nullable a11yID, [toArray] NSMutableArray *array);
   public void LynxUIOwner(Accessibility)::flushMutations:withBodyView:(NSMutableArray *array, [withBodyView] id< LUIBodyView > _Nullable lynxView);
@@ -4808,6 +4816,8 @@ public interface UIView(Lynx) {
   public NSNumber* UIView(Lynx)::lynxSign lynxSign;
   public BOOL UIView(Lynx)::lynxClickable lynxClickable;
   public BOOL UIView(Lynx)::lynxEnableTapGestureSimultaneously lynxEnableTapGestureSimultaneously;
+  public LynxBackgroundSubLayer* UIView(Lynx)::backgroundLayer backgroundLayer;
+  public LynxBorderLayer* UIView(Lynx)::borderLayer borderLayer;
 }
 
 public interface UIView(LynxHeroTransition) {

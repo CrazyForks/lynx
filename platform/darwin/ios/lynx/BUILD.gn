@@ -397,6 +397,7 @@ subspec_target("UnitTests") {
     "shadow_node/text/LynxTextRendererUnitTest.m",
     "ui/LynxUI+AccessibilityUnitTest.m",
     "ui/LynxUI+PropSetterUnitTest.mm",
+    "ui/LynxUIDetachUnitTest.m",
     "ui/LynxUIExposureUnitTest.h",
     "ui/LynxUIExposureUnitTest.m",
     "ui/LynxUIIntersectionObserverUnitTest.h",

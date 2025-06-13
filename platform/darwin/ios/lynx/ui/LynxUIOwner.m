@@ -1416,4 +1416,95 @@ extern NSString* const kDefaultComponentID;
   return _rootUI.rootView.tag;
 }
 
+#pragma mark - View Hierarchy Management
+
+- (void)detachAllUIViews {
+  LYNX_TRACE_SECTION(LYNX_TRACE_CATEGORY_WRAPPER, @"UI_OWNER_DETACH_ALL_VIEWS");
+  for (LynxUI* ui in _uiHolder.allValues) {
+    if (ui.view) {  // Check if view exists before detaching
+      [ui detachManagedLayersFromView];
+      // The view itself is not removed from its superview here,
+      // as createView in the next step should handle replacing it.
+      [ui detachView];
+    }
+  }
+  LYNX_TRACE_END_SECTION(LYNX_TRACE_CATEGORY_WRAPPER);
+}
+
+- (void)rebuildAllUIViewsAndHierarchy {
+  LYNX_TRACE_SECTION(LYNX_TRACE_CATEGORY_WRAPPER, @"UI_OWNER_REBUILD_ALL_VIEWS_HIERARCHY");
+  // 1. Create a new UIView for every LynxUI.
+  //    The [ui createView] method in LynxUI should handle removing the old view
+  //    from its superview and assigning a new UIView instance to ui.view.
+  for (LynxUI* ui in _uiHolder.allValues) {
+    [ui createView];  // Assumes LynxUI's createView prepares a new, unattached view.
+  }
+
+  // 2. Add the rootUI's new view to the container.
+  if (_rootUI && _rootUI.view && _containerView) {
+    _rootUI.view = _containerView;
+  } else {
+    LLogError(
+        @"LynxUIOwner: RootUI, its new view, or containerView is nil. Cannot rebuild hierarchy.");
+    LYNX_TRACE_END_SECTION(LYNX_TRACE_CATEGORY_WRAPPER);
+    return;
+  }
+
+  // 3. Recursively build the view hierarchy and apply layout for all UIs.
+  //    The root UI's frame is set first, then its children are processed.
+  [self recursivelyRebuildViewHierarchyAndApplyLayout:_rootUI];
+
+  // 4. Attach all managed layers to their new views.
+  [self reattachAllUIManagedLayers];
+
+  LYNX_TRACE_END_SECTION(LYNX_TRACE_CATEGORY_WRAPPER);
+}
+
+- (void)recursivelyRebuildViewHierarchyAndApplyLayout:(LynxUI*)ui {
+  if (!ui || !ui.view) {
+    // If the current UI or its (new) view is nil, we can't proceed for it or its children.
+    return;
+  }
+
+  // Apply the UI's stored layout properties (frame, padding, border, margin) to its new view.
+  // For the root UI, its frame might be based on _containerView.bounds or its own CSS.
+  CGRect targetFrame = ui.frame;  // Use the actual stored frame from the LynxUI object
+  if (ui == _rootUI && _containerView) {
+    // Example: Root UI might take full container bounds if not otherwise specified by its own
+    // layout. This depends on how root UI's frame is determined. For now, assume ui.frame is
+    // correct. targetFrame = _containerView.bounds; // Or use ui.frame if it's already calculated.
+  }
+
+  [ui updateFrame:targetFrame
+              withPadding:ui.padding  // Use actual stored padding
+                   border:ui.border   // Use actual stored border
+                   margin:ui.margin   // Use actual stored margin
+      withLayoutAnimation:NO];        // No animations during this structural rebuild
+
+  // Now, for the current 'ui' (which is a parent), iterate its LynxUI children.
+  // Add each child's new view to the parent's (ui.view) new view.
+  NSArray<LynxUI*>* children = ui.children;  // children are LynxUI objects
+  for (NSUInteger i = 0; i < children.count; ++i) {
+    LynxUI* childUI = children[i];
+    if (childUI && childUI.view) {  // childUI.view is already the new one
+      // Add child's new view to the parent's (ui) new view, maintaining order.
+      [ui.view insertSubview:childUI.view atIndex:i];
+
+      // Recursively call this method for the child.
+      // This will apply childUI's layout to childUI.view and then process its children.
+      [self recursivelyRebuildViewHierarchyAndApplyLayout:childUI];
+    }
+  }
+}
+
+- (void)reattachAllUIManagedLayers {
+  LYNX_TRACE_SECTION(LYNX_TRACE_CATEGORY_WRAPPER, @"UI_OWNER_REATTACH_ALL_LAYERS");
+  for (LynxUI* ui in _uiHolder.allValues) {
+    if (ui.view) {  // Ensure the new view exists
+      [ui attachManagedLayersToView];
+    }
+  }
+  LYNX_TRACE_END_SECTION(LYNX_TRACE_CATEGORY_WRAPPER);
+}
+
 @end
