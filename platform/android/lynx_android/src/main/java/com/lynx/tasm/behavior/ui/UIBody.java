@@ -54,6 +54,13 @@ public class UIBody extends UIGroup<UIBodyView> {
     initialize();
   }
 
+  public void detachUIBodyView() {
+    // process view info
+    processViewInfo();
+    // detach
+    detachWithView();
+  }
+
   @Override
   public void initialize() {
     super.initialize();
