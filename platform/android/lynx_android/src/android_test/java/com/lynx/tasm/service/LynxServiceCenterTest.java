@@ -10,6 +10,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.auto.service.AutoService;
+import com.lynx.tasm.LynxViewBuilder;
 import java.lang.reflect.Method;
 import java.util.Map;
 import org.junit.Assert;
@@ -34,6 +35,8 @@ public class LynxServiceCenterTest {
     public Map<String, Object> getAllValues() {
       return null;
     }
+    @Override
+    public void parseLynxViewBuilder(@NonNull LynxViewBuilder builder) {}
   }
 
   @Test

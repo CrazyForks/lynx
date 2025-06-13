@@ -2206,6 +2206,7 @@ public interface com::lynx::tasm::service::ILynxTrailService {
   public String com.lynx.tasm.service.ILynxTrailService.stringValueForTrailKey(@NonNull String key);
   public Object com.lynx.tasm.service.ILynxTrailService.objectValueForTrailKey(@NonNull String key);
   public Map< String, Object > com.lynx.tasm.service.ILynxTrailService.getAllValues();
+  public void com.lynx.tasm.service.ILynxTrailService.parseLynxViewBuilder(@NonNull LynxViewBuilder builder);
 }
 
 public interface com::lynx::tasm::behavior::ILynxUIRenderer {
@@ -6161,6 +6162,8 @@ public class com::lynx::tasm::LynxViewBuilder :  {
   public com.lynx.tasm.LynxViewBuilder.LynxViewBuilder();
   public com.lynx.tasm.LynxViewBuilder.LynxViewBuilder(Context context);
   public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.setTemplateProvider(@Nullable AbsTemplateProvider provider);
+  public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.setUri(@Nullable Uri uri);
+  public Uri com.lynx.tasm.LynxViewBuilder.getUri();
   public void com.lynx.tasm.LynxViewBuilder.setCustomBehaviorRegistry(@Nullable BehaviorRegistry registry);
   public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.setBehaviors(@Nullable List< Behavior > bundle);
   public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.addBehaviors(@NonNull List< Behavior > bundle);
@@ -6215,12 +6218,13 @@ public class com::lynx::tasm::LynxViewBuilder :  {
   public void com.lynx.tasm.LynxViewBuilder.setTemplateResourceFetcher(@NonNull LynxTemplateResourceFetcher fetcher);
   public void com.lynx.tasm.LynxViewBuilder.setEnableGenericResourceFetcher(LynxBooleanOption enabled);
   public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.setLynxViewConfig(Map< String, String > map);
+  public Map< String, String > com.lynx.tasm.LynxViewBuilder.getLynxViewConfig();
+  public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.insertLynxViewConfig(String key, String value);
   public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.setEmbeddedMode(EmbeddedMode embeddedMode);
   public static void com.lynx.tasm.LynxViewBuilder.setDefaultDensity(Float density);
 }
 
 public enum com::lynx::tasm::utils::LynxViewBuilderProperty {
-  public com.lynx.tasm.utils.LynxViewBuilderProperty.AUTO_CONCURRENCY AUTO_CONCURRENCY;
   public com.lynx.tasm.utils.LynxViewBuilderProperty.PLATFORM_CONFIG PLATFORM_CONFIG;
   public com.lynx.tasm.utils.LynxViewBuilderProperty.LynxViewBuilderProperty(String key);
   public String com.lynx.tasm.utils.LynxViewBuilderProperty.getKey();
@@ -6317,10 +6321,6 @@ public class com::lynx::tasm::LynxViewClientGroupV2 : com.lynx.tasm.LynxViewClie
 public class com::lynx::tasm::LynxViewClientV2 :  {
   public void com.lynx.tasm.LynxViewClientV2.onPageStarted(@Nullable LynxView lynxView, @NonNull LynxPipelineInfo info);
   public void com.lynx.tasm.LynxViewClientV2.onPerformanceEvent(@NonNull PerformanceEntry entry);
-}
-
-public class com::lynx::tasm::utils::LynxViewConfigProcessor :  {
-  public static void com.lynx.tasm.utils.LynxViewConfigProcessor.parseForLynxViewBuilder( @Nullable Map< String, String > lynxViewConfig, @NonNull LynxViewBuilder lynxViewBuilder);
 }
 
 public interface com::lynx::tasm::navigator::LynxViewCreationListener {

@@ -4,9 +4,12 @@
 package com.lynx.tasm.utils;
 
 public enum LynxViewBuilderProperty {
-  // value with 1 or 0
-  AUTO_CONCURRENCY("auto_concurrency"),
+  /**
+   * @param key platform_config, value: json string
+   * Set the platform_config for LynxViewBuilder.LynxViewConfig.
+   */
   PLATFORM_CONFIG("platform_config");
+
   private final String key;
   LynxViewBuilderProperty(String key) {
     this.key = key;

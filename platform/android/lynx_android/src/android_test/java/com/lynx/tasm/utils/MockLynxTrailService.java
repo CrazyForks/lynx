@@ -6,6 +6,7 @@ package com.lynx.tasm.utils;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
+import com.lynx.tasm.LynxViewBuilder;
 import com.lynx.tasm.service.ILynxTrailService;
 import java.util.Map;
 
@@ -33,4 +34,7 @@ public class MockLynxTrailService implements ILynxTrailService {
   public Map<String, Object> getAllValues() {
     return mTrailMap;
   }
+
+  @Override
+  public void parseLynxViewBuilder(@NonNull LynxViewBuilder builder) {}
 }

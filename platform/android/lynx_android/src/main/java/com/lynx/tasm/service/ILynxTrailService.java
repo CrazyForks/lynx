@@ -6,6 +6,7 @@ package com.lynx.tasm.service;
 import android.content.Context;
 import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
+import com.lynx.tasm.LynxViewBuilder;
 import java.util.Map;
 
 @Keep
@@ -43,4 +44,10 @@ public interface ILynxTrailService extends IServiceProvider {
    * Get all values for key from experiment.
    */
   Map<String, Object> getAllValues();
+
+  /**
+   * Parse lynx view builder
+   * @param builder
+   */
+  void parseLynxViewBuilder(@NonNull LynxViewBuilder builder);
 }

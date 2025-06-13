@@ -4,6 +4,7 @@
 package com.lynx.tasm;
 
 import android.content.Context;
+import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -23,8 +24,9 @@ import com.lynx.tasm.provider.LynxResourceProvider;
 import com.lynx.tasm.resourceprovider.generic.LynxGenericResourceFetcher;
 import com.lynx.tasm.resourceprovider.media.LynxMediaResourceFetcher;
 import com.lynx.tasm.resourceprovider.template.LynxTemplateResourceFetcher;
+import com.lynx.tasm.service.ILynxTrailService;
+import com.lynx.tasm.service.LynxServiceCenter;
 import com.lynx.tasm.utils.DisplayMetricsHolder;
-import com.lynx.tasm.utils.LynxViewConfigProcessor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,6 +98,8 @@ public class LynxViewBuilder {
 
   EmbeddedMode embeddedMode = EmbeddedMode.UNSET;
 
+  Uri uri = null;
+
   public LynxViewBuilder() {
     LynxEnv.inst().lazyInitIfNeeded();
     lynxRuntimeOptions = new LynxBackgroundRuntimeOptions();
@@ -116,6 +120,25 @@ public class LynxViewBuilder {
   public LynxViewBuilder setTemplateProvider(@Nullable AbsTemplateProvider provider) {
     templateProvider = provider;
     return this;
+  }
+
+  /**
+   * @brief set the uri for LynxView, which will be parsed by ILynxTrailService in building
+   * LynxView.
+   * @param uri uri for LynxView
+   * @return this
+   */
+  public LynxViewBuilder setUri(@Nullable Uri uri) {
+    this.uri = uri;
+    return this;
+  }
+
+  /**
+   * @brief get the uri of LynxView
+   * @return uri of LynxView
+   */
+  public Uri getUri() {
+    return uri;
   }
 
   public void setCustomBehaviorRegistry(@Nullable BehaviorRegistry registry) {
@@ -505,7 +528,10 @@ public class LynxViewBuilder {
 
   public LynxView build(@NonNull Context context) {
     TraceEvent.beginSection(TraceEventDef.LYNXVIEW_BUILDER_BUILD);
-    LynxViewConfigProcessor.parseForLynxViewBuilder(lynxViewConfig, this);
+    ILynxTrailService trailService = LynxServiceCenter.inst().getService(ILynxTrailService.class);
+    if (trailService != null) {
+      trailService.parseLynxViewBuilder(this);
+    }
     LynxView lynxView = new LynxView(context, this);
     if (TraceEvent.enableTrace()) {
       HashMap<String, String> args = new HashMap<>();
@@ -597,6 +623,24 @@ public class LynxViewBuilder {
    */
   public LynxViewBuilder setLynxViewConfig(Map<String, String> map) {
     lynxViewConfig = map;
+    return this;
+  }
+
+  public Map<String, String> getLynxViewConfig() {
+    return lynxViewConfig;
+  }
+
+  /**
+   * insert a key-value pair into lynxViewConfig if the key does not exist, otherwise ignored.
+   * @param key
+   * @param value
+   * @return
+   */
+  public LynxViewBuilder insertLynxViewConfig(String key, String value) {
+    if (lynxViewConfig == null) {
+      lynxViewConfig = new HashMap<>();
+    }
+    lynxViewConfig.putIfAbsent(key, value);
     return this;
   }
 
