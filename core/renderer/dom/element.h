@@ -671,6 +671,8 @@ class Element : public lepus::RefCounted {
 
   virtual int32_t GetMemoryUsage() const { return sizeof(*this); }
 
+  virtual bool is_page() const { return false; }
+
  protected:
   Element(const Element&, bool clone_resolved_props);
 

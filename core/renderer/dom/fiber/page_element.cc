@@ -137,5 +137,30 @@ void PageElement::SetCSSID(int32_t id) {
   ComponentElement::SetComponentCSSID(id);
 }
 
+/**
+ * Reference {@link LayoutContext#Layout }
+ */
+void PageElement::Layout() {
+  element_manager()->OnUpdateViewport(
+      element_manager_->viewport_.width, element_manager_->viewport_.width_mode,
+      element_manager_->viewport_.height,
+      element_manager_->viewport_.height_mode, false);
+  sl_node_->ReLayout();
+
+  if (!(sl_node_->IsDirty())) {
+    return;
+  }
+
+  UpdateLayoutInfoRecursively();
+
+  element_container()->UpdateLayout(left_, top_, false);
+
+  painting_context()->UpdateLayoutPatching();
+
+  painting_context()->OnFirstScreen();
+
+  painting_context()->UpdateNodeReadyPatching();
+}
+
 }  // namespace tasm
 }  // namespace lynx

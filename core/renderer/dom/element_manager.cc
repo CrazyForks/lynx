@@ -422,10 +422,19 @@ void ElementManager::CheckAndProcessSlotForInspector(Element *element) {
 void ElementManager::RequestLayout(
     const std::shared_ptr<PipelineOptions> &options) {
   TRACE_EVENT(LYNX_TRACE_CATEGORY, ELEMENT_MANAGER_REQUEST_LAYOUT);
-  if (enable_diff_without_layout_) {
-    delegate_->SetEnableLayout();
-  } else {
-    DispatchLayoutUpdates(options);
+  if (!IsLayoutInElementModeOn()) {
+    if (enable_diff_without_layout_) {
+      delegate_->SetEnableLayout();
+    } else {
+      DispatchLayoutUpdates(options);
+    }
+    return;
+  }
+
+  if (has_viewport_ready_ && root()->is_page() &&
+      static_cast<PageElement *>(root())->slnode()->IsDirty()) {
+    static_cast<PageElement *>(root())->Layout();
+    painting_context()->FinishLayoutOperation(options);
   }
 }
 
@@ -705,10 +714,77 @@ void ElementManager::UpdateViewport(float width, SLMeasureMode width_mode,
   OnUpdateViewport(width, width_mode, height, height_mode, need_layout);
 }
 
+/**
+ * Reference {@link LayoutContext#UpdateViewport}
+ */
 void ElementManager::OnUpdateViewport(float width, int width_mode, float height,
                                       int height_mode, bool need_layout) {
-  delegate_->OnUpdateViewport(width, width_mode, height, height_mode,
-                              need_layout);
+  if (!IsLayoutInElementModeOn()) {
+    delegate_->OnUpdateViewport(width, width_mode, height, height_mode,
+                                need_layout);
+    return;
+  }
+
+  viewport_.UpdateViewport(width, width_mode, height, height_mode);
+  has_viewport_ready_ = true;
+
+  SetViewportSizeToRootNode();
+}
+
+/**
+ * Reference {@link LayoutContext#SetViewportSizeToRootNode }
+ */
+bool ElementManager::SetViewportSizeToRootNode() {
+  if (!root() || !root()->is_page() || !has_viewport_ready_) {
+    return false;
+  }
+
+  auto *page = static_cast<PageElement *>(root());
+  bool is_dirty = false;
+  switch (viewport_.width_mode) {
+    case SLMeasureModeDefinite:
+      is_dirty |= page->slnode()->GetCSSMutableStyle()->SetWidth(
+          starlight::NLength::MakeUnitNLength(viewport_.width));
+      is_dirty |= page->slnode()->GetCSSMutableStyle()->SetMaxWidth(
+          starlight::DefaultLayoutStyle::SL_DEFAULT_MAX_WIDTH());
+      break;
+    case SLMeasureModeAtMost:
+      // When max width is set, the pre width mode must be clear
+      is_dirty |= page->slnode()->GetCSSMutableStyle()->SetWidth(
+          starlight::NLength::MakeAutoNLength());
+      is_dirty |= page->slnode()->GetCSSMutableStyle()->SetMaxWidth(
+          starlight::NLength::MakeUnitNLength(viewport_.width));
+      break;
+    case SLMeasureModeIndefinite:
+      is_dirty |= page->slnode()->GetCSSMutableStyle()->SetWidth(
+          starlight::NLength::MakeAutoNLength());
+      is_dirty |= page->slnode()->GetCSSMutableStyle()->SetMaxWidth(
+          starlight::DefaultLayoutStyle::SL_DEFAULT_MAX_WIDTH());
+      break;
+  }
+
+  switch (viewport_.height_mode) {
+    case SLMeasureModeDefinite:
+      is_dirty |= page->slnode()->GetCSSMutableStyle()->SetHeight(
+          starlight::NLength::MakeUnitNLength(viewport_.height));
+      is_dirty |= page->slnode()->GetCSSMutableStyle()->SetMaxHeight(
+          starlight::DefaultLayoutStyle::SL_DEFAULT_MAX_HEIGHT());
+      break;
+    case SLMeasureModeAtMost:
+      // When max height is set, the pre height mode must be clear
+      is_dirty |= page->slnode()->GetCSSMutableStyle()->SetHeight(
+          starlight::NLength::MakeAutoNLength());
+      is_dirty |= page->slnode()->GetCSSMutableStyle()->SetMaxHeight(
+          starlight::NLength::MakeUnitNLength(viewport_.height));
+      break;
+    case SLMeasureModeIndefinite:
+      is_dirty |= page->slnode()->GetCSSMutableStyle()->SetHeight(
+          starlight::NLength::MakeAutoNLength());
+      is_dirty |= page->slnode()->GetCSSMutableStyle()->SetMaxHeight(
+          starlight::DefaultLayoutStyle::SL_DEFAULT_MAX_HEIGHT());
+      break;
+  }
+  return is_dirty;
 }
 
 void ElementManager::SetRootOnLayout(int32_t id) {
@@ -1294,6 +1370,9 @@ void ElementManager::OnPatchFinishForFiber(
       }
     }
     dirty_stacking_contexts_.clear();
+    if (need_layout_ && !(options->has_layout)) {
+      options->has_layout = need_layout_;
+    }
     patch_finish_callback(true);
     need_layout_ = false;
   }
@@ -1442,6 +1521,14 @@ void ElementManager::ClearExtremeParsedStyles() {
   if (likely(root_ && root_->is_fiber_element())) {
     ClearExtremeParsedStylesRecursively(static_cast<FiberElement *>(root()));
   }
+}
+
+void ElementManager::SetPageOptions(const PageOptions &options) {
+  page_options_ = options;
+
+  enable_layout_in_element_mode_ =
+      page_options_.GetEmbeddedMode() == EmbeddedMode::LAYOUT_IN_ELEMENT ||
+      page_options_.GetEmbeddedMode() == EmbeddedMode::EMBEDDED_MODE_ALL;
 }
 
 }  // namespace tasm

@@ -2576,6 +2576,7 @@ void FiberElement::FlushProps() {
       CheckHasInlineContainer(real_parent);
     }
     AttachLayoutNode(prop_bundle_);
+    EnsureSLNode();
 
     // FIXME(linxs): any other case has platform layout nodes??
     is_virtual_ = IsShadowNodeVirtual();
@@ -2596,6 +2597,7 @@ void FiberElement::FlushProps() {
     is_layout_only_ = is_layout_only;
     // native layer don't flatten.
     CreateElementContainer(platform_is_flatten);
+    OnElementContainerCreated();
     has_painting_node_ = true;
   }
   has_transition_props_changed_ = false;
@@ -2620,57 +2622,116 @@ void FiberElement::RecursivelyMarkChildrenCSSVariableDirty(
   }
 }
 
+void FiberElement::EnsureSLNode() {
+  if (sl_node_ == nullptr) {
+    sl_node_ = std::make_unique<SLNode>(
+        element_manager()->GetLayoutConfigs(),
+        computed_css_style()->GetLayoutComputedStyle());
+    if (is_page()) {
+      MarkAsLayoutRoot();
+    }
+  }
+}
+
 void FiberElement::EnsureLayoutBundle() {
+  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+    return;
+  }
+
   if (layout_bundle_ == nullptr) {
     layout_bundle_ = std::make_unique<LayoutBundle>();
   }
 }
 
 void FiberElement::UpdateTagToLayoutBundle() {
+  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+    return;
+  }
+
   EnsureLayoutBundle();
   layout_bundle_->tag = tag_;
 }
 
 void FiberElement::InitLayoutBundle() {
+  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+    return;
+  }
+
   EnsureLayoutBundle();
   layout_bundle_->tag = tag_;
   layout_bundle_->is_create_bundle = true;
 }
 
 void FiberElement::MarkAsLayoutRoot() {
+  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+    EnsureSLNode();
+    // The default flex direction is column for root
+    sl_node_->GetCSSMutableStyle()->SetFlexDirection(
+        starlight::FlexDirectionType::kColumn);
+    sl_node_->SetContext(element_manager());
+    sl_node_->MarkDirty();
+    return;
+  }
+
   EnsureLayoutBundle();
   layout_bundle_->is_root = true;
 }
 
 void FiberElement::MarkLayoutDirty() {
+  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+    EnsureSLNode();
+    MarkLayoutDirtyLite();
+    return;
+  }
+
   EnsureLayoutBundle();
   layout_bundle_->is_dirty = true;
 }
 
 void FiberElement::AttachLayoutNode(const fml::RefPtr<PropBundle> &props) {
+  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+    return;
+  }
+
   EnsureLayoutBundle();
   layout_bundle_->shadownode_prop_bundle = props;
   layout_bundle_->allow_inline = allow_layoutnode_inline_;
 }
 
 void FiberElement::UpdateLayoutNodeProps(const fml::RefPtr<PropBundle> &props) {
+  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+    return;
+  }
+
   EnsureLayoutBundle();
   layout_bundle_->update_prop_bundles.emplace_back(props);
 }
 
 void FiberElement::UpdateLayoutNodeStyle(CSSPropertyID css_id,
                                          const tasm::CSSValue &value) {
+  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+    return;
+  }
+
   EnsureLayoutBundle();
   layout_bundle_->styles.emplace_back(css_id, value);
 }
 
 void FiberElement::ResetLayoutNodeStyle(tasm::CSSPropertyID css_id) {
+  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+    return;
+  }
+
   EnsureLayoutBundle();
   layout_bundle_->reset_styles.emplace_back(css_id);
 }
 
 void FiberElement::UpdateLayoutNodeFontSize(double cur_node_font_size,
                                             double root_node_font_size) {
+  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+    return;
+  }
+
   EnsureLayoutBundle();
   layout_bundle_->font_scale = element_manager_->GetLynxEnvConfig().FontScale();
   layout_bundle_->cur_node_font_size = cur_node_font_size;
@@ -2679,11 +2740,20 @@ void FiberElement::UpdateLayoutNodeFontSize(double cur_node_font_size,
 
 void FiberElement::UpdateLayoutNodeAttribute(starlight::LayoutAttribute key,
                                              const lepus::Value &value) {
+  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+    return;
+  }
+
   EnsureLayoutBundle();
   layout_bundle_->attrs.emplace_back(std::make_pair(key, value));
 }
 
 void FiberElement::UpdateLayoutNodeByBundle() {
+  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+    EnsureSLNode();
+    return;
+  }
+
   if (layout_bundle_ == nullptr) {
     return;
   }
@@ -2792,6 +2862,12 @@ void FiberElement::ResolveStyleValue(CSSPropertyID id,
       PushToBundle(id);
     }
   }
+
+  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+    if (LayoutNode::IsLayoutWanted(id)) {
+      MarkLayoutDirtyLite();
+    }
+  }
 }
 
 void FiberElement::SetFontSize() {
@@ -2830,12 +2906,14 @@ void FiberElement::SetFontSize() {
       UpdateLayoutNodeFontSize(*result, GetRecordedRootFontSize());
     }
 
-    PreparePropBundleIfNeed();
+    if (element_manager() && !element_manager()->IsLayoutInElementModeOn()) {
+      PreparePropBundleIfNeed();
 
-    prop_bundle_->SetProps(
-        CSSProperty::GetPropertyName(CSSPropertyID::kPropertyIDFontSize)
-            .c_str(),
-        *result);
+      prop_bundle_->SetProps(
+          CSSProperty::GetPropertyName(CSSPropertyID::kPropertyIDFontSize)
+              .c_str(),
+          *result);
+    }
     if (is_page() && !parallel_flush_) {
       // TODO(zhouzhitao): to find a better way to make this work
       MarkFontSizeInvalidateRecursively();
@@ -2875,6 +2953,14 @@ Element *FiberElement::Sibling(int offset) const {
 
 void FiberElement::InsertLayoutNode(FiberElement *child, FiberElement *ref) {
   DCHECK(!ref || !ref->is_wrapper());
+  if (element_manager_ && element_manager_->IsLayoutInElementModeOn()) {
+    EnsureSLNode();
+    child->EnsureSLNode();
+    sl_node_->InsertChildBefore(child->sl_node_.get(),
+                                ref ? ref->sl_node_.get() : nullptr);
+    return;
+  }
+
   if (child->attached_to_layout_parent_) {
     LOGE("FiberElement layout node already inserted !");
     this->LogNodeInfo();
@@ -2889,6 +2975,11 @@ void FiberElement::InsertLayoutNode(FiberElement *child, FiberElement *ref) {
 }
 
 void FiberElement::RemoveLayoutNode(FiberElement *child) {
+  if (element_manager_ && element_manager_->IsLayoutInElementModeOn()) {
+    sl_node_->RemoveChild(child->sl_node_.get());
+    return;
+  }
+
   EnqueueLayoutTask([element_manager = element_manager(), id = id_,
                      child_id = child->impl_id()]() {
     element_manager->RemoveLayoutNode(id, child_id);
@@ -3740,6 +3831,77 @@ void FiberElement::CreateListItemScheduler(
 bool FiberElement::CanBeLayoutOnly() const {
   return can_be_layout_only_ && element_manager()->GetEnableLayoutOnly() &&
          has_layout_only_props_ && overflow_ == OVERFLOW_XY;
+}
+
+void FiberElement::MarkLayoutDirtyLite() {
+  EnsureSLNode();
+  sl_node_->MarkDirty();
+}
+
+/**
+ * Reference {@link LayoutContext#IfNeedsUpdateLayoutInfo }
+ */
+bool FiberElement::IfNeedsUpdateLayoutInfo() {
+  if (sl_node_ == nullptr) {
+    return false;
+  }
+
+  return sl_node_->GetHasNewLayout();
+}
+
+/**
+ * Reference {@link LayoutContext#LayoutRecursively }
+ */
+void FiberElement::UpdateLayoutInfoRecursively() {
+  if (!is_wrapper()) {
+    if (sl_node_ == nullptr || !(sl_node_->IsDirty())) {
+      return;
+    }
+
+    if (IfNeedsUpdateLayoutInfo()) {
+      UpdateLayoutInfo();
+    }
+
+    sl_node_->MarkUpdated();
+  }
+
+  for (auto &child : scoped_children_) {
+    child->UpdateLayoutInfoRecursively();
+  }
+}
+
+/**
+ * Reference {@link LayoutContext#UpdateLayoutInfo }
+ */
+void FiberElement::UpdateLayoutInfo() {
+  const auto &layout_result = sl_node_->GetLayoutResult();
+  width_ = layout_result.size_.width_;
+  height_ = layout_result.size_.height_;
+  top_ = layout_result.offset_.Y();
+  left_ = layout_result.offset_.X();
+  // paddings
+  paddings_[0] = layout_result.padding_[starlight::kLeft];
+  paddings_[1] = layout_result.padding_[starlight::kTop];
+  paddings_[2] = layout_result.padding_[starlight::kRight];
+  paddings_[3] = layout_result.padding_[starlight::kBottom];
+  // margins
+  margins_[0] = layout_result.margin_[starlight::kLeft];
+  margins_[1] = layout_result.margin_[starlight::kTop];
+  margins_[2] = layout_result.margin_[starlight::kRight];
+  margins_[3] = layout_result.margin_[starlight::kBottom];
+  // borders
+  borders_[0] = layout_result.border_[starlight::kLeft];
+  borders_[1] = layout_result.border_[starlight::kTop];
+  borders_[2] = layout_result.border_[starlight::kRight];
+  borders_[3] = layout_result.border_[starlight::kBottom];
+
+  frame_changed_ = true;
+}
+
+void FiberElement::SetMeasureFunc(void *context,
+                                  starlight::SLMeasureFunc measure_func) {
+  sl_node_->SetContext(context);
+  sl_node_->SetSLMeasureFunc(std::move(measure_func));
 }
 
 #if ENABLE_TRACE_PERFETTO

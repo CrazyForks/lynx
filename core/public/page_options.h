@@ -45,11 +45,16 @@ enum EmbeddedMode {
   ENGINE_POOL = 1 << 1,
 
   /**
+   *  Integrate Layout with Element
+   */
+  LAYOUT_IN_ELEMENT = 1 << 2,
+
+  /**
    * Combination of all optimization options
    *
    * Note: When adding new optimization options, update this value
    */
-  EMBEDDED_MODE_ALL = EMBEDDED_MODE_BASE | ENGINE_POOL
+  EMBEDDED_MODE_ALL = EMBEDDED_MODE_BASE | ENGINE_POOL | LAYOUT_IN_ELEMENT
 };
 
 /// Common options shared by components within a Lynx page.
@@ -78,6 +83,8 @@ struct PageOptions {
   bool GetLongTaskMonitorDisabled() const { return long_task_disabled_; }
 
   void SetEmbeddedMode(EmbeddedMode mode) { embedded_mode_ = mode; }
+
+  EmbeddedMode GetEmbeddedMode() const { return embedded_mode_; }
 
   bool IsEmbeddedModeOn() const {
     return embedded_mode_ != EmbeddedMode::UNSET;

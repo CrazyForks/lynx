@@ -499,7 +499,7 @@ class ElementManager : public ElementContextDelegate {
     return false;
   }
 
-  void SetPageOptions(const PageOptions &options) { page_options_ = options; }
+  void SetPageOptions(const PageOptions &options);
 
   const PageOptions &GetPageOptions() { return page_options_; }
 
@@ -1132,6 +1132,12 @@ class ElementManager : public ElementContextDelegate {
 
   int32_t CalcTotalMemoryUsageDiff();
 
+  bool IsEmbeddedModeOn() const { return page_options_.IsEmbeddedModeOn(); }
+
+  inline bool IsLayoutInElementModeOn() const {
+    return enable_layout_in_element_mode_;
+  }
+
  protected:
   /**
    * call this function after exec OnPatchFinishForFiber
@@ -1170,8 +1176,8 @@ class ElementManager : public ElementContextDelegate {
   ElementManager &operator=(const ElementManager &) = delete;
   void OnListComponentUpdated(const std::shared_ptr<PipelineOptions> &options);
   void DispatchLayoutUpdates(const std::shared_ptr<PipelineOptions> &options);
+  bool SetViewportSizeToRootNode();
 
-  bool IsEmbeddedModeOn() const { return page_options_.IsEmbeddedModeOn(); }
   const int instance_id_;
   int32_t element_id_{kInitialImplId};
 
@@ -1235,6 +1241,8 @@ class ElementManager : public ElementContextDelegate {
   bool css_fragment_parsing_tasm_worker_thread_{false};
 
   bool enable_fiber_element_memory_reporter_{false};
+  bool enable_layout_in_element_mode_{false};
+  bool has_viewport_ready_{true};
 
   LynxEnvConfig lynx_env_config_;
   std::shared_ptr<PageConfig> config_;
@@ -1293,6 +1301,9 @@ class ElementManager : public ElementContextDelegate {
  public:
   // fixed node attached to the page node.
   std::list<tasm::ElementContainer *> fixed_node_list_;
+
+  // member for embedded mode
+  Viewport viewport_;
 };
 }  // namespace tasm
 }  // namespace lynx

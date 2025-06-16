@@ -177,7 +177,6 @@ class FiberElement : public Element,
 
   // for Fiber specific
   virtual bool is_component() const { return false; }
-  virtual bool is_page() const { return false; }
   virtual bool is_scroll_view() const { return false; }
   virtual bool is_raw_text() const { return false; }
 
@@ -908,6 +907,14 @@ class FiberElement : public Element,
 
   virtual int32_t GetMemoryUsage() const override { return sizeof(*this); }
 
+  inline SLNode* slnode() const {
+    if (sl_node_ != nullptr) {
+      return sl_node_.get();
+    }
+
+    return nullptr;
+  }
+
  protected:
   FiberElement(const FiberElement& element, bool clone_resolved_props);
 
@@ -960,6 +967,12 @@ class FiberElement : public Element,
       const base::String& attribute_key);
 
   bool ShouldDestroy() const;
+
+  void UpdateLayoutInfoRecursively();
+
+  void SetMeasureFunc(void* context, starlight::SLMeasureFunc measure_func);
+
+  virtual void OnElementContainerCreated() {}
 
  private:
   friend class WrapperElement;
@@ -1024,6 +1037,14 @@ class FiberElement : public Element,
   void DoFullCSSResolving();
   const tasm::CSSValue& ResolveCurrentStyleValue(
       const CSSPropertyID& key, const tasm::CSSValue& default_value);
+
+  void UpdateLayoutInfo();
+
+  void MarkLayoutDirtyLite();
+
+  bool IfNeedsUpdateLayoutInfo();
+
+  void EnsureSLNode();
 
   // relevant to hierarchy
   base::InlineVector<fml::RefPtr<FiberElement>, kChildrenInlineVectorSize>
@@ -1164,6 +1185,8 @@ class FiberElement : public Element,
 
  protected:
   ElementContextDelegate* element_context_delegate_{nullptr};
+
+  std::unique_ptr<SLNode> sl_node_{nullptr};
 };
 
 }  // namespace tasm

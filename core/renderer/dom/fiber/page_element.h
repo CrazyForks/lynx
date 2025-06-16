@@ -41,6 +41,8 @@ class PageElement : public ComponentElement {
 
   void SetCSSID(int32_t id) override;
 
+  void Layout();
+
  protected:
   PageElement(const PageElement& element, bool clone_resolved_props);
 };

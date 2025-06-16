@@ -39,11 +39,16 @@ public enum EmbeddedMode {
   ENGINE_POOL(1 << 1),
 
   /**
+   * Layout in Element
+   */
+  LAYOUT_IN_ELEMENT(1 << 2),
+
+  /**
    * Combination of all optimization options
    * <p>
    * Note: When adding new optimization options, update this value
    */
-  EMBEDDED_MODE_ALL(EMBEDDED_MODE_BASE.mode() | ENGINE_POOL.mode());
+  EMBEDDED_MODE_ALL(EMBEDDED_MODE_BASE.mode() | ENGINE_POOL.mode() | LAYOUT_IN_ELEMENT.mode());
 
   private final int mMode;
 

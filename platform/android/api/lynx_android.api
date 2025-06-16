@@ -1391,6 +1391,7 @@ public enum com::lynx::tasm::EmbeddedMode {
   public com.lynx.tasm.EmbeddedMode.UNSET UNSET;
   public com.lynx.tasm.EmbeddedMode.EMBEDDED_MODE_BASE EMBEDDED_MODE_BASE;
   public com.lynx.tasm.EmbeddedMode.ENGINE_POOL ENGINE_POOL;
+  public com.lynx.tasm.EmbeddedMode.LAYOUT_IN_ELEMENT LAYOUT_IN_ELEMENT;
   public com.lynx.tasm.EmbeddedMode.EMBEDDED_MODE_ALL EMBEDDED_MODE_ALL;
   public com.lynx.tasm.EmbeddedMode.EmbeddedMode(int mode);
   public int com.lynx.tasm.EmbeddedMode.mode();
