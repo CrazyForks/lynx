@@ -6728,6 +6728,12 @@ public class com::lynx::tasm::common::NullableConcurrentHashMap : ConcurrentHash
   public Set< Entry< K, V > > com.lynx.tasm.common.NullableConcurrentHashMap< K, V >.entrySet();
 }
 
+public class com::lynx::tasm::base::OnceTask : Runnable {
+  public com.lynx.tasm.base.OnceTask< T >.OnceTask(final Callable< T > task);
+  public void com.lynx.tasm.base.OnceTask< T >.run();
+  public T com.lynx.tasm.base.OnceTask< T >.get();
+}
+
 public interface com::lynx::tasm::behavior::GestureRecognizer::OnDoubleTapListener {
   public boolean com.lynx.tasm.behavior.GestureRecognizer.OnDoubleTapListener.onSingleTapConfirmed(MotionEvent e);
   public boolean com.lynx.tasm.behavior.GestureRecognizer.OnDoubleTapListener.onDoubleTap(MotionEvent e);
