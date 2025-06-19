@@ -684,6 +684,8 @@ class Element : public lepus::RefCounted {
       const std::shared_ptr<CSSStyleSheetManager>& style_manager,
       bool keep_element_id);
 
+  bool EnableLayoutInElementMode() const;
+
   base::String tag_;
 
   int32_t id_;

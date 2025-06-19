@@ -2623,7 +2623,7 @@ void FiberElement::RecursivelyMarkChildrenCSSVariableDirty(
 }
 
 void FiberElement::EnsureSLNode() {
-  if (sl_node_ == nullptr) {
+  if (EnableLayoutInElementMode() && sl_node_ == nullptr) {
     sl_node_ = std::make_unique<SLNode>(
         element_manager()->GetLayoutConfigs(),
         computed_css_style()->GetLayoutComputedStyle());
@@ -2634,7 +2634,7 @@ void FiberElement::EnsureSLNode() {
 }
 
 void FiberElement::EnsureLayoutBundle() {
-  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+  if (EnableLayoutInElementMode()) {
     return;
   }
 
@@ -2644,7 +2644,7 @@ void FiberElement::EnsureLayoutBundle() {
 }
 
 void FiberElement::UpdateTagToLayoutBundle() {
-  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+  if (EnableLayoutInElementMode()) {
     return;
   }
 
@@ -2653,7 +2653,7 @@ void FiberElement::UpdateTagToLayoutBundle() {
 }
 
 void FiberElement::InitLayoutBundle() {
-  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+  if (EnableLayoutInElementMode()) {
     return;
   }
 
@@ -2663,7 +2663,7 @@ void FiberElement::InitLayoutBundle() {
 }
 
 void FiberElement::MarkAsLayoutRoot() {
-  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+  if (EnableLayoutInElementMode()) {
     EnsureSLNode();
     // The default flex direction is column for root
     sl_node_->GetCSSMutableStyle()->SetFlexDirection(
@@ -2678,7 +2678,7 @@ void FiberElement::MarkAsLayoutRoot() {
 }
 
 void FiberElement::MarkLayoutDirty() {
-  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+  if (EnableLayoutInElementMode()) {
     EnsureSLNode();
     MarkLayoutDirtyLite();
     return;
@@ -2689,7 +2689,7 @@ void FiberElement::MarkLayoutDirty() {
 }
 
 void FiberElement::AttachLayoutNode(const fml::RefPtr<PropBundle> &props) {
-  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+  if (EnableLayoutInElementMode()) {
     return;
   }
 
@@ -2699,7 +2699,7 @@ void FiberElement::AttachLayoutNode(const fml::RefPtr<PropBundle> &props) {
 }
 
 void FiberElement::UpdateLayoutNodeProps(const fml::RefPtr<PropBundle> &props) {
-  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+  if (EnableLayoutInElementMode()) {
     return;
   }
 
@@ -2709,7 +2709,7 @@ void FiberElement::UpdateLayoutNodeProps(const fml::RefPtr<PropBundle> &props) {
 
 void FiberElement::UpdateLayoutNodeStyle(CSSPropertyID css_id,
                                          const tasm::CSSValue &value) {
-  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+  if (EnableLayoutInElementMode()) {
     return;
   }
 
@@ -2718,7 +2718,7 @@ void FiberElement::UpdateLayoutNodeStyle(CSSPropertyID css_id,
 }
 
 void FiberElement::ResetLayoutNodeStyle(tasm::CSSPropertyID css_id) {
-  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+  if (EnableLayoutInElementMode()) {
     return;
   }
 
@@ -2728,7 +2728,7 @@ void FiberElement::ResetLayoutNodeStyle(tasm::CSSPropertyID css_id) {
 
 void FiberElement::UpdateLayoutNodeFontSize(double cur_node_font_size,
                                             double root_node_font_size) {
-  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+  if (EnableLayoutInElementMode()) {
     return;
   }
 
@@ -2740,7 +2740,7 @@ void FiberElement::UpdateLayoutNodeFontSize(double cur_node_font_size,
 
 void FiberElement::UpdateLayoutNodeAttribute(starlight::LayoutAttribute key,
                                              const lepus::Value &value) {
-  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+  if (EnableLayoutInElementMode()) {
     return;
   }
 
@@ -2749,7 +2749,7 @@ void FiberElement::UpdateLayoutNodeAttribute(starlight::LayoutAttribute key,
 }
 
 void FiberElement::UpdateLayoutNodeByBundle() {
-  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+  if (EnableLayoutInElementMode()) {
     EnsureSLNode();
     return;
   }
@@ -2863,7 +2863,7 @@ void FiberElement::ResolveStyleValue(CSSPropertyID id,
     }
   }
 
-  if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+  if (EnableLayoutInElementMode()) {
     if (LayoutNode::IsLayoutWanted(id)) {
       MarkLayoutDirtyLite();
     }
@@ -2953,7 +2953,7 @@ Element *FiberElement::Sibling(int offset) const {
 
 void FiberElement::InsertLayoutNode(FiberElement *child, FiberElement *ref) {
   DCHECK(!ref || !ref->is_wrapper());
-  if (element_manager_ && element_manager_->IsLayoutInElementModeOn()) {
+  if (EnableLayoutInElementMode()) {
     EnsureSLNode();
     child->EnsureSLNode();
     sl_node_->InsertChildBefore(child->sl_node_.get(),
@@ -2975,7 +2975,7 @@ void FiberElement::InsertLayoutNode(FiberElement *child, FiberElement *ref) {
 }
 
 void FiberElement::RemoveLayoutNode(FiberElement *child) {
-  if (element_manager_ && element_manager_->IsLayoutInElementModeOn()) {
+  if (EnableLayoutInElementMode()) {
     sl_node_->RemoveChild(child->sl_node_.get());
     return;
   }

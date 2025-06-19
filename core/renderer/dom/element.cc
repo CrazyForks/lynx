@@ -342,7 +342,7 @@ void Element::SetStyleInternal(CSSPropertyID css_id,
   }
 
   if (is_layout_only) {
-    if (element_manager() && element_manager()->IsLayoutInElementModeOn()) {
+    if (EnableLayoutInElementMode()) {
       if (computed_css_style()->SetValue(css_id, value)) {
         MarkLayoutDirty();
       }
@@ -1655,6 +1655,10 @@ bool Element::IsNewFixed() const {
 
 bool Element::GetEnableFixedNew() const {
   return element_manager()->GetEnableFixedNew();
+}
+
+bool Element::EnableLayoutInElementMode() const {
+  return element_manager_ && element_manager_->IsLayoutInElementModeOn();
 }
 
 }  // namespace tasm
