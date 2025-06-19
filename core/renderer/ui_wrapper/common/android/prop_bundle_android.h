@@ -12,6 +12,7 @@
 #include "core/base/android/java_only_array.h"
 #include "core/base/android/java_only_map.h"
 #include "core/public/prop_bundle.h"
+#include "core/renderer/tasm/react/android/mapbuffer/compact_array_buffer_builder.h"
 #include "core/renderer/tasm/react/android/mapbuffer/map_buffer_builder.h"
 
 namespace lynx {
@@ -21,6 +22,8 @@ class PropBundleCreatorAndroid : public PropBundleCreator {
   fml::RefPtr<PropBundle> CreatePropBundle() override;
 
   fml::RefPtr<PropBundle> CreatePropBundle(bool use_map_buffer) override;
+
+  std::unique_ptr<PropArray> CreatePropArray() override;
 };
 
 class PropBundleAndroid : public PropBundle {
@@ -103,6 +106,27 @@ class PropBundleAndroid : public PropBundle {
 
   PropBundleAndroid(const PropBundleAndroid&) = delete;
   PropBundleAndroid& operator=(const PropBundleAndroid&) = delete;
+};
+
+class PropArrayAndroid : public PropArray {
+ public:
+  PropArrayAndroid();
+
+  void AddProp(int value) override;
+  void AddProp(unsigned int value) override;
+  void AddProp(const char* value) override;
+  void AddProp(bool value) override;
+  void AddProp(double value) override;
+
+  std::optional<base::android::CompactArrayBuffer> GetArrayBuffer() {
+    return ui_operation_batch_builder_->build();
+  }
+
+ private:
+  std::optional<base::android::CompactArrayBufferBuilder>
+      ui_operation_batch_builder_{std::nullopt};
+  PropArrayAndroid(const PropArrayAndroid&) = delete;
+  PropArrayAndroid& operator=(const PropArrayAndroid&) = delete;
 };
 }  // namespace tasm
 }  // namespace lynx

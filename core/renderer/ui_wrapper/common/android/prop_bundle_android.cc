@@ -486,6 +486,10 @@ fml::RefPtr<PropBundle> PropBundleCreatorAndroid::CreatePropBundle(
   return fml::AdoptRef(new PropBundleAndroid(use_map_buffer));
 }
 
+std::unique_ptr<PropArray> PropBundleCreatorAndroid::CreatePropArray() {
+  return std::make_unique<PropArrayAndroid>();
+}
+
 base::android::ScopedLocalJavaRef<jobject>
 PropBundleAndroid::GetStyleMapBuffer() {
   if (use_map_buffer_) {
@@ -501,6 +505,31 @@ PropBundleAndroid::GetStyleMapBuffer() {
     JNIEnv* env = base::android::AttachCurrentThread();
     return base::android::ScopedLocalJavaRef<jobject>(env, nullptr);
   }
+}
+
+// propArray
+
+PropArrayAndroid::PropArrayAndroid()
+    : ui_operation_batch_builder_(base::android::CompactArrayBufferBuilder{}) {}
+
+void PropArrayAndroid::AddProp(int value) {
+  ui_operation_batch_builder_->putInt(value);
+}
+
+void PropArrayAndroid::AddProp(unsigned int value) {
+  ui_operation_batch_builder_->putInt(value);
+}
+
+void PropArrayAndroid::AddProp(const char* value) {
+  ui_operation_batch_builder_->putString(value);
+}
+
+void PropArrayAndroid::AddProp(bool value) {
+  ui_operation_batch_builder_->putInt(static_cast<int>(value));
+}
+
+void PropArrayAndroid::AddProp(double value) {
+  ui_operation_batch_builder_->putDouble(value);
 }
 
 }  // namespace tasm

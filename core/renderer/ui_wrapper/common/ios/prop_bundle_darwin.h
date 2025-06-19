@@ -19,6 +19,8 @@ namespace tasm {
 class PropBundleCreatorDarwin : public PropBundleCreator {
  public:
   fml::RefPtr<PropBundle> CreatePropBundle() override;
+
+  std::unique_ptr<PropArray> CreatePropArray() override;
 };
 
 class PropBundleDarwin : public PropBundle {
@@ -95,6 +97,21 @@ class PropBundleDarwin : public PropBundle {
   NSMutableSet* lepusEventSet;
   NSMutableSet* gestureDetectorSet;
 };
+
+class PropArrayDarwin : public PropArray {
+ public:
+  PropArrayDarwin();
+
+  void AddProp(int value) override;
+  void AddProp(unsigned int value) override;
+  void AddProp(const char* value) override;
+  void AddProp(bool value) override;
+  void AddProp(double value) override;
+
+ private:
+  NSMutableArray* propArray;
+};
+
 }  // namespace tasm
 }  // namespace lynx
 #endif  // CORE_RENDERER_UI_WRAPPER_COMMON_IOS_PROP_BUNDLE_DARWIN_H_
