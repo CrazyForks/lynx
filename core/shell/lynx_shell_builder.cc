@@ -54,12 +54,6 @@ LynxShellBuilder& LynxShellBuilder::SetLynxEnvConfig(
   return *this;
 }
 
-LynxShellBuilder& LynxShellBuilder::SetEnableDiffWithoutLayout(
-    bool enable_diff_without_layout) {
-  this->enable_diff_without_layout_ = enable_diff_without_layout;
-  return *this;
-}
-
 LynxShellBuilder& LynxShellBuilder::SetLazyBundleLoader(
     const std::shared_ptr<lynx::tasm::LazyBundleLoader>& loader) {
   this->loader_ = loader;
@@ -349,8 +343,7 @@ std::unique_ptr<lynx::shell::LynxEngine> LynxShellBuilder::CreateLynxEngine(
   }
   auto element_manager = std::make_unique<lynx::tasm::ElementManager>(
       std::move(painting_context_), tasm_mediator.get(), this->lynx_env_config_,
-      instance_id, this->element_manager_vsync_monitor_,
-      this->enable_diff_without_layout_);
+      instance_id, this->element_manager_vsync_monitor_);
   auto tasm = std::make_shared<lynx::tasm::TemplateAssembler>(
       *tasm_mediator, std::move(element_manager), instance_id,
       this->enable_unified_pipeline_);

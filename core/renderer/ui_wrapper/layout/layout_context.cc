@@ -672,11 +672,6 @@ void LayoutContext::DispatchLayoutUpdates(
   Layout(options);
 }
 
-void LayoutContext::SetEnableLayout() {
-  enable_layout_ = true;
-  DestroyPlatformNodesIfNeeded();
-}
-
 void LayoutContext::UpdateFixedNodeSet(LayoutNode* node, bool is_insert) {
   if (is_insert) {
     fixed_node_set_.insert(node->slnode());

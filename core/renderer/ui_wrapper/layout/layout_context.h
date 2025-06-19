@@ -143,8 +143,6 @@ class LayoutContext : public std::enable_shared_from_this<LayoutContext>,
   // In Embedded mode, we disable event reporter by now.
   bool EnableEventReporter() const { return !IsEmbeddedModeOn(); }
 
-  void SetEnableLayout();
-
   // Check fixed node, if position type has been changed, update the
   // fixed node set.
   void CheckFixed(LayoutNode* node);

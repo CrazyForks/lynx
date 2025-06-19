@@ -42,8 +42,6 @@ class LynxShellBuilder {
 
   LynxShellBuilder& SetLynxEnvConfig(tasm::LynxEnvConfig& lynx_env_config);
 
-  LynxShellBuilder& SetEnableDiffWithoutLayout(bool enable_diff_without_layout);
-
   LynxShellBuilder& SetEnableElementManagerVsyncMonitor(
       bool enable_element_manager_vsync_monitor);
 
@@ -122,7 +120,6 @@ class LynxShellBuilder {
   bool enable_native_list_{false};
   bool enable_layout_only_{true};
   bool enable_pre_update_data_{false};
-  bool enable_diff_without_layout_{false};
   bool enable_unified_pipeline_{false};
 
   std::string locale_;

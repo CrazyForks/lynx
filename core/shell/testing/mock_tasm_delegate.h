@@ -134,8 +134,6 @@ class MockTasmDelegate : public TemplateAssembler::Delegate,
     dispatch_layout_updates_called_ = true;
   }
 
-  void SetEnableLayout() override { set_enable_layout_called_ = true; }
-
   MOCK_METHOD(void, UpdateLayoutNodeFontSize,
               (int32_t id, double cur_node_font_size,
                double root_node_font_size, double font_scale),
@@ -284,7 +282,6 @@ class MockTasmDelegate : public TemplateAssembler::Delegate,
   std::unique_ptr<std::unordered_map<std::string, std::string>> theme_config_;
   void UpdateMockDelegateThemeConfig(const lepus::Value& data);
 
-  bool set_enable_layout_called_{false};
   bool dispatch_layout_updates_called_{false};
 
   std::string lepus_method_id_{};

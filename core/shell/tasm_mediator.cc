@@ -392,10 +392,6 @@ TasmMediator::GetSubTreeLayoutInfo(int32_t root_id, tasm::Viewport viewport) {
   });
 }
 
-void TasmMediator::SetEnableLayout() {
-  layout_actor_->Act([](auto& layout) { layout->SetEnableLayout(); });
-}
-
 void TasmMediator::SetRootOnLayout(int32_t id) {
   layout_actor_->ActLite([id](auto& layout) { layout->SetRoot(id); });
 }

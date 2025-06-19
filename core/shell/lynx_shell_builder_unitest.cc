@@ -49,7 +49,6 @@ class LynxShellBuilderTest : public ::testing::Test {
   intptr_t facade_;
   intptr_t painting_context_;
   std::unique_ptr<lynx::tasm::LynxEnvConfig> lynx_env_config_ = nullptr;
-  bool enable_diff_without_layout_ = true;
   std::shared_ptr<lynx::tasm::MockLazyBundleLoader> loader_ = nullptr;
   bool enable_pre_update_data_ = true;
   bool enable_layout_only_ = false;
@@ -78,7 +77,6 @@ TEST_F(LynxShellBuilderTest, LynxShellBuilderTotalTest) {
                    .SetNativeFacade(std::move(facade))
                    .SetPaintingContextCreator(painting_context_creator)
                    .SetLynxEnvConfig(*lynx_env_config_)
-                   .SetEnableDiffWithoutLayout(enable_diff_without_layout_)
                    .SetEnableElementManagerVsyncMonitor(true)
                    .SetLazyBundleLoader(loader_)
                    .SetEnablePreUpdateData(enable_pre_update_data_)
@@ -118,12 +116,6 @@ TEST_F(LynxShellBuilderTest, LynxShellBuilderTotalTest) {
                 ->GetLynxEnvConfig()
                 .ScreenHeight(),
             lynx_env_config_->ScreenHeight());
-  // SetEnableDiffWithoutLayout() test
-  EXPECT_EQ(out_lynx_engine->GetTasm()
-                ->page_proxy()
-                ->element_manager()
-                ->enable_diff_without_layout_,
-            enable_diff_without_layout_);
   // SetLazyBundleLoader() test
   EXPECT_EQ(out_lynx_engine->GetTasm()->component_loader_.get(), loader_.get());
   // SetEnablePreUpdateData() test
@@ -168,7 +160,6 @@ TEST_F(LynxShellBuilderTest,
                    .SetNativeFacade(std::move(facade))
                    .SetPaintingContextCreator(painting_context_creator)
                    .SetLynxEnvConfig(*lynx_env_config_)
-                   .SetEnableDiffWithoutLayout(enable_diff_without_layout_)
                    .SetEnableElementManagerVsyncMonitor(true)
                    .SetLazyBundleLoader(loader_)
                    .SetEnablePreUpdateData(enable_pre_update_data_)
@@ -204,7 +195,6 @@ TEST_F(LynxShellBuilderTest,
                    .SetNativeFacade(std::move(facade))
                    .SetPaintingContextCreator(painting_context_creator)
                    .SetLynxEnvConfig(*lynx_env_config_)
-                   .SetEnableDiffWithoutLayout(enable_diff_without_layout_)
                    .SetEnableElementManagerVsyncMonitor(true)
                    .SetLazyBundleLoader(loader_)
                    .SetEnablePreUpdateData(enable_pre_update_data_)

@@ -164,7 +164,6 @@ class TasmMediator : public LynxEngine::Delegate {
       const std::shared_ptr<tasm::PipelineOptions>& options) override;
   std::unordered_map<int32_t, tasm::LayoutInfoArray> GetSubTreeLayoutInfo(
       int32_t root_id, tasm::Viewport viewport = tasm::Viewport{}) override;
-  void SetEnableLayout() override;
 
   void SetRootOnLayout(int32_t id) override;
   void OnUpdateDataWithoutChange() override;

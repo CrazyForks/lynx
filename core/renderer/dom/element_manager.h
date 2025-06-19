@@ -239,8 +239,6 @@ class ElementManager : public ElementContextDelegate {
     virtual std::unordered_map<int32_t, LayoutInfoArray> GetSubTreeLayoutInfo(
         int32_t root_id, Viewport viewport = Viewport{}) = 0;
 
-    virtual void SetEnableLayout() = 0;
-
     virtual void CreateLayoutNode(int32_t id, const base::String &tag) = 0;
 
     virtual void UpdateLayoutNodeFontSize(int32_t id, double cur_node_font_size,
@@ -297,8 +295,7 @@ class ElementManager : public ElementContextDelegate {
       std::unique_ptr<PaintingCtxPlatformImpl> platform_painting_context,
       Delegate *delegate, const LynxEnvConfig &lynx_env_config,
       int32_t instance_id = tasm::report::kUnknownInstanceId,
-      const std::shared_ptr<base::VSyncMonitor> &vsync_monitor = nullptr,
-      const bool enable_diff_without_layout = false);
+      const std::shared_ptr<base::VSyncMonitor> &vsync_monitor = nullptr);
 
   // avoid pImpl idiom type of compilation error when self inlclude
   // std::unique_ptr object
@@ -1196,9 +1193,6 @@ class ElementManager : public ElementContextDelegate {
 
   bool devtool_flag_{false};
 
-  // If it has been set to 'true', OnPatchFinish will not trigger layout
-  // anymore, platform must trigger layout manually.
-  bool enable_diff_without_layout_;
   // If this flag is true, it indicates that when exec the next patchfinish
   // operation, additional information related to pseudo-class will be pushed to
   // the platform.

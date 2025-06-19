@@ -147,8 +147,7 @@ ElementManager::ElementManager(
     std::unique_ptr<PaintingCtxPlatformImpl> platform_painting_context,
     Delegate *delegate, const LynxEnvConfig &lynx_env_config,
     int32_t instance_id,
-    const std::shared_ptr<base::VSyncMonitor> &vsync_monitor,
-    const bool enable_diff_without_layout)
+    const std::shared_ptr<base::VSyncMonitor> &vsync_monitor)
     : ElementContextDelegate(nullptr, nullptr),
       node_manager_(new NodeManager),
       air_node_manager_(new AirNodeManager),
@@ -158,7 +157,6 @@ ElementManager::ElementManager(
                                           std::move(platform_painting_context)),
                                       instance_id)),
       instance_id_(instance_id),
-      enable_diff_without_layout_(enable_diff_without_layout),
       settings_enable_use_mapbuffer_for_ui_op_(
           LynxEnv::GetInstance().EnableUseMapBufferForUIProps()),
       lynx_env_config_(lynx_env_config),
@@ -423,11 +421,7 @@ void ElementManager::RequestLayout(
     const std::shared_ptr<PipelineOptions> &options) {
   TRACE_EVENT(LYNX_TRACE_CATEGORY, ELEMENT_MANAGER_REQUEST_LAYOUT);
   if (!IsLayoutInElementModeOn()) {
-    if (enable_diff_without_layout_) {
-      delegate_->SetEnableLayout();
-    } else {
-      DispatchLayoutUpdates(options);
-    }
+    DispatchLayoutUpdates(options);
     return;
   }
 
