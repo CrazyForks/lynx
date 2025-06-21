@@ -1,4 +1,4 @@
-# Copyright 2024 The Lynx Authors. All rights reserved.
+# Copyright 2025 The Lynx Authors. All rights reserved.
 # Licensed under the Apache License Version 2.0 that can be found in the
 # LICENSE file in the root directory of this source tree.
 
@@ -20,15 +20,14 @@ def get_string_summary(valobj, internal_dict):
             return '<invalid>'
         ptr_value = ref_impl.GetValueAsUnsigned()
         is_tagged = (ptr_value & 1) == 1
-        tag_info = f"[ref_impl_=0x{ptr_value:x}, tagged={is_tagged}] "
         expr = valobj.EvaluateExpression('((lynx::base::RefCountedStringImpl*)((uintptr_t)ref_impl_ & ~1))->str_')
         str_value = expr.GetSummary() if expr.IsValid() else None
         if str_value and str_value != '""':
             if str_value.startswith('"') and str_value.endswith('"'):
                 str_value = str_value[1:-1]
-            return tag_info + str_value
+            return f'"{str_value}"'
         else:
-            return tag_info + "<empty>"
+            return '""'
     except Exception as e:
         return f'<error: {str(e)}>'
 
