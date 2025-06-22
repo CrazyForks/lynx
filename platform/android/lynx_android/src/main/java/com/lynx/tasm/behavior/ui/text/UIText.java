@@ -87,6 +87,11 @@ public class UIText
   @Override
   public void onNodeReady() {
     super.onNodeReady();
+
+    if (mContext.isLayoutInElementModeOn()) {
+      updateExtraData(mContext.getLynxUIOwner().takeTextLayout(getSign()));
+    }
+
     if (mView.mTextUpdateBundle != null) {
       UITextUtils.HandleInlineViewTruncated(mView.mTextUpdateBundle, this);
     }

@@ -60,6 +60,11 @@ public class FlattenUIText extends LynxFlattenUI implements IUIText {
   @Override
   public void onNodeReady() {
     super.onNodeReady();
+
+    if (mContext.isLayoutInElementModeOn()) {
+      updateExtraData(mContext.getLynxUIOwner().takeTextLayout(getSign()));
+    }
+
     if (mTextBundle != null) {
       UITextUtils.HandleInlineViewTruncated(mTextBundle, this);
     }

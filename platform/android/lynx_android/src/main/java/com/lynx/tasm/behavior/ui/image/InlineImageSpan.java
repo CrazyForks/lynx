@@ -21,6 +21,16 @@ public final class InlineImageSpan extends AbsInlineImageSpan {
     mLynxImageManager.setDisableDefaultResize(true);
   }
 
+  public InlineImageSpan(int width, int height, int[] margins) {
+    super(width, height, margins);
+  }
+
+  public void setImageManager(LynxImageManager lynxImageManager) {
+    mLynxImageManager = lynxImageManager;
+    mLynxImageManager.onLayoutUpdated(getWidth(), getHeight(), 0, 0, 0, 0);
+    mLynxImageManager.setDisableDefaultResize(true);
+  }
+
   @Override
   public void setCallback(Drawable.Callback callback) {
     super.setCallback(callback);

@@ -1387,14 +1387,12 @@ public class com::lynx::react::bridge::mapbuffer::DynamicFromMapBuffer : com.lyn
   public void com.lynx.react.bridge.mapbuffer.DynamicFromMapBuffer.recycle();
 }
 
-public enum com::lynx::tasm::EmbeddedMode {
-  public com.lynx.tasm.EmbeddedMode.UNSET UNSET;
-  public com.lynx.tasm.EmbeddedMode.EMBEDDED_MODE_BASE EMBEDDED_MODE_BASE;
-  public com.lynx.tasm.EmbeddedMode.ENGINE_POOL ENGINE_POOL;
-  public com.lynx.tasm.EmbeddedMode.LAYOUT_IN_ELEMENT LAYOUT_IN_ELEMENT;
-  public com.lynx.tasm.EmbeddedMode.EMBEDDED_MODE_ALL EMBEDDED_MODE_ALL;
-  public com.lynx.tasm.EmbeddedMode.EmbeddedMode(int mode);
-  public int com.lynx.tasm.EmbeddedMode.mode();
+public class com::lynx::tasm::EmbeddedMode :  {
+  public final int com.lynx.tasm.EmbeddedMode.UNSET UNSET;
+  public final int com.lynx.tasm.EmbeddedMode.EMBEDDED_MODE_BASE EMBEDDED_MODE_BASE;
+  public final int com.lynx.tasm.EmbeddedMode.ENGINE_POOL ENGINE_POOL;
+  public final int com.lynx.tasm.EmbeddedMode.LAYOUT_IN_ELEMENT LAYOUT_IN_ELEMENT;
+  public final int com.lynx.tasm.EmbeddedMode.EMBEDDED_MODE_ALL EMBEDDED_MODE_ALL;
 }
 
 public enum com::lynx::tasm::behavior::event::EventTarget::EnableStatus {
@@ -2464,6 +2462,8 @@ public class com::lynx::tasm::behavior::ui::image::InlineImageShadowNode : com.l
 
 public class com::lynx::tasm::behavior::ui::image::InlineImageSpan : com.lynx.tasm.behavior.ui.text.AbsInlineImageSpan {
   public com.lynx.tasm.behavior.ui.image.InlineImageSpan.InlineImageSpan(int width, int height, int[] margins, LynxImageManager lynxImageManager);
+  public com.lynx.tasm.behavior.ui.image.InlineImageSpan.InlineImageSpan(int width, int height, int[] margins);
+  public void com.lynx.tasm.behavior.ui.image.InlineImageSpan.setImageManager(LynxImageManager lynxImageManager);
   public void com.lynx.tasm.behavior.ui.image.InlineImageSpan.setCallback(Drawable.Callback callback);
   public Drawable com.lynx.tasm.behavior.ui.image.InlineImageSpan.getDrawable();
   public void com.lynx.tasm.behavior.ui.image.InlineImageSpan.onDetachedFromWindow();
@@ -3762,7 +3762,8 @@ public class abstract com::lynx::tasm::behavior::LynxContext : com.lynx.tasm.beh
   public boolean com.lynx.tasm.behavior.LynxContext.enableEventReporter();
   public boolean com.lynx.tasm.behavior.LynxContext.enableTiming();
   public boolean com.lynx.tasm.behavior.LynxContext.isEmbeddedModeOn();
-  public void com.lynx.tasm.behavior.LynxContext.setEmbeddedMode(EmbeddedMode embeddedMode);
+  public boolean com.lynx.tasm.behavior.LynxContext.isLayoutInElementModeOn();
+  public void com.lynx.tasm.behavior.LynxContext.setEmbeddedMode(@EmbeddedMode.Mode int embeddedMode);
   public void com.lynx.tasm.behavior.LynxContext.setEnableAsyncLoadImage(boolean b);
   public boolean com.lynx.tasm.behavior.LynxContext.isEnableAsyncLoadImage();
   public LynxBooleanOption com.lynx.tasm.behavior.LynxContext.getLongTaskMonitorEnabled();
@@ -5965,6 +5966,8 @@ public class com::lynx::tasm::behavior::LynxUIOwner :  {
   public void com.lynx.tasm.behavior.LynxUIOwner.reportCreateAsyncSuccessEvent(int sign, String tagName, boolean isSuccess, int status);
   public void com.lynx.tasm.behavior.LynxUIOwner.reportCreateViewConfig(int sign, String tagName, boolean createAsync);
   public void com.lynx.tasm.behavior.LynxUIOwner.setAttachLynxPageUICallback(UIBodyView.attachLynxPageUICallback callback);
+  public float[] com.lynx.tasm.behavior.LynxUIOwner.measureText(int sign, ReadableCompactArrayBuffer valueArray, float width, int widthMode, float height, int heightMode);
+  public Object com.lynx.tasm.behavior.LynxUIOwner.takeTextLayout(int sign);
 }
 
 public class com::lynx::tasm::behavior::LynxUIRenderCreator : com.lynx.tasm.IUIRenderCreator {
@@ -6221,7 +6224,7 @@ public class com::lynx::tasm::LynxViewBuilder :  {
   public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.setLynxViewConfig(Map< String, String > map);
   public Map< String, String > com.lynx.tasm.LynxViewBuilder.getLynxViewConfig();
   public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.insertLynxViewConfig(String key, String value);
-  public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.setEmbeddedMode(EmbeddedMode embeddedMode);
+  public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.setEmbeddedMode(@EmbeddedMode.Mode int embeddedMode);
   public static void com.lynx.tasm.LynxViewBuilder.setDefaultDensity(Float density);
 }
 
@@ -8471,6 +8474,14 @@ public class com::lynx::tasm::behavior::shadow::text::TextLayoutWarmer : Handler
   public void com.lynx.tasm.behavior.shadow.text.TextLayoutWarmer.warmLayout(Layout layout);
 }
 
+public class com::lynx::tasm::behavior::shadow::text::TextMeasurer :  {
+  public com.lynx.tasm.behavior.shadow.text.TextMeasurer.TextMeasurer(LynxContext context);
+  public float[] com.lynx.tasm.behavior.shadow.text.TextMeasurer.measureText(int sign, ReadableCompactArrayBuffer valueArray, float width, int widthMode, float height, int heightMode);
+  public Object com.lynx.tasm.behavior.shadow.text.TextMeasurer.takeTextLayout(int sign);
+  public void com.lynx.tasm.behavior.shadow.text.TextMeasurer.releaseLayoutObject(int sign);
+  public void com.lynx.tasm.behavior.shadow.text.TextMeasurer.removeLayoutObjects();
+}
+
 public class com::lynx::tasm::behavior::shadow::text::TextRenderer :  {
   public Layout com.lynx.tasm.behavior.shadow.text.TextRenderer.getTextLayout();
   public int com.lynx.tasm.behavior.shadow.text.TextRenderer.getEllipsisCount();
@@ -8841,6 +8852,10 @@ public class com::lynx::tasm::behavior::shadow::text::TypefaceCache :  {
   public static synchronized Typeface com.lynx.tasm.behavior.shadow.text.TypefaceCache.getTypeface(LynxContext context, final String fontFamily, final int style);
   public static synchronized Typeface com.lynx.tasm.behavior.shadow.text.TypefaceCache.getCachedTypeface(final String fontFamily, final int style);
   public static synchronized Typeface com.lynx.tasm.behavior.shadow.text.TypefaceCache.getTypeface(Typeface family, int style);
+}
+
+public class com::lynx::tasm::behavior::shadow::text::TextMeasurer::TypefaceListener : com.lynx.tasm.behavior.shadow.text.TypefaceCache.TypefaceListener {
+  public void com.lynx.tasm.behavior.shadow.text.TextMeasurer.TypefaceListener.onTypefaceUpdate(Typeface typeface, int style);
 }
 
 public interface com::lynx::tasm::behavior::shadow::text::TypefaceCache::TypefaceListener {

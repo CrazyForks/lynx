@@ -20,6 +20,7 @@ import androidx.annotation.UiThread;
 import com.lynx.react.bridge.Callback;
 import com.lynx.react.bridge.ReadableArray;
 import com.lynx.react.bridge.ReadableMap;
+import com.lynx.react.bridge.mapbuffer.ReadableCompactArrayBuffer;
 import com.lynx.react.bridge.mapbuffer.ReadableMapBuffer;
 import com.lynx.tasm.LynxEnv;
 import com.lynx.tasm.LynxEnvKey;
@@ -34,6 +35,7 @@ import com.lynx.tasm.base.TraceEvent;
 import com.lynx.tasm.base.trace.TraceEventDef;
 import com.lynx.tasm.behavior.shadow.ShadowNode;
 import com.lynx.tasm.behavior.shadow.ShadowNodeType;
+import com.lynx.tasm.behavior.shadow.text.TextMeasurer;
 import com.lynx.tasm.behavior.ui.LynxBaseUI;
 import com.lynx.tasm.behavior.ui.LynxUI;
 import com.lynx.tasm.behavior.ui.UIBody;
@@ -118,6 +120,8 @@ public class LynxUIOwner {
 
   private boolean mHasTouchPseudo;
 
+  private TextMeasurer mTextMeasurer;
+
   public LynxUIOwner(
       LynxContext context, BehaviorRegistry behaviorRegistry, @Nullable UIBodyView body) {
     TraceEvent.beginSection(TraceEventDef.UI_OWNER_INIT);
@@ -145,6 +149,11 @@ public class LynxUIOwner {
     mEnableReportCreateAsync =
         LynxEnv.getBooleanFromExternalEnv(LynxEnvKey.ENABLE_REPORT_CREATE_ASYNC_TAG, false);
     mCreateNodeConfigHasReportedMark = new HashMap<String, Boolean>();
+
+    if (context.isLayoutInElementModeOn()) {
+      mTextMeasurer = new TextMeasurer(context);
+    }
+
     attachUIBodyView(body);
     TraceEvent.endSection(TraceEventDef.UI_OWNER_INIT);
   }
@@ -1863,5 +1872,13 @@ public class LynxUIOwner {
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   void setFrameAppBundle(int tag, TemplateBundle bundle) {
     // TODO(zhoupeng.z): post to frame ui
+  }
+
+  public float[] measureText(int sign, ReadableCompactArrayBuffer valueArray, float width,
+      int widthMode, float height, int heightMode) {
+    return mTextMeasurer.measureText(sign, valueArray, width, widthMode, height, heightMode);
+  }
+  public Object takeTextLayout(int sign) {
+    return mTextMeasurer != null ? mTextMeasurer.takeTextLayout(sign) : null;
   }
 }

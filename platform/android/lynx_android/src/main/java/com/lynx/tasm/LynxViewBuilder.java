@@ -97,7 +97,7 @@ public class LynxViewBuilder {
 
   IUIRenderCreator uiRenderCreator;
 
-  EmbeddedMode embeddedMode = EmbeddedMode.UNSET;
+  int embeddedMode = EmbeddedMode.UNSET;
 
   Uri uri = null;
 
@@ -666,9 +666,9 @@ public class LynxViewBuilder {
    * @param embeddedMode
    * @return
    */
-  public LynxViewBuilder setEmbeddedMode(EmbeddedMode embeddedMode) {
+  public LynxViewBuilder setEmbeddedMode(@EmbeddedMode.Mode int embeddedMode) {
     this.embeddedMode = embeddedMode;
-    if (embeddedMode != EmbeddedMode.UNSET) {
+    if ((embeddedMode & EmbeddedMode.EMBEDDED_MODE_BASE) > 0) {
       behaviorRegistry.setBuiltInBehaviors(BuiltInUIRegistry.getInstance().getBuiltInUIBehaviors());
     }
     return this;

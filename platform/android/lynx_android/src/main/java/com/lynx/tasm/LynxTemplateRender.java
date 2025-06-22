@@ -682,7 +682,7 @@ public class LynxTemplateRender implements ILynxEngine, ILynxErrorReceiver {
         new TasmPlatformInvoker(mNativeFacade), whiteBoardPtr, lynxUIRenderer.getUIDelegatePtr(),
         lynxUIRenderer.useInvokeUIMethod(), mLongTaskMonitorEnabled == LynxBooleanOption.FALSE,
         mForceLayoutOnBackgroundThread, mLynxViewBuilder.enableUnifiedPipeline,
-        mLynxViewBuilder.embeddedMode.mode());
+        mLynxViewBuilder.embeddedMode);
     lynxUIRenderer.attachNativeFacade(mNativeFacade);
     mNativeLifecycle = nativeLifecycleCreate();
     mCleanupReference = new CleanupReference(this, new CleanupOnUiThread(mNativeLifecycle), true);

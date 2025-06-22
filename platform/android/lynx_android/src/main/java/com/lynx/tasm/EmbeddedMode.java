@@ -3,6 +3,10 @@
 // LICENSE file in the root directory of this source tree.
 package com.lynx.tasm;
 
+import androidx.annotation.IntDef;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 /**
  * Embedded mode is an experimental switch
  * When embeddedMode is set, we offer optimal performance for embedded scenarios.
@@ -24,39 +28,34 @@ package com.lynx.tasm;
  *    - Use bitwise AND (&) to check if an option is enabled
  *    - Example: (mode & ENGINE_POOL) != 0
  */
-public enum EmbeddedMode {
+public final class EmbeddedMode {
+  // Private constructor to prevent instantiation
+  private EmbeddedMode() {}
+  @IntDef(
+      flag = true, // 'flag = true' is crucial, it tells the compiler these can be combined with '|'
+      value = {UNSET, EMBEDDED_MODE_BASE, ENGINE_POOL, LAYOUT_IN_ELEMENT})
+  @Retention(RetentionPolicy.SOURCE)
+  public @interface Mode {}
   /**
    * No optimization options selected
    */
-  UNSET(0),
+  public static final int UNSET = 0;
   /**
    * Basic embedded mode with minimal optimizations
    */
-  EMBEDDED_MODE_BASE(1 << 0),
+  public static final int EMBEDDED_MODE_BASE = 1 << 0;
   /**
    * Engine pool optimization in embedded mode
    */
-  ENGINE_POOL(1 << 1),
-
+  public static final int ENGINE_POOL = 1 << 1;
   /**
    * Layout in Element
    */
-  LAYOUT_IN_ELEMENT(1 << 2),
-
+  public static final int LAYOUT_IN_ELEMENT = 1 << 2;
   /**
    * Combination of all optimization options
    * <p>
    * Note: When adding new optimization options, update this value
    */
-  EMBEDDED_MODE_ALL(EMBEDDED_MODE_BASE.mode() | ENGINE_POOL.mode() | LAYOUT_IN_ELEMENT.mode());
-
-  private final int mMode;
-
-  EmbeddedMode(int mode) {
-    mMode = mode;
-  }
-
-  public int mode() {
-    return mMode;
-  }
+  public static final int EMBEDDED_MODE_ALL = EMBEDDED_MODE_BASE | ENGINE_POOL | LAYOUT_IN_ELEMENT;
 }
