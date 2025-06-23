@@ -2429,6 +2429,15 @@ RENDERER_FUNCTION_CC(FiberCreateComponent) {
             .IsTrue()) {
       component_element->MarkAsWrapperComponent();
     }
+    // TODO(zhouzhitao): Currently, the Component Element is non-standard, and
+    // in fact, TTML is given a non-standard behavior based on this non-standard
+    // Component Element. In the future, the Component Element is expected to be
+    // gradually deprecated, and TTML should also migrate to the standard API.
+    // Therefore, for now, this logic will not be added to SetConfig; the
+    // standard behavior should be a combination of the two PAPIs.
+    if (arg6->GetProperty(BASE_STATIC_STRING(kIsAsyncFlushRoot)).IsTrue()) {
+      component_element->MarkAsyncFlushRoot(true);
+    }
     component_element->SetConfig(arg6->ToLepusValue());
   }
 
@@ -2918,6 +2927,48 @@ RENDERER_FUNCTION_CC(FiberAsyncResolveElement) {
       fml::static_ref_ptr_cast<FiberElement>(arg0->RefCounted()).get();
   CHECK_ILLEGAL_ATTRIBUTE_CONFIG(element, FiberAsyncResolveElement);
   element->AsyncResolveProperty();
+
+  RETURN_UNDEFINED();
+}
+
+RENDERER_FUNCTION_CC(FiberMarkAsyncResolveRoot) {
+  TRACE_EVENT(LYNX_TRACE_CATEGORY, FIBER_MARK_ASYNC_RESOLVE_ROOT);
+  // parameter size = 1
+  // [0] RefCounted -> element to be marked as subtree root for async resolve
+  // [return] undefined
+  CHECK_ARGC_EQ(FiberMarkAsyncResolveRoot, 1);
+  CONVERT_ARG(arg0, 0);
+
+  if (!arg0->RefCounted()) {
+    RETURN_UNDEFINED();
+  }
+
+  auto element = fml::static_ref_ptr_cast<FiberElement>(arg0->RefCounted());
+  element->MarkAsyncFlushRoot(true);
+
+  RETURN_UNDEFINED();
+}
+
+RENDERER_FUNCTION_CC(FiberAsyncResolveSubtreeProperty) {
+  TRACE_EVENT(LYNX_TRACE_CATEGORY, FIBER_ASYNC_RESOLVE_SUBTREE_PROPERTY);
+  // parameter size = 1
+  // [0] RefCounted | Null -> subtree root to be async resolved
+  // [return] undefined
+  CHECK_ARGC_EQ(FiberAsyncResolveSubtreeProperty, 1);
+  CONVERT_ARG(arg0, 0);
+
+  auto self = GET_TASM_POINTER();
+  if (!self->page_proxy()->element_manager()->GetEnableParallelElement()) {
+    RETURN_UNDEFINED();
+  }
+
+  if (!arg0->IsRefCounted()) {
+    RETURN_UNDEFINED();
+  }
+
+  auto* element =
+      fml::static_ref_ptr_cast<FiberElement>(arg0->RefCounted()).get();
+  element->DispatchAsyncResolveSubtreeProperty();
 
   RETURN_UNDEFINED();
 }
@@ -4670,39 +4721,49 @@ RENDERER_FUNCTION_CC(FiberUpdateComponentInfo) {
     RETURN_UNDEFINED();
   }
 
-  tasm::ForEachLepusValue(
-      *arg1, [&component](const auto& key, const auto& value) {
-        constexpr const static char* kComponentID = "componentID";
-        constexpr const static char* kComponentName = "name";
-        constexpr const static char* kComponentPath = "path";
-        constexpr const static char* kComponentEntry = "entry";
-        constexpr const static char* kComponentCSSID = "cssID";
+  tasm::ForEachLepusValue(*arg1, [&component](const auto& key,
+                                              const auto& value) {
+    constexpr const static char* kComponentID = "componentID";
+    constexpr const static char* kComponentName = "name";
+    constexpr const static char* kComponentPath = "path";
+    constexpr const static char* kComponentEntry = "entry";
+    constexpr const static char* kComponentCSSID = "cssID";
 
-        const auto& key_str = key.StdString();
+    const auto& key_str = key.StdString();
 
-        if (key_str == kComponentID) {
-          component->set_component_id(value.String());
-        } else if (key_str == kComponentName) {
-          component->set_component_name(value.String());
-        } else if (key_str == kComponentPath) {
-          component->set_component_path(value.String());
-        } else if (key_str == kComponentEntry) {
-          component->set_component_entry(value.String());
-        } else if (key_str == kComponentCSSID) {
-          // Currently, the `cssID` in `FiberUpdateComponentInfo` updates the
-          // `component_css_id_` of `ComponentElement` rather than `css_id_`. In
-          // the future, we will consider adding two new keys to update
-          // `component_css_id_` and `css_id_` separately. The behavior
-          // corresponding to `cssID` will not change to avoid causing a break.
-          component->SetComponentCSSID(value.Number());
-        } else if (key_str == kElementConfig) {
-          if (value.GetProperty(BASE_STATIC_STRING(kRemoveComponentElement))
-                  .IsTrue()) {
-            component->MarkAsWrapperComponent();
-          }
-          component->SetConfig(value.ToLepusValue());
-        }
-      });
+    if (key_str == kComponentID) {
+      component->set_component_id(value.String());
+    } else if (key_str == kComponentName) {
+      component->set_component_name(value.String());
+    } else if (key_str == kComponentPath) {
+      component->set_component_path(value.String());
+    } else if (key_str == kComponentEntry) {
+      component->set_component_entry(value.String());
+    } else if (key_str == kComponentCSSID) {
+      // Currently, the `cssID` in `FiberUpdateComponentInfo` updates the
+      // `component_css_id_` of `ComponentElement` rather than `css_id_`. In
+      // the future, we will consider adding two new keys to update
+      // `component_css_id_` and `css_id_` separately. The behavior
+      // corresponding to `cssID` will not change to avoid causing a break.
+      component->SetComponentCSSID(value.Number());
+    } else if (key_str == kElementConfig) {
+      if (value.GetProperty(BASE_STATIC_STRING(kRemoveComponentElement))
+              .IsTrue()) {
+        component->MarkAsWrapperComponent();
+      }
+      // TODO(zhouzhitao): Currently, the Component Element is non-standard, and
+      // in fact, TTML is given a non-standard behavior based on this
+      // non-standard Component Element. In the future, the Component Element is
+      // expected to be gradually deprecated, and TTML should also migrate to
+      // the standard API. Therefore, for now, this logic will not be added to
+      // SetConfig; the standard behavior should be a combination of the two
+      // PAPIs.
+      if (value.GetProperty(BASE_STATIC_STRING(kIsAsyncFlushRoot)).IsTrue()) {
+        component->MarkAsyncFlushRoot(true);
+      }
+      component->SetConfig(value.ToLepusValue());
+    }
+  });
   RETURN_UNDEFINED();
 }
 

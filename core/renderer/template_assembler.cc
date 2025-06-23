@@ -2801,6 +2801,13 @@ void TemplateAssembler::OnPageConfigDecoded(
   if (EnableEventReporter()) {
     report::EventTracker::UpdateGenericInfoByPageConfig(instance_id_, config);
   }
+
+  // TODO(zhouzhitao):CSSFragmentParsingOnTASMWorker will become enabled by
+  // default in the future. Once it is enabled by default, this configuration
+  // should be removed.
+  if (config->GetEnableAsyncResolveSubtree()) {
+    element_manager->SetCSSFragmentParsingOnTASMWorkerMTSRender(true);
+  }
 }
 
 bool TemplateAssembler::UseLepusNG() {

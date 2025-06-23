@@ -266,6 +266,10 @@ class FiberElement : public Element,
 
   void AsyncResolveSubtreeProperty();
 
+  void DispatchAsyncResolveSubtreeProperty();
+
+  void DispatchAsyncResolveProperty();
+
   void AsyncPostResolveTaskToThreadPool();
 
   void UpdateResolveStatus(AsyncResolveStatus value) {
@@ -914,6 +918,8 @@ class FiberElement : public Element,
 
     return nullptr;
   }
+  inline bool IsAsyncFlushRoot() const { return is_async_flush_root_; }
+  inline void MarkAsyncFlushRoot(bool value) { is_async_flush_root_ = value; }
 
  protected:
   FiberElement(const FiberElement& element, bool clone_resolved_props);
@@ -1123,6 +1129,8 @@ class FiberElement : public Element,
   bool flush_required_{true};
 
   bool is_first_created_{true};
+
+  bool is_async_flush_root_{false};
 
   // indicate the value of SetRawInlineStyles, we need to split it
   base::String full_raw_inline_style_;

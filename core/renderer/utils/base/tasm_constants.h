@@ -85,6 +85,7 @@ static constexpr const char kUpdateGlobalProps[] = "updateGlobalProps";
 // Constant string associated with radon
 static constexpr const char kRemoveComponentElement[] =
     "removeComponentElement";
+static constexpr const char kIsAsyncFlushRoot[] = "isAsyncFlushRoot";
 static constexpr const char* kComponentCreated = "created";
 static constexpr const char* kComponentAttached = "attached";
 static constexpr const char* kComponentReady = "ready";

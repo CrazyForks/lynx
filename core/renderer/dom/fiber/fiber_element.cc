@@ -5,6 +5,7 @@
 #include "core/renderer/dom/fiber/fiber_element.h"
 
 #include <algorithm>
+#include <deque>
 #include <memory>
 #include <stack>
 #include <string>
@@ -397,6 +398,17 @@ bool FiberElement::WillResolveStyle(StyleMap &merged_styles) {
   return true;
 }
 
+void FiberElement::DispatchAsyncResolveProperty() {
+  if ((dirty_ & ~kDirtyTree) != 0 && IsAttached()) {
+    UpdateResolveStatus(AsyncResolveStatus::kPreparing);
+    ResolveParentComponentElement();
+    if (parent()) {
+      parent()->EnsureTagInfo();
+    }
+    PostResolveTaskToThreadPool(false, element_manager()->ParallelTasks());
+  }
+}
+
 #pragma region simple styling
 
 void FiberElement::SetStyleObjects(
@@ -457,12 +469,10 @@ void FiberElement::AsyncResolveProperty() {
 
 void FiberElement::AsyncPostResolveTaskToThreadPool() {
   if ((dirty_ & ~kDirtyTree) != 0) {
-    // ResolveParentComponentElement needs to be done on Engine Thread for
-    // node_manager may resize when creating element
-    ResolveParentComponentElement();
     UpdateResolveStatus(AsyncResolveStatus::kPrepareTriggered);
     element_manager()->GetTasmWorkerTaskRunner()->PostTask([this]() mutable {
       UpdateResolveStatus(AsyncResolveStatus::kPreparing);
+      ResolveParentComponentElement();
       if (parent()) {
         parent()->EnsureTagInfo();
       }
@@ -1579,6 +1589,7 @@ void FiberElement::FlushActions() {
   reset_inherited_ids_.reset();
 
   flush_required_ = false;
+  is_async_flush_root_ = false;
 }
 
 void FiberElement::OnParallelFlushAsRoot(PerfStatistic &stats) {
@@ -3825,6 +3836,40 @@ void FiberElement::CreateListItemScheduler(
   } else {
     scheduler_adapter_ = std::make_unique<ListItemSchedulerAdapter>(
         this, batch_render_strategy, parent_context, continuous_resolve_tree);
+  }
+}
+
+void FiberElement::DispatchAsyncResolveSubtreeProperty() {
+  if (element_manager()->GetEnableParallelElement() &&
+      ((dirty_ & ~kDirtyTree) != 0) && this->IsAttached()) {
+    UpdateResolveStatus(AsyncResolveStatus::kPrepareTriggered);
+    element_manager()->GetTasmWorkerTaskRunner()->PostTask([this]() mutable {
+      std::deque<FiberElement *> queue;
+      auto root = this;
+      queue.emplace_back(root);
+      while (!queue.empty()) {
+        auto current = queue.front();
+        if ((current != root && current->IsAsyncFlushRoot()) ||
+            current->IsAsyncResolveResolving()) {
+          // skip async flush root element
+          queue.pop_front();
+          continue;
+        }
+        {
+          current->UpdateResolveStatus(AsyncResolveStatus::kPreparing);
+          current->ResolveParentComponentElement();
+          if (current->parent()) {
+            current->parent()->EnsureTagInfo();
+          }
+          current->PostResolveTaskToThreadPool(
+              false, element_manager()->ParallelTasks());
+        }
+        for (const auto &child : current->children()) {
+          queue.emplace_back(child.get());
+        }
+        queue.pop_front();
+      }
+    });
   }
 }
 

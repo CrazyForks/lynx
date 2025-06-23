@@ -18,6 +18,13 @@ TEST_F(LynxBinaryConfigDecoderTest, ReadPipelineSchedulerConfig) {
   EXPECT_TRUE(page_config_->GetEnableParallelParseElementTemplate());
 }
 
+TEST_F(LynxBinaryConfigDecoderTest, ReadEnableAsyncResolveSubtree) {
+  EXPECT_FALSE(page_config_->GetEnableAsyncResolveSubtree());
+  config_decoder_->DecodePageConfig(
+      "{\n  \"enableAsyncResolveSubtree\" : true\n}", page_config_);
+  EXPECT_TRUE(page_config_->GetEnableAsyncResolveSubtree());
+}
+
 }  // namespace test
 }  // namespace tasm
 }  // namespace lynx

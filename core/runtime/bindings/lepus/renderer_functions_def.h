@@ -255,5 +255,7 @@
   V(ElementAnimate)                   \
   V(CreateStyleObject)                \
   V(SetStyleObject)                   \
-  V(UpdateStyleObject)
+  V(UpdateStyleObject)                \
+  V(FiberAsyncResolveSubtreeProperty) \
+  V(FiberMarkAsyncResolveRoot)
 #endif  // CORE_RUNTIME_BINDINGS_LEPUS_RENDERER_FUNCTIONS_DEF_H_

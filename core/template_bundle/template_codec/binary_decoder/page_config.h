@@ -964,6 +964,15 @@ class PageConfig final : public EntryConfig {
         enable ? TernaryBool::TRUE_VALUE : TernaryBool::FALSE_VALUE;
   }
 
+  inline void SetEnableAsyncResolveSubtree(bool enable) {
+    enable_async_resolve_subtree_ =
+        enable ? TernaryBool::TRUE_VALUE : TernaryBool::FALSE_VALUE;
+  }
+
+  inline bool GetEnableAsyncResolveSubtree() {
+    return enable_async_resolve_subtree_ == TernaryBool::TRUE_VALUE;
+  }
+
   bool GetEnableUseContextPool() const {
     switch (enable_use_context_pool_) {
       case TernaryBool::TRUE_VALUE:
@@ -1463,6 +1472,8 @@ class PageConfig final : public EntryConfig {
    * TODO(zhoupeng.z): Apply this optimization to all platforms.
    */
   bool need_post_to_platform_{true};
+
+  TernaryBool enable_async_resolve_subtree_{TernaryBool::UNDEFINE_VALUE};
 
   template <typename T>
   using PageConfigSetter = void (PageConfig::*)(T);

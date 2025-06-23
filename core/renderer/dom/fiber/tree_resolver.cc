@@ -439,6 +439,10 @@ fml::RefPtr<FiberElement> TreeResolver::FromElementInfo(
   }
 
   if (info.config_.IsTable()) {
+    if (info.config_.GetProperty(BASE_STATIC_STRING(kIsAsyncFlushRoot))
+            .IsTrue()) {
+      res->MarkAsyncFlushRoot(true);
+    }
     res->SetConfig(lepus::Value::ShallowCopy(info.config_));
   }
 

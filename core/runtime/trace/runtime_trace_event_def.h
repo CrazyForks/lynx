@@ -278,6 +278,10 @@ inline constexpr const char* const FIBER_LAST_ELEMENT = "FiberLastElement";
 inline constexpr const char* const FIBER_NEXT_ELEMENT = "FiberNextElement";
 inline constexpr const char* const FIBER_ASYNC_RESOLVE_ELEMENT =
     "FiberAsyncResolveElement";
+inline constexpr const char* const FIBER_MARK_ASYNC_RESOLVE_ROOT =
+    "FiberMarkAsyncResolveRoot";
+inline constexpr const char* const FIBER_ASYNC_RESOLVE_SUBTREE_PROPERTY =
+    "FiberAsyncResolveSubtreeProperty";
 inline constexpr const char* const FIBER_REPLACE_ELEMENT =
     "FiberReplaceElement";
 inline constexpr const char* const FIBER_REPLACE_ELEMENTS =

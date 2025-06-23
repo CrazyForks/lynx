@@ -222,6 +222,9 @@ static const char* kCFunctionUpdateComponentInfo = "__UpdateComponentInfo";
 static const char* kCFunctionUpdateListCallbacks = "__UpdateListCallbacks";
 // Other RenderFunctions
 static const char* kCFunctionFlushElementTree = "__FlushElementTree";
+static const char* kCFunctionAsyncResolveSubtreeProperty =
+    "__AsyncResolveSubtree";
+static const char* kCFunctionMarkAsyncFlushRoot = "__MarkAsyncFlushRoot";
 static const char* kCFunctionOnLifecycleEvent = "__OnLifecycleEvent";
 static const char* kCFunctionElementFromBinary = "__ElementFromBinary";
 static const char* kCFunctionElementFromBinaryAsync =

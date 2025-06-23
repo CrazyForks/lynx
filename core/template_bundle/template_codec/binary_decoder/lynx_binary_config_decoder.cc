@@ -288,6 +288,17 @@ static constexpr const char* const kEnableBindICU = "enableICU";
 static constexpr const char* const kEnableQueryComponentSync =
     "enableQueryComponentSync";
 
+/**
+ * @name: enableAsyncFlushSubtree
+ * @description: FE Framework use this config to notify Engine that resolve
+ * subtree binding will be triggered when render DOM (Not exposed to normal
+ * user)
+ * @platform: Both
+ * @supportVersion: 3.4
+ */
+static constexpr const char* const kEnableAsyncFlushSubtree =
+    "enableAsyncResolveSubtree";
+
 bool LynxBinaryConfigDecoder::DecodePageConfig(
     const std::string& config_str, std::shared_ptr<PageConfig>& page_config) {
   rapidjson::Document doc;
@@ -1125,6 +1136,12 @@ bool LynxBinaryConfigDecoder::DecodePageConfig(
         doc[kEnableNativeScheduleCreateViewAsync].GetBool()
             ? TernaryBool::TRUE_VALUE
             : TernaryBool::FALSE_VALUE);
+  }
+
+  if (doc.HasMember(kEnableAsyncFlushSubtree) &&
+      doc[kEnableAsyncFlushSubtree].IsBool()) {
+    page_config->SetEnableAsyncResolveSubtree(
+        doc[kEnableAsyncFlushSubtree].GetBool());
   }
 
   config_helper_.HandlePageConfig(doc, page_config);
