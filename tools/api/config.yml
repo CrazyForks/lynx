@@ -5,6 +5,7 @@
 path:
   doxygen: ../buildtools/doxygen/doxygen
   instruction_doc: https://github.com/lynx-family/lynx/blob/develop/CONTRIBUTING.md#static-code-analysis-tasks
+  node: buildtools/node/bin/node
 android:
   metadata_path:
     - platform/android/lynx_android/src/main

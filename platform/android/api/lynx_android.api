@@ -217,6 +217,9 @@ public interface com::lynx::tasm::behavior::ui::swiper::ViewPager::Adapter {
   public void com.lynx.tasm.behavior.ui.swiper.ViewPager.Adapter.recycle(ViewGroup container, int position, View view);
 }
 
+public class com::lynx::tasm::behavior::shadow::AlignContext :  {
+}
+
 public class com::lynx::tasm::behavior::shadow::AlignParam :  {
   public void com.lynx.tasm.behavior.shadow.AlignParam.setLeftOffset(float leftOffset);
   public void com.lynx.tasm.behavior.shadow.AlignParam.setTopOffset(float topOffset);
@@ -746,6 +749,9 @@ public class com::lynx::tasm::behavior::shadow::text::TextRendererKey::BaseKey :
   public int com.lynx.tasm.behavior.shadow.text.TextRendererKey.BaseKey.hashCode();
 }
 
+public class abstract com::lynx::tasm::animation::layout::BaseLayoutAnimation : com.lynx.tasm.animation.layout.AbstractLayoutAnimation {
+}
+
 public class com::lynx::tasm::behavior::shadow::text::BaselineShiftCalculator :  {
   public com.lynx.tasm.behavior.shadow.text.BaselineShiftCalculator.BaselineShiftCalculator(List< Float > textFontMetricForVerticalAlign);
   public float com.lynx.tasm.behavior.shadow.text.BaselineShiftCalculator.calcBaselineShiftAscender(int verticalAlign, float verticalAlignValue, float ascender, float descender);
@@ -1116,6 +1122,9 @@ public class com::lynx::jsbridge::CallbackImpl : com.lynx.react.bridge.Callback 
   public void com.lynx.jsbridge.CallbackImpl.invoke(Object... args);
   public void com.lynx.jsbridge.CallbackImpl.invokeCallback(Object... args);
   public void com.lynx.jsbridge.CallbackImpl.resetNativePtr();
+}
+
+public interface com::lynx::tasm::base::CalledByNative {
 }
 
 public class com::lynx::tasm::utils::CallStackUtil :  {
@@ -1981,6 +1990,9 @@ public interface com::lynx::tasm::behavior::ui::IDrawChildHook::IDrawChildHookBi
   public void com.lynx.tasm.behavior.ui.IDrawChildHook.IDrawChildHookBinding.bindDrawChildHook(IDrawChildHook hook);
 }
 
+public interface com::lynx::tasm::IDynamicHandler {
+}
+
 public interface com::lynx::tasm::fluency::LynxFpsTracer::IFluencyCallback {
   public void com.lynx.tasm.fluency.LynxFpsTracer.IFluencyCallback.report(LynxFpsRawMetrics rawMetrics);
 }
@@ -2080,6 +2092,9 @@ public interface com::lynx::tasm::service::ILynxImageService {
   public void com.lynx.tasm.service.ILynxImageService.setImageSRSize(@NonNull Object request, @NonNull View view);
   public void com.lynx.tasm.service.ILynxImageService.setImageCacheChoice(@NonNull String cacheChoice, @NonNull Object builder);
   public void com.lynx.tasm.service.ILynxImageService.setImagePlaceHolderHash(@NonNull Object hierarchy, @NonNull Object request, @NonNull Object scaleType, @NonNull String hash, @Nullable String metaData, int width, int height, int radius, int iterations, boolean isPreView);
+}
+
+public interface com::lynx::jsbridge::jsi::ILynxJSIObject {
 }
 
 public interface com::lynx::jsbridge::jsi::ILynxJSIObjectDescriptor {
@@ -2794,6 +2809,9 @@ public class com::lynx::tasm::animation::layout::LayoutAnimationManager :  {
   public void com.lynx.tasm.animation.layout.LayoutAnimationManager.setLayoutAnimationDeleteDuration(double duration);
 }
 
+public interface com::lynx::tasm::animation::AnimationConstant::LayoutAnimationType {
+}
+
 public class abstract com::lynx::tasm::behavior::LayoutContext :  {
   public abstract int com.lynx.tasm.behavior.LayoutContext.createNode(int signature, String tagName, ReadableMap props, ReadableMapBuffer initialStyles, ReadableArray eventListeners, boolean allowInline);
   public abstract void com.lynx.tasm.behavior.LayoutContext.removeNode(int parentSignature, int childSignature, int index);
@@ -2810,6 +2828,12 @@ public class abstract com::lynx::tasm::behavior::LayoutContext :  {
   public void com.lynx.tasm.behavior.LayoutContext.triggerLayout();
   public long com.lynx.tasm.behavior.LayoutContext.getNativeLayoutContextPtr();
   public void com.lynx.tasm.behavior.LayoutContext.destroy();
+}
+
+public class com::lynx::tasm::animation::layout::LayoutCreateAnimation : com.lynx.tasm.animation.layout.BaseLayoutAnimation {
+}
+
+public class com::lynx::tasm::animation::layout::LayoutDeleteAnimation : com.lynx.tasm.animation.layout.BaseLayoutAnimation {
 }
 
 public interface com::lynx::tasm::animation::layout::LayoutHandlingAnimation {
@@ -2986,6 +3010,9 @@ public class com::lynx::tasm::behavior::ui::list::ListPreloadCache :  {
   public boolean com.lynx.tasm.behavior.ui.list.ListPreloadCache.contains(@NonNull String itemKey);
   public void com.lynx.tasm.behavior.ui.list.ListPreloadCache.clear();
   public void com.lynx.tasm.behavior.ui.list.ListPreloadCache.destroy();
+}
+
+public class com::lynx::tasm::behavior::ui::list::ListScroller :  {
 }
 
 public class com::lynx::tasm::behavior::ui::list::ListStickyManager : RecyclerView.OnScrollListener, View.OnAttachStateChangeListener {
@@ -3225,6 +3252,9 @@ public enum com::lynx::tasm::animation::keyframe::LynxKeyframeAnimator::LynxAnim
   public com.lynx.tasm.animation.keyframe.LynxKeyframeAnimator.LynxAnimationPropertyType.SCALE_Y SCALE_Y;
   public com.lynx.tasm.animation.keyframe.LynxKeyframeAnimator.LynxAnimationPropertyType.OPACITY OPACITY;
   public com.lynx.tasm.animation.keyframe.LynxKeyframeAnimator.LynxAnimationPropertyType.BG_COLOR BG_COLOR;
+}
+
+public interface com::lynx::jsbridge::LynxAttribute {
 }
 
 public class com::lynx::tasm::behavior::ui::utils::LynxBackground : LynxDrawableManager< BackgroundDrawable > {
@@ -4028,6 +4058,9 @@ public class com::lynx::devtoolwrapper::LynxDevToolUtils :  {
   public static void com.lynx.devtoolwrapper.LynxDevToolUtils.setDevtoolEnv(String groupKey, Set< String > newGroupValues);
   public static Object com.lynx.devtoolwrapper.LynxDevToolUtils.getDevtoolEnv(String key, Object defaultValue);
   public static Set< String > com.lynx.devtoolwrapper.LynxDevToolUtils.getDevtoolEnv(String groupKey);
+}
+
+public class abstract com::lynx::tasm::behavior::ui::utils::LynxDrawableManager< T extends LayerDrawable :  {
 }
 
 public class com::lynx::tasm::LynxEngineBuilder : com.lynx.tasm.LynxViewBuilder {
@@ -4942,6 +4975,12 @@ public class com::lynx::tasm::service::LynxMemoryInfo :  {
   public int com.lynx.tasm.service.LynxMemoryInfo.getIsFlattenAnim();
 }
 
+public interface com::lynx::tasm::service::LynxMemoryInfo::LynxMemoryType {
+}
+
+public interface com::lynx::jsbridge::LynxMethod {
+}
+
 public class com::lynx::jsbridge::LynxMethodWrapper :  {
   public Method com.lynx.jsbridge.LynxMethodWrapper.getMethod();
   public String com.lynx.jsbridge.LynxMethodWrapper.getSignature();
@@ -5106,6 +5145,9 @@ public interface com::lynx::tasm::behavior::LynxPropGroup {
   public float com.lynx.tasm.behavior.LynxPropGroup.defaultFloat() default 0.0f;
   public double com.lynx.tasm.behavior.LynxPropGroup.defaultDouble() default 0.0;
   public int com.lynx.tasm.behavior.LynxPropGroup.defaultInt() default 0;
+}
+
+public interface com::lynx::tasm::behavior::LynxPropsHolder {
 }
 
 public class com::lynx::tasm::provider::LynxProviderRegistry :  {
@@ -5858,6 +5900,9 @@ public class com::lynx::tasm::behavior::ui::utils::LynxUIHelper :  {
   public static RectF com.lynx.tasm.behavior.ui.utils.LynxUIHelper.getRelativePositionInfo(final LynxBaseUI ui, ReadableMap params);
 }
 
+public interface com::lynx::tasm::behavior::LynxUIMethod {
+}
+
 public class com::lynx::tasm::behavior::LynxUIMethodConstants :  {
   public final int com.lynx.tasm.behavior.LynxUIMethodConstants.SUCCESS SUCCESS;
   public final int com.lynx.tasm.behavior.LynxUIMethodConstants.UNKNOWN UNKNOWN;
@@ -5886,6 +5931,9 @@ public class com::lynx::tasm::behavior::utils::LynxUIMethodsCache :  {
 public class com::lynx::tasm::behavior::utils::LynxUIMethodsExecutor :  {
   public static void com.lynx.tasm.behavior.utils.LynxUIMethodsExecutor.invokeMethod(LynxBaseUI ui, String methodName, ReadableMap params, Callback callback);
   public static void com.lynx.tasm.behavior.utils.LynxUIMethodsExecutor.registerMethodInvoker(LynxUIMethodInvoker methodInvoker);
+}
+
+public interface com::lynx::tasm::behavior::LynxUIMethodsHolder {
 }
 
 public class com::lynx::tasm::behavior::utils::LynxUIMethodsHolderAutoRegister :  {
@@ -6408,6 +6456,9 @@ public class com::lynx::tasm::utils::MatrixMathUtils :  {
   public static double com.lynx.tasm.utils.MatrixMathUtils.degreesToRadians(double degrees);
 }
 
+public class com::lynx::tasm::behavior::shadow::MeasureContext :  {
+}
+
 public interface com::lynx::tasm::behavior::shadow::MeasureFunc {
   public long com.lynx.tasm.behavior.shadow.MeasureFunc.measure(LayoutNode node, float width, MeasureMode widthMode, float height, MeasureMode heightMode);
 }
@@ -6514,6 +6565,9 @@ public class com::lynx::tasm::performance::performanceobserver::MetricFcpEntry :
   public PerformanceMetric com.lynx.tasm.performance.performanceobserver.MetricFcpEntry.lynxFcp lynxFcp;
   public PerformanceMetric com.lynx.tasm.performance.performanceobserver.MetricFcpEntry.totalFcp totalFcp;
   public com.lynx.tasm.performance.performanceobserver.MetricFcpEntry.MetricFcpEntry(HashMap< String, Object > props);
+}
+
+public interface com::lynx::tasm::EmbeddedMode::Mode {
 }
 
 public class com::lynx::tasm::behavior::ui::swiper::ModeCarryTransformer : com.lynx.tasm.behavior.ui.swiper.ViewPager.PageTransformer {
@@ -6815,6 +6869,9 @@ public class com::lynx::tasm::behavior::ui::UIShadowProxy::Outline :  {
   public float com.lynx.tasm.behavior.ui.UIShadowProxy.Outline.mWidth mWidth;
   public Rect com.lynx.tasm.behavior.ui.UIShadowProxy.Outline.mFrameRect mFrameRect;
   public com.lynx.tasm.behavior.ui.UIShadowProxy.Outline.Outline();
+}
+
+public interface com::lynx::tasm::behavior::StyleConstants::OverflowType {
 }
 
 public interface com::lynx::devtoolwrapper::OverlayService {
@@ -7739,6 +7796,12 @@ public class com::lynx::tasm::rendernode::compat::RenderNodeImpl : com.lynx.tasm
   public boolean com.lynx.tasm.rendernode.compat.RenderNodeImpl.hasDisplayList();
 }
 
+public interface com::lynx::tasm::LynxTemplateRender::RenderPhaseName {
+}
+
+public interface com::lynx::tasm::provider::LynxResRequest::ReqMethod {
+}
+
 public class com::lynx::tasm::core::ResManager :  {
   public final String com.lynx.tasm.core.ResManager.HTTP_SCHEME HTTP_SCHEME;
   public final String com.lynx.tasm.core.ResManager.HTTPS_SCHEME HTTPS_SCHEME;
@@ -7753,6 +7816,9 @@ public class com::lynx::tasm::core::ResManager :  {
 
 public class com::lynx::tasm::core::ResourceLoader :  {
   public byte[] com.lynx.tasm.core.ResourceLoader.loadLynxJSAsset(String name);
+}
+
+public class abstract com::lynx::ref::ResourceReleaser :  {
 }
 
 public enum com::lynx::tasm::resourceprovider::LynxResourceResponse::ResponseState {
@@ -7801,6 +7867,9 @@ public interface com::lynx::tasm::image::ScalingUtils::ScaleType {
   public Matrix com.lynx.tasm.image.ScalingUtils.ScaleType.getTransform(Matrix outTransform, Rect parentBounds, int childWidth, int childHeight, float focusX, float focusY);
 }
 
+public class com::lynx::tasm::image::ScalingUtils :  {
+}
+
 public interface com::lynx::devtoolwrapper::ScreenshotBitmapHandler {
   public void com.lynx.devtoolwrapper.ScreenshotBitmapHandler.sendBitmap(Bitmap bitmap);
 }
@@ -7840,6 +7909,9 @@ public class com::lynx::tasm::service::security::SecurityResult :  {
 public class com::lynx::tasm::behavior::shadow::text::BaseTextShadowNode::SetSpanOperation :  {
   public com.lynx.tasm.behavior.shadow.text.BaseTextShadowNode.SetSpanOperation.SetSpanOperation(int start, int end, Object what);
   public void com.lynx.tasm.behavior.shadow.text.BaseTextShadowNode.SetSpanOperation.execute(SpannableStringBuilder sb);
+}
+
+public interface com::lynx::tasm::behavior::utils::Settable {
 }
 
 public class com::lynx::tasm::behavior::ui::ShadowData :  {
@@ -8018,6 +8090,9 @@ public enum com::lynx::tasm::LynxSSRHelper::SSRHydrateStatus {
 public class com::lynx::tasm::behavior::shadow::text::StaticLayoutCompat :  {
   public static StaticLayout com.lynx.tasm.behavior.shadow.text.StaticLayoutCompat.get(CharSequence source, int bufstart, int bufend, TextPaint paint, int outerwidth, Layout.Alignment align, float spacingmult, float spacingadd, boolean includepad, TextUtils.TruncateAt ellipsize, int maxLines);
   public static StaticLayout com.lynx.tasm.behavior.shadow.text.StaticLayoutCompat.get(CharSequence source, int bufstart, int bufend, TextPaint paint, int outerwidth, Layout.Alignment align, float spacingmult, float spacingadd, boolean includepad, TextUtils.TruncateAt ellipsize, int maxLines, TextDirectionHeuristic directionHeuristic);
+}
+
+public class com::lynx::tasm::behavior::ui::LynxBaseUI::Sticky : RectF {
 }
 
 public interface com::lynx::tasm::resourceprovider::generic::StreamDelegate {
@@ -8423,6 +8498,9 @@ public class com::lynx::tasm::behavior::shadow::text::TextAttributes :  {
   public void com.lynx.tasm.behavior.shadow.text.TextAttributes.setHasValidTypeface(boolean hasTypefaceUpdated);
   public boolean com.lynx.tasm.behavior.shadow.text.TextAttributes.getHyphen();
   public void com.lynx.tasm.behavior.shadow.text.TextAttributes.setHyphen(boolean enable);
+}
+
+public interface com::lynx::tasm::behavior::StyleConstants::TextDecoration {
 }
 
 public class com::lynx::tasm::behavior::shadow::text::TextDecorationSpan : CharacterStyle {
@@ -9231,6 +9309,9 @@ public class com::lynx::tasm::behavior::ui::list::container::UIListContainer : c
 
 public class com::lynx::tasm::behavior::ui::list::UIListItem : com.lynx.tasm.behavior.ui.view.UIComponent {
   public com.lynx.tasm.behavior.ui.list.UIListItem.UIListItem(LynxContext context);
+}
+
+public class com::lynx::tasm::behavior::CSSPropertySetter::UIPaintStyles :  {
 }
 
 public interface com::lynx::tasm::behavior::ui::UIParent {

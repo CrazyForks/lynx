@@ -21,6 +21,14 @@ CSS_GENERATOR_PATH = os.path.join(TOOLS_DIR_PATH, "css_generator")
 PERFORMANCE_OBSERVER_PATH = os.path.join(
     TOOLS_DIR_PATH, "performance", "performance_observer"
 )
+API_DOC_ANNOTATION = """/*
+ * This file is generated, do not edit.
+ * @generated
+ *
+ * @generate-command: python3 tools/api/main.py -u
+ *
+ */\n
+"""
 
 API_CONFIG = None
 API_CONFIG_PATH = os.path.abspath(
@@ -32,6 +40,9 @@ with open(API_CONFIG_PATH, "r") as f:
         os.path.join(LYNX_ROOT_PATH, API_CONFIG["path"]["doxygen"])
     )
     HANDLE_FAILED_INSTRUCTION = API_CONFIG["path"]["instruction_doc"]
+    NODE_PATH = os.path.normpath(
+        os.path.join(LYNX_ROOT_PATH, API_CONFIG["path"]["node"])
+    )
 
 
 def guarantee_generated_files():

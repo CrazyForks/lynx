@@ -34,6 +34,8 @@ class DoxygenConfig:
                 os.path.dirname(__file__),
                 os.pardir,
                 os.pardir,
+                os.pardir,
+                os.pardir,
                 "platform",
                 "android",
                 "api",
@@ -42,6 +44,8 @@ class DoxygenConfig:
         elif platform == "ios":
             self.doxygen_config_path = os.path.join(
                 os.path.dirname(__file__),
+                os.pardir,
+                os.pardir,
                 os.pardir,
                 os.pardir,
                 "platform",
@@ -69,26 +73,28 @@ class DoxygenConfig:
 
         return new_config_path
 
-    def execute(self, api_path, platform):
+    def execute(self, api_path, platform) -> bool:
         target_config_path = self.prepare_config()
         if not target_config_path:
             print("prepare config failed")
             return False
-
+        command = [DOXYGEN_PATH, target_config_path]
         remove_dirs(os.path.join(api_path, platform, "xml"))
         remove_dirs(os.path.join(api_path, platform, "html"))
 
         try:
             result = subprocess.run(
-                [DOXYGEN_PATH, target_config_path],
+                command,
                 capture_output=True,
                 text=True,
                 cwd=api_path,
                 check=True,
             )
-            return True
         except subprocess.CalledProcessError as e:
-            print(f"generate api metadata failed: {e}", file=sys.stderr)
+            print(f"generate api metadata failed: {e.stderr}", file=sys.stderr)
             return False
         finally:
-            os.remove(target_config_path)
+            if platform == "ios" or platform == "android":
+                os.remove(target_config_path)
+
+        return True

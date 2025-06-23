@@ -44,6 +44,9 @@ public class AbsLynxUIScroller : <__covariant V UIView> {
   public void AbsLynxUIScroller::removeScrollerDelegate:(id< LynxUIScrollerDelegate > delegate);
 }
 
+public class AlignContext : NSObject {
+}
+
 public class AlignParam : NSObject {
   public CGFloat AlignParam::leftOffset leftOffset;
   public CGFloat AlignParam::topOffset topOffset;
@@ -393,6 +396,9 @@ public class LynxBackgroundManager : NSObject, <CALayerDelegate> {
   public CGPathRef LynxBackgroundManager::createBezierPathWithRoundedRect:borderRadii:(CGRect bounds,[borderRadii] LynxBorderRadii borderRadii);
 }
 
+public class LynxBackgroundNoneDrawable : LynxBackgroundDrawable {
+}
+
 public class LynxBackgroundPosition : NSObject {
   public LynxPlatformLength* _Nullable LynxBackgroundPosition::value value;
   public instancetype _Nullable LynxBackgroundPosition::initWithValue:(LynxPlatformLength *_Nullable value);
@@ -695,6 +701,9 @@ public class LynxBoxShadowLayer : CALayer {
 public class LynxCallStackUtil : NSObject {
   public NSString * LynxCallStackUtil::getCallStack();
   public NSString * LynxCallStackUtil::getCallStack:(NSException *e);
+}
+
+public class LynxCardManager : LynxBaseCardManager {
 }
 
 public class LynxCollectionDataSource : NSObject, <UICollectionViewDataSource> {
@@ -1030,6 +1039,9 @@ public interface LynxConverter(UI) {
   public COLOR_CLASS * LynxConverter(UI)::toUIColor:(id value);
 }
 
+public interface LynxConverter(UIViewContentMode) {
+}
+
 public class LynxConvertUtils : NSObject {
   public NSString * LynxConvertUtils::convertToJsonData:(NSDictionary *dict);
 }
@@ -1088,6 +1100,9 @@ public protocol LynxDebuggerProtocol-p : <NSObject> {
   public instancetype LynxDebuggerProtocol-p::singleton();
   public BOOL LynxDebuggerProtocol-p::enable:withOptions:(NSURL *url,[withOptions] NSDictionary *options);
   public void LynxDebuggerProtocol-p::setOpenCardCallback:(LynxOpenCardCallback callback);
+}
+
+public class LynxDefaultGestureHandler : LynxBaseGestureHandler {
 }
 
 public class LynxDetailEvent : LynxCustomEvent {
@@ -1312,6 +1327,9 @@ public class LynxEventEmitterUnitTestHelper : LynxEventEmitter {
   public void LynxEventEmitterUnitTestHelper::clearEvent();
 }
 
+public class LynxEventHanderUnitTest : XCTestCase {
+}
+
 public class LynxEventHandler : NSObject {
   public UIView* LynxEventHandler::rootView rootView;
   public LynxEventEmitter* LynxEventHandler::eventEmitter eventEmitter;
@@ -1471,8 +1489,14 @@ public class LynxFeatureCounter : NSObject {
   public void LynxFeatureCounter::count:instanceId:(LynxFeature feature,[instanceId] int32_t instanceId);
 }
 
+public class LynxFetchModule : NSObject, <LynxModule> {
+}
+
 public class LynxFilterUtil : NSObject {
   public id LynxFilterUtil::getFilterWithType:filterAmount:(LynxFilterType type,[filterAmount] CGFloat filter_amount);
+}
+
+public class LynxFlingGestureHandler : LynxBaseGestureHandler {
 }
 
 public class LynxFluencyConfig : NSObject {
@@ -1581,6 +1605,12 @@ public class LynxFPSRecord : NSObject, <NSCopying> {
   public instancetype LynxFPSRecord::initWithKey:(id< NSCopying > key);
   public void LynxFPSRecord::setTimeout:completion:(NSTimeInterval timeout,[completion] void(^_Nullable completion)(LynxFPSRecord *));
   public void LynxFPSRecord::reset();
+}
+
+public class LynxFrameRender : NSObject {
+}
+
+public class LynxFrameView : UIView, <LUIBodyView> {
 }
 
 public protocol LynxGenericResourceFetcher-p : <NSObject> {
@@ -1851,8 +1881,14 @@ public protocol LynxImageProcessor-p : <NSObject> {
   public NSString * LynxImageProcessor-p::cacheKey();
 }
 
+public class LynxImageShadowNode : LynxShadowNode {
+}
+
 public protocol LynxImpressionParentView-p : <NSObject> {
   public BOOL LynxImpressionParentView-p::shouldManualExposure();
+}
+
+public class LynxImpressionView : LynxUI, <LynxInnerImpressionView> {
 }
 
 public class LynxInitBackgroundRuntimeEntry : LynxPerformanceEntry {
@@ -1877,11 +1913,23 @@ public class LynxInitLynxviewEntry : LynxPerformanceEntry {
   public instancetype LynxInitLynxviewEntry::initWithDictionary:(NSDictionary *dictionary);
 }
 
+public class LynxInlineImageShadowNode : LynxShadowNode {
+}
+
+public class LynxInlineTextShadowNode : LynxBaseTextShadowNode {
+}
+
+public class LynxInlineTruncationShadowNode : LynxBaseTextShadowNode {
+}
+
 public class LynxInnerImpressionView : UIView {
   public BOOL LynxInnerImpressionView::onScreen onScreen;
   public float LynxInnerImpressionView::impressionPercent impressionPercent;
   public void LynxInnerImpressionView::impression();
   public void LynxInnerImpressionView::exit();
+}
+
+public class LynxIntersectionObserverModule : NSObject, <LynxContextModule> {
 }
 
 public protocol LynxJSBTimingListener-p : <NSObject> {
@@ -1942,6 +1990,9 @@ public class LynxKeyframeParsedData : NSObject {
 
 public class LynxKeyframes : NSObject {
   public NSDictionary<NSString*, NSDictionary<NSString*, id>*>* LynxKeyframes::styles styles;
+}
+
+public class LynxLayer : CALayer {
 }
 
 public class LynxLayoutAnimationManager : NSObject {
@@ -2143,6 +2194,9 @@ public protocol LynxListEventsProtocol-p : <NSObject> {
   public NSArray< id< LynxListCell > > * LynxListEventsProtocol-p::attachedCells();
 }
 
+public class LynxListHorizontalLayoutManager : LynxListLayoutManager {
+}
+
 public class LynxListLayoutManager : NSObject, <LynxListLayoutProtocol> {
   public NSMutableArray<LynxListLayoutModelLight *>* LynxListLayoutManager::models models;
   public NSInteger LynxListLayoutManager::firstInvalidIndex firstInvalidIndex;
@@ -2242,6 +2296,9 @@ public class LynxListScrollEventEmitterHelper : NSObject {
   public NSString * LynxListScrollEventEmitterHelper::fetchScrollEvent:(UIScrollView *scrollView);
 }
 
+public class LynxListVerticalLayoutManager : LynxListLayoutManager {
+}
+
 public class LynxListViewCellLight : UIView, <LynxListCell> {
   public UIView* LynxListViewCellLight::contentView contentView;
   public NSString* LynxListViewCellLight::reuseIdentifier reuseIdentifier;
@@ -2334,6 +2391,9 @@ public class LynxLogObserver : NSObject {
   public LynxLogSource LynxLogObserver::acceptSource acceptSource;
   public NSInteger LynxLogObserver::acceptRuntimeId acceptRuntimeId;
   public instancetype LynxLogObserver::initWithLogFunction:minLogLevel:(LynxLogFunction logFunction,[minLogLevel] LynxLogLevel minLogLevel);
+}
+
+public class LynxLongPressGestureHandler : LynxBaseGestureHandler {
 }
 
 public class LynxLruCache : NSObject {
@@ -2440,6 +2500,9 @@ public protocol LynxModule-p : <NSObject> {
   public NSString* LynxModule-p::name name;
 }
 
+public class LynxNativeGestureHandler : LynxPanGestureHandler {
+}
+
 public class LynxNativeLayoutNode : LynxShadowNode {
   public NSString* LynxNativeLayoutNode::idSelector idSelector;
   public MeasureResult LynxNativeLayoutNode::measureWithMeasureParam:MeasureContext:(MeasureParam *param,[MeasureContext] MeasureContext *context);
@@ -2498,6 +2561,9 @@ public protocol LynxPageReloadHelperProto-p : <NSObject> {
   public void LynxPageReloadHelperProto-p::removeTextLabel();
   public void LynxPageReloadHelperProto-p::popTextLabel();
   public void LynxPageReloadHelperProto-p::attachLynxView:(nonnull LynxView *lynxView);
+}
+
+public class LynxPanGestureHandler : LynxBaseGestureHandler {
 }
 
 public class LynxPerformance : NSObject {
@@ -2811,6 +2877,9 @@ public protocol LynxServiceDevToolProtocol-p : <LynxServiceProtocol> {
   public NSSet * LynxServiceDevToolProtocol-p::devtoolEnvGetGroup:(NSString *groupKey);
 }
 
+public protocol LynxServiceEventReporterProtocol-p : <LynxServiceProtocol>, <LynxEventReportObserverProtocol> {
+}
+
 public protocol LynxServiceExtensionProtocol-p : <LynxServiceProtocol> {
   public void LynxServiceExtensionProtocol-p::onLynxEnvSetup();
   public void LynxServiceExtensionProtocol-p::onLynxViewSetup:group:config:(LynxContext *lynxContext,[group] LynxGroup *group,[config] LynxConfig *config);
@@ -3020,6 +3089,9 @@ public class LynxSubErrorCodeUtils : NSObject {
   public NSString * LynxSubErrorCodeUtils::consumerToStr:(ELynxConsumer consumer);
 }
 
+public class LynxTapGestureHandler : LynxBaseGestureHandler {
+}
+
 public class LynxTemplateBundle : NSObject {
   public NSString* LynxTemplateBundle::url url;
   public instancetype _Nullable LynxTemplateBundle::initWithTemplate:(nonnull NSData *tem);
@@ -3173,6 +3245,9 @@ public protocol LynxTemplateRenderDelegate-p : <NSObject> {
   public void LynxTemplateRenderDelegate-p::templateRenderOnPageStarted:withPipelineInfo:(LynxTemplateRender *templateRender,[withPipelineInfo] LynxPipelineInfo *pipelineInfo);
 }
 
+public class LynxTemplateRenderDelegateExternal : NSObject, <LynxTemplateRenderDelegate> {
+}
+
 public protocol LynxTemplateRenderProtocol-p : <NSObject> {
   public LynxViewSizeMode LynxTemplateRenderProtocol-p::layoutWidthMode layoutWidthMode;
   public LynxViewSizeMode LynxTemplateRenderProtocol-p::layoutHeightMode layoutHeightMode;
@@ -3320,6 +3395,9 @@ public class LynxTextRendererCache : NSObject, <NSCacheDelegate> {
   public void LynxTextRendererCache::clearCache();
 }
 
+public class LynxTextShadowNode : LynxBaseTextShadowNode, <LynxCustomMeasureDelegate> {
+}
+
 public class LynxTextStyle : NSObject, <NSCopying> {
   public CGFloat LynxTextStyle::fontSize fontSize;
   public CGFloat LynxTextStyle::lineHeight lineHeight;
@@ -3413,6 +3491,9 @@ public class LynxThreadManager : NSObject {
   public dispatch_queue_t LynxThreadManager::getCachedQueueWithPrefix:(NSString *_Nonnull identifier);
 }
 
+public class LynxThreadSafeDictionary : <KeyType>, <ObjectType> {
+}
+
 public protocol LynxTimingCollectorProtocol-p : <NSObject> {
   public void LynxTimingCollectorProtocol-p::markTiming:pipelineID:(NSString *key,[pipelineID] nullable NSString *pipelineID);
   public void LynxTimingCollectorProtocol-p::setTiming:key:pipelineID:(uint64_t timestamp,[key] NSString *key,[pipelineID] nullable NSString *pipelineID);
@@ -3467,6 +3548,9 @@ public class LynxTouchHandler : UIGestureRecognizer {
   public void LynxTouchHandler()::removeGestureArenaManager:(NSInteger index);
   public void LynxTouchHandler()::showMessageOnConsole:withLevel:(NSString *msg, [withLevel] int32_t level);
   public void LynxTouchHandler()::resetTouchEnv();
+}
+
+public class LynxTouchHandlerUnitTest : XCTestCase {
 }
 
 public class LynxTransformOriginRaw : NSObject {
@@ -3753,6 +3837,9 @@ public interface LynxUI(Gesture) {
   public void LynxUI(Gesture)::interceptGesture:(BOOL intercept);
 }
 
+public interface LynxUI(LynxHeroTransition) {
+}
+
 public class LynxUICollection : LynxUIListLoader, <UICollectionView> {
   public <LynxUIListScrollEvent> BOOL LynxUICollection::noRecursiveLayout noRecursiveLayout;
   public BOOL LynxUICollection::forceReloadData forceReloadData;
@@ -3800,6 +3887,9 @@ public class LynxUICollection : LynxUIListLoader, <UICollectionView> {
 
 public interface LynxUICollection(Delegate) {
   public void LynxUICollection(Delegate)::sendLayoutCompleteEvent();
+}
+
+public interface LynxUICollection(PropSetter) {
 }
 
 public class LynxUIComponent : LynxUIView {
@@ -3957,6 +4047,12 @@ public class LynxUIExposureDetail : NSObject {
   public LynxUI* LynxUIExposureDetail::ui ui;
 }
 
+public class LynxUIExposureUnitTest : XCTestCase {
+}
+
+public class LynxUIFilterImage : LynxUI, <UIImageView> {
+}
+
 public class LynxUIFrame : LynxUI, <LynxFrameView> {
   public void LynxUIFrame::onReceiveAppBundle:(LynxTemplateBundle *bundle);
 }
@@ -3971,6 +4067,9 @@ public class LynxUIImage : LynxUI, <UIImageView> {
   public BOOL LynxUIImage::shouldUseNewImage();
   public void LynxUIImage::requestImage();
   public BOOL LynxUIImage::isAnimatedImage:(UIImage *image);
+}
+
+public class LynxUIInlineImage : LynxUIImage {
 }
 
 public class LynxUIIntersectionObserver : NSObject {
@@ -4000,6 +4099,9 @@ public class LynxUIIntersectionObserverManager : NSObject, <LynxEventObserver> {
   public void LynxUIIntersectionObserverManager::destroyIntersectionObserver();
   public void LynxUIIntersectionObserverManager::reset();
   public void LynxUIIntersectionObserverManager()::setEnableNewIntersectionObserver:(BOOL enable);
+}
+
+public class LynxUIIntersectionObserverUnitTest : XCTestCase {
 }
 
 public class LynxUIKitAPIAdapter : NSObject {
@@ -4101,6 +4203,9 @@ public class LynxUIListInvalidationContext : NSObject {
   public instancetype LynxUIListInvalidationContext::initWithScrollToInfo:offset:alignTo:smooth:(NSInteger position,[offset] CGFloat offset,[alignTo] NSString *alignTo,[smooth] BOOL smooth);
 }
 
+public class LynxUIListItem : LynxUIComponent {
+}
+
 public class LynxUIListLight : LynxUI, <UIScrollView> {
   public <LynxUIComponentLayoutObserver> LynxUIListInvalidationContext* LynxUIListLight::generalPropsInfo generalPropsInfo;
   public LynxListLayoutManager* LynxUIListLight::layout layout;
@@ -4110,6 +4215,9 @@ public class LynxUIListLight : LynxUI, <UIScrollView> {
   public NSDictionary* _Nullable LynxUIListLight::diffResultFromTasm diffResultFromTasm;
   public NSDictionary<NSString*, NSArray*>* LynxUIListLight::curComponents curComponents;
   public void LynxUIListLight::setVerticalOrientation:(BOOL value);
+}
+
+public interface LynxUIListLight(propSetter) {
 }
 
 public class LynxUIListLoader : <NSObject__covariant V UIView> {
@@ -4164,6 +4272,9 @@ public class LynxUIListScrollThresholds : NSObject {
   public NSNumber* LynxUIListScrollThresholds::scrollToStartItemCount scrollToStartItemCount;
   public NSNumber* LynxUIListScrollThresholds::scrollToEndItemCount scrollToEndItemCount;
   public NSNumber* LynxUIListScrollThresholds::throttle throttle;
+}
+
+public class LynxUIMethodModule : NSObject, <LynxContextModule> {
 }
 
 public class LynxUIMethodProcessor : NSObject {
@@ -4285,6 +4396,9 @@ public interface LynxUIOwner(Private) {
   public void LynxUIOwner(Private)::setFrameAppBundle:withTag:(LynxTemplateBundle *bundle,[withTag] NSInteger sign);
 }
 
+public class LynxUIRenderer : NSObject, <LynxUIRendererProtocol> {
+}
+
 public protocol LynxUIRendererProtocol-p : <NSObject> {
   public BOOL LynxUIRendererProtocol-p::useInvokeUIMethodFunction useInvokeUIMethodFunction;
   public void LynxUIRendererProtocol-p::attachContainerView:(UIView< LUIBodyView > *containerView);
@@ -4391,6 +4505,9 @@ public class LynxUIUnitUtils : NSObject {
   public CGFloat LynxUIUnitUtils::roundPtToPhysicalPixel:(CGFloat number);
   public void LynxUIUnitUtils::roundRectToPhysicalPixelGrid:(CGRect *rect);
   public void LynxUIUnitUtils::roundInsetsToPhysicalPixelGrid:(UIEdgeInsets *insets);
+}
+
+public class LynxUIView : LynxUI, <UIView> {
 }
 
 public class LynxUnitTest : XCTestCase {
@@ -4582,6 +4699,9 @@ public class LynxView : UIView, <LUIBodyView> {
 public interface LynxView(Identify) {
   public NSString* LynxView(Identify)::containerID containerID;
   public NSString* LynxView(Identify)::namescope namescope;
+}
+
+public protocol LynxViewBaseLifecycle-p : <NSObjectNSObject> {
 }
 
 public class LynxViewBuilder : NSObject {
