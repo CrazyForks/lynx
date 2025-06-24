@@ -690,5 +690,11 @@ void TasmMediator::OnEventFire(long target_id, bool is_stop, int64_t event_id) {
   });
 }
 
+void TasmMediator::RequestLayout(
+    const std::shared_ptr<tasm::PipelineOptions>& options) {
+  layout_actor_->Act(
+      [options](auto& layout) { layout->DispatchLayoutUpdates(options); });
+}
+
 }  // namespace shell
 }  // namespace lynx

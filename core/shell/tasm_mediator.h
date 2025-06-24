@@ -227,6 +227,9 @@ class TasmMediator : public LynxEngine::Delegate {
       const lepus::Value& params, lepus::Context* context,
       std::unique_ptr<lepus::Value> callback_closure) override;
 
+  void RequestLayout(
+      const std::shared_ptr<tasm::PipelineOptions>& options) override;
+
   event::DispatchEventResult DispatchMessageEvent(
       runtime::MessageEvent event) override;
 

@@ -202,6 +202,7 @@ TemplateAssembler::Scope::~Scope() {
 
 TemplateAssembler::TemplateAssembler(Delegate& delegate,
                                      std::unique_ptr<ElementManager> client,
+                                     LayoutScheduler& layout_scheduler,
                                      int32_t instance_id,
                                      bool enable_unified_pipeline)
     : page_proxy_(this, std::move(client), &delegate),
@@ -209,6 +210,7 @@ TemplateAssembler::TemplateAssembler(Delegate& delegate,
       target_sdk_version_("null"),
       template_loaded_(false),
       delegate_(delegate),
+      layout_scheduler_(layout_scheduler),
       touch_event_handler_(nullptr),
 #if ENABLE_AIR
       air_touch_event_handler_(nullptr),
@@ -3342,10 +3344,17 @@ void TemplateAssembler::RunPixelPipeline() {
   // TODO(@yangguangzhao.solace): Advance Pipeline Lifecycle State;
   if (current_pipeline_context->IsLayoutRequested()) {
     TRACE_EVENT(LYNX_TRACE_CATEGORY, LYNX_PIPELINE_TRIGGER_LAYOUT);
+    if (pipeline_option->need_timestamps) {
+      page_proxy()
+          ->element_manager()
+          ->painting_context()
+          ->MarkUIOperationQueueFlushTiming(
+              tasm::timing::kPaintingUiOperationExecuteEnd,
+              pipeline_option->pipeline_id);
+    }
     // Execute Layout Job.
     // Maybe Happened On Layout Thread. Trigger layout by engine here;
-    // TODO(@chennengshi): Refactoring this to invoke layout by LynxEngine;
-    page_proxy()->element_manager()->RequestLayout(pipeline_option);
+    layout_scheduler_.RequestLayout(pipeline_option);
     current_pipeline_context->ResetLayoutRequested();
   }
 
@@ -3362,7 +3371,7 @@ void TemplateAssembler::RunPixelPipeline() {
   }
 }
 
-void TemplateAssembler::OnLayoutAfter() {
+void TemplateAssembler::OnLayoutAfter(PipelineLayoutData& layout_data) {
   auto* current_pipeline_context = GetCurrentPipelineContext();
   if (!current_pipeline_context ||
       !current_pipeline_context->GetOptions()->enable_unified_pixel_pipeline) {
@@ -3382,13 +3391,14 @@ void TemplateAssembler::OnLayoutAfter() {
   // after pipeline ends, later we will support a micro task to do flush things.
   // current pipeline ends, reset current pipeline context to nullptr;
   pipeline_context_manager_->ResetCurrentPipelineContext();
-
-  // TODO(@yangguangzhao.solace): Advance Pipeline Lifecycle State;
-  // Execute Flush UI OP;
-  if (current_pipeline_context->IsFlushUIOperationRequested()) {
-    TRACE_EVENT(LYNX_TRACE_CATEGORY, LYNX_PIPELINE_FLUSH_UI_OPERATION);
-    page_proxy()->element_manager()->painting_context()->Flush();
-    current_pipeline_context->ResetFlushUIOperationRequested();
+  if (layout_data.layout_triggered) {
+    // TODO(@yangguangzhao.solace): Advance Pipeline Lifecycle State;
+    // Execute Flush UI OP;
+    if (current_pipeline_context->IsFlushUIOperationRequested()) {
+      TRACE_EVENT(LYNX_TRACE_CATEGORY, LYNX_PIPELINE_FLUSH_UI_OPERATION);
+      page_proxy()->element_manager()->painting_context()->Flush();
+      current_pipeline_context->ResetFlushUIOperationRequested();
+    }
   }
 
   // TODO(@zhouzhitao): Move this to Pipeline Lifecycle Observer if provided;

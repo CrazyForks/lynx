@@ -372,8 +372,14 @@ std::unique_ptr<lynx::shell::LynxEngine> LynxShellBuilder::CreateLynxEngine(
   auto element_manager = std::make_unique<lynx::tasm::ElementManager>(
       std::move(painting_context_), tasm_mediator.get(), this->lynx_env_config_,
       instance_id, this->element_manager_vsync_monitor_);
+  // Currently, tasm_mediator serves as the implementation of both
+  // TemplateAssembler::Delegate and TemplateAssembler::LayoutScheduler,
+  // so here passes *tasm_mediator twice.
+  // TODO(chennengshi) : We may refactor LayoutScheduler's implementation as a
+  // new instance rather than tasm_mediator when LayoutScheduler is more
+  // complex.
   auto tasm = std::make_unique<lynx::tasm::TemplateAssembler>(
-      *tasm_mediator, std::move(element_manager), instance_id,
+      *tasm_mediator, std::move(element_manager), *tasm_mediator, instance_id,
       this->enable_unified_pipeline_);
   tasm->SetEnableLayoutOnly(this->enable_layout_only_);
   if (this->loader_ != nullptr) {

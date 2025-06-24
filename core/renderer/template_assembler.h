@@ -27,6 +27,7 @@
 #include "core/renderer/events/touch_event_handler.h"
 #include "core/renderer/page_proxy.h"
 #include "core/renderer/pipeline/pipeline_context_manager.h"
+#include "core/renderer/pipeline/pipeline_layout_data.h"
 #include "core/renderer/signal/signal_context.h"
 #include "core/renderer/tasm/i18n/i18n.h"
 #include "core/renderer/template_entry.h"
@@ -244,8 +245,18 @@ class TemplateAssembler final : public TemplateEntryHolder,
     bool scoped_ = false;
   };
 
+  class LayoutScheduler {
+   public:
+    LayoutScheduler() = default;
+    ~LayoutScheduler() = default;
+
+    virtual void RequestLayout(
+        const std::shared_ptr<tasm::PipelineOptions>& options) = 0;
+  };
+
   TemplateAssembler(Delegate& delegate, std::unique_ptr<ElementManager> client,
-                    int32_t instance_id, bool enable_unified_pipeline = false);
+                    LayoutScheduler& layout_scheduler, int32_t instance_id,
+                    bool enable_unified_pipeline = false);
   ~TemplateAssembler() override;
 
   void LoadTemplate(const std::string& url, std::vector<uint8_t> source,
@@ -743,7 +754,7 @@ class TemplateAssembler final : public TemplateEntryHolder,
   void RunPixelPipeline();
 
   // Called After Layout Ends;
-  void OnLayoutAfter();
+  void OnLayoutAfter(PipelineLayoutData& layout_data);
 
   // In Embedded mode, we disable event reporter by now.
   bool EnableEventReporter() const { return !IsEmbeddedModeOn(); }
@@ -910,6 +921,7 @@ class TemplateAssembler final : public TemplateEntryHolder,
   bool template_loaded_;
 
   Delegate& delegate_;
+  LayoutScheduler& layout_scheduler_;
   I18n i18n;
 
   std::unique_ptr<TouchEventHandler> touch_event_handler_;

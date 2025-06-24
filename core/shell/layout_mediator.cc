@@ -145,8 +145,8 @@ void LayoutMediator::OnLayoutAfter(
       HandlePendingLayoutTask(queue, catalyzer, options, page_options, nullptr,
                               pipeline_context);
 
-      // TODO(chennengshi): Refactor this with LayoutResult;
-      engine->GetTasm()->OnLayoutAfter();
+      tasm::PipelineLayoutData layout_data{.layout_triggered = has_layout};
+      engine->GetTasm()->OnLayoutAfter(layout_data);
 
       // TODO(nihao.royal): pipeline ends here, Considering Timing Info for list
       // first screen.

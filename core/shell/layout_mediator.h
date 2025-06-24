@@ -12,6 +12,7 @@
 #include "core/public/pipeline_option.h"
 #include "core/renderer/dom/element_manager.h"
 #include "core/renderer/pipeline/pipeline_context.h"
+#include "core/renderer/pipeline/pipeline_layout_data.h"
 #include "core/renderer/ui_wrapper/layout/layout_context.h"
 #include "core/renderer/ui_wrapper/painting/catalyzer.h"
 #include "core/services/performance/performance_controller.h"

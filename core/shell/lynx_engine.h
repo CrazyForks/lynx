@@ -31,7 +31,8 @@ namespace shell {
 class LynxEngine {
  public:
   class Delegate : public tasm::ElementManager::Delegate,
-                   public tasm::TemplateAssembler::Delegate {
+                   public tasm::TemplateAssembler::Delegate,
+                   public tasm::TemplateAssembler::LayoutScheduler {
    public:
     Delegate() = default;
     ~Delegate() override = default;

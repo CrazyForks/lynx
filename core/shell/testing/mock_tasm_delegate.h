@@ -27,7 +27,8 @@ namespace tasm {
 namespace test {
 
 class MockTasmDelegate : public TemplateAssembler::Delegate,
-                         public ElementManager::Delegate {
+                         public ElementManager::Delegate,
+                         public TemplateAssembler::LayoutScheduler {
  public:
   MockTasmDelegate() = default;
   virtual ~MockTasmDelegate() {}
@@ -232,6 +233,9 @@ class MockTasmDelegate : public TemplateAssembler::Delegate,
       std::vector<int32_t> ui_impl_ids, const std::string& method,
       const lepus::Value& params, lepus::Context* context,
       std::unique_ptr<lepus::Value> callback_closure) override{};
+
+  void RequestLayout(
+      const std::shared_ptr<tasm::PipelineOptions>& options) override{};
 
   event::DispatchEventResult DispatchMessageEvent(
       runtime::MessageEvent event) override;

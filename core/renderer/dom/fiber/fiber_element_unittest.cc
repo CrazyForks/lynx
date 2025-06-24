@@ -9442,7 +9442,8 @@ TEST_P(FiberElementTest, CopySetStyle) {
       lynx_env_config_1);
   auto manager_1 = unique_manager_1.get();
   auto tasm_1 = std::make_shared<lynx::tasm::TemplateAssembler>(
-      *tasm_mediator_1.get(), std::move(unique_manager_1), 0);
+      *tasm_mediator_1.get(), std::move(unique_manager_1),
+      *tasm_mediator_1.get(), 0);
   auto test_entry_1 = std::make_shared<TemplateEntry>();
   tasm_1->template_entries_.insert({"test_entry", test_entry_1});
   auto config_1 = std::make_shared<PageConfig>();
@@ -9514,7 +9515,8 @@ TEST_P(FiberElementTest, CloneAPITest) {
       lynx_env_config_1);
   auto manager_1 = unique_manager_1.get();
   auto tasm_1 = std::make_shared<lynx::tasm::TemplateAssembler>(
-      *tasm_mediator_1.get(), std::move(unique_manager_1), 0);
+      *tasm_mediator_1.get(), std::move(unique_manager_1),
+      *tasm_mediator_1.get(), 0);
   auto test_entry_1 = std::make_shared<TemplateEntry>();
   tasm_1->template_entries_.insert({"test_entry", test_entry_1});
   auto config_1 = std::make_shared<PageConfig>();
@@ -9653,7 +9655,8 @@ TEST_P(FiberElementTest, ElementBundleTest00) {
       lynx_env_config_1);
   auto manager_1 = unique_manager_1.get();
   auto tasm_1 = std::make_shared<lynx::tasm::TemplateAssembler>(
-      *tasm_mediator_1.get(), std::move(unique_manager_1), 0);
+      *tasm_mediator_1.get(), std::move(unique_manager_1),
+      *tasm_mediator_1.get(), 0);
   auto test_entry_1 = std::make_shared<TemplateEntry>();
   tasm_1->template_entries_.insert({"test_entry", test_entry_1});
   auto config_1 = std::make_shared<PageConfig>();
@@ -9726,7 +9729,8 @@ TEST_P(FiberElementTest, ElementBundleTest01) {
       lynx_env_config_1);
   auto manager_1 = unique_manager_1.get();
   auto tasm_1 = std::make_shared<lynx::tasm::TemplateAssembler>(
-      *tasm_mediator_1.get(), std::move(unique_manager_1), 0);
+      *tasm_mediator_1.get(), std::move(unique_manager_1),
+      *tasm_mediator_1.get(), 0);
   auto test_entry_1 = std::make_shared<TemplateEntry>();
   tasm_1->template_entries_.insert({"test_entry", test_entry_1});
   auto config_1 = std::make_shared<PageConfig>();
