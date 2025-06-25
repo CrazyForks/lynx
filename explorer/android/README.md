@@ -73,7 +73,7 @@ Confirm your JDK installation directory. If you follow the above steps, the JDK 
 - `/usr/lib/jvm/java-11-openjdk-amd64` on Linux
 - `C:\Program Files\ojdkbuild\java-11-openjdk-11.0.15-1` on Windows.
 
-Add the following statement to your environment configuration file (it may be ~/.zshrc or ~/.bash_profile or ~/.bashrc, depending on your terminal environment):
+Add the following statement to your environment configuration file on Linux or MacOS (it may be ~/.zshrc or ~/.bash_profile or ~/.bashrc, depending on your terminal environment):
 
 - MacOS
 
@@ -99,7 +99,7 @@ Add the following statement to your environment configuration file (it may be ~/
     [Environment]::SetEnvironmentVariable('PATH', "$JDK_PATH;$EXISTING_PATH", 'User')
     ```
 
-    Manually adding `%ProgramFiles%\ojdkbuild\java-11-openjdk-11.x.xx` to user scope's environment variables Path and JAVA_HOME is also viable.
+    Instead of using PowerShell to execute the commands above, you can also add `%ProgramFiles%\ojdkbuild\java-11-openjdk-11.x.xx` to user scope's environment variables Path and JAVA_HOME through "Editing System Environment Variables".
 
 ### Android Development Environment
 
@@ -107,11 +107,11 @@ Configuring the Android development environment required by Lynx includes the fo
 
 #### Configure ANDROID_HOME
 
-Add the ANDROID_HOME variable to your environment configuration file(maybe ~/.zshrc or ~/.bash_profile or ~/.bashrc, depending on your terminal environment).
+Add the ANDROID_HOME variable to your environment configuration file on Linux or MacOS (maybe ~/.zshrc or ~/.bash_profile or ~/.bashrc, depending on your terminal environment).
 
 If you have installed the Android SDK before, please set ANDROID_HOME to the installation directory of the Android SDK.(If you have previously installed Android SDK by Android Studio, the installation path of the Android SDK is usually located at $HOME/Library/Android/sdk on MacOS and Linux or %USERPROFILE%\AppData\Local\Android\Sdk on Windows)
 
-If you have NOT installed the Android SDK before, you can set ANDROID_HOME to the path where you want the Android SDK to be installed. We have tools to help you install the Android SDK to ANDROID_HOME.
+If you have NOT installed the Android SDK before, you can set ANDROID_HOME to the path where you want the Android SDK to be installed. We have [tools](../../tools/android_tools/prepare_android_build.py) to help you install the Android SDK to ANDROID_HOME.
 
 - MacOS and Linux
 
@@ -125,7 +125,7 @@ If you have NOT installed the Android SDK before, you can set ANDROID_HOME to th
     [Environment]::SetEnvironmentVariable('ANDROID_HOME', $path-to-android-sdk, 'User')
     ```
 
-    Also, manually adding Android SDK's path to user scope's environment variables ANDROID_HOME is also viable.
+    Instead of using PowerShell to execute the commands above, you can also add Android SDK's path to user scope's environment variables ANDROID_HOME through "Editing System Environment Variables".
 
 ### Python Library
 
@@ -182,7 +182,7 @@ Execute the following commands, which will install the Android components requir
 python3 tools/android_tools/prepare_android_build.py
 ```
 
-> There might be no alias python3 on Windows, use `python` instead.
+> notice: There might be no alias python3 on Windows, use `python` instead.
 
 ## Build and Run
 
@@ -206,7 +206,7 @@ You can compile LynxExplorer through the command line terminal or Android Studio
 
 #### Build and Run
 
-Select the `LynxExplorer` module and click the `Run` button to experience LynxExplorer on your device.
+Select the `LynxExplorer` module and click the `Run` button to experience LynxExplorer on your device. If using avd, please wait until the build is done.
 
 ### Method 2: Build and Run using the Command Line
 
@@ -221,6 +221,8 @@ cd explorer/android
 
 This command will generate LynxExplorer-noasan-debug.apk in the `lynx_explorer/build/outputs/apk/noasan/debug/` folder.
 
+> notice: If you have just setup the development environment in the same terminal session, some environment variables might not take effect. Please restart a terminal session (or VS Code, Android Studio) then retry.
+
 #### Install
 
 You can install the above .apk file on your device using the adb command.
@@ -229,7 +231,7 @@ You can install the above .apk file on your device using the adb command.
 adb install lynx_explorer/build/outputs/apk/noasan/debug/LynxExplorer-noasan-debug.apk
 ```
 
-If the adb command is not found, you can add the path to the adb command in the environment configuration file(~/.zshrc or ~/.bash_profile or ~/.bashrc):
+If the adb command is not found, you can add the path to the adb command in the environment configuration file on Linux or MacOS (~/.zshrc or ~/.bash_profile or ~/.bashrc):
 
 - MacOS and Linux
 
@@ -242,7 +244,9 @@ If the adb command is not found, you can add the path to the adb command in the 
     After executing the following command, restart PowerShell to use the adb command.
 
     ```
-    [Environment]::SetEnvironmentVariable('PATH', "$ANDROID_HOME/platform-tools;$PATH", 'User')
+    $EXISTING_PATH = [Environment]::GetEnvironmentVariable('PATH', 'User')
+    $ANDROID_HOME= [Environment]::GetEnvironmentVariable('ANDROID_HOME', 'User')
+    [Environment]::SetEnvironmentVariable('PATH', "$ANDROID_HOME\platform-tools;$EXISTING_PATH ", 'User')
     ```
 
-    Also, manually adding it to user scope's environment variables Path is also viable.
+    Instead of using PowerShell to execute the commands above, you can also add $ANDROID_HOME/platform-tools to user scope's environment variables Path through "Editing System Environment Variables".
