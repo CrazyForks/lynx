@@ -693,8 +693,7 @@ subspec_target("parser") {
 subspec_target("resource") {
   deps = [
     "../../../../core/resource",
-    "../../../../core/resource/external_resource:external_resource",
-    "../../../../core/resource/lazy_bundle:lazy_bundle",
+    "../../../../core/resource:resource_loader",
     "../../../../core/resource/trace:resource_trace",
   ]
 }

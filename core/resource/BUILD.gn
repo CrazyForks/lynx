@@ -2,9 +2,24 @@
 # Licensed under the Apache License Version 2.0 that can be found in the
 # LICENSE file in the root directory of this source tree.
 
+import("../../testing/test.gni")
 import("../Lynx.gni")
 
 lynx_core_source_set("resource") {
+  sources = [
+    "external_resource/external_resource_loader.cc",
+    "external_resource/external_resource_loader.h",
+    "lazy_bundle/lazy_bundle_lifecycle_option.cc",
+    "lazy_bundle/lazy_bundle_lifecycle_option.h",
+    "lazy_bundle/lazy_bundle_loader.cc",
+    "lazy_bundle/lazy_bundle_loader.h",
+    "lazy_bundle/lazy_bundle_utils.cc",
+    "lazy_bundle/lazy_bundle_utils.h",
+  ]
+  public_deps = [ ":resource_loader" ]
+}
+
+lynx_core_source_set("resource_loader") {
   sources = []
   if (is_android) {
     sources += [
@@ -25,10 +40,27 @@ lynx_core_source_set("resource") {
     ]
   }
 
-  deps = [ "../../base/src:base_log_headers" ]
   public_deps = [
-    "external_resource:external_resource",
-    "lazy_bundle:lazy_bundle",
+    "../../base/src:base_log_headers",
     "trace:resource_trace",
   ]
+}
+
+unittest_set("lazy_bundle_test_testset") {
+  testonly = true
+
+  sources = [ "lazy_bundle/lazy_bundle_unittest.cc" ]
+
+  public_deps = [
+    "../renderer:tasm",
+    "../renderer/dom:dom",
+  ]
+}
+
+unittest_exec("lazy_bundle_test_exec") {
+  testonly = true
+
+  sources = []
+
+  deps = [ ":lazy_bundle_test_testset" ]
 }

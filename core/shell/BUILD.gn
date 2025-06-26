@@ -132,7 +132,7 @@ lynx_core_source_set("shell") {
   sources = shell_shared_sources
   public_deps = [
     "../../third_party/rapidjson",
-    "../resource/external_resource:external_resource",
+    "../resource",
     "../runtime",
     "../runtime/vm/lepus",
     "../services/timing_handler",

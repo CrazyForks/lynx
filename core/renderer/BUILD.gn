@@ -59,7 +59,7 @@ lynx_core_source_set("tasm") {
       "../animation/basic_animation:basic_animation",
       "../animation/lynx_basic_animator:lynx_basic_animator",
       "../animation/transforms",
-      "../resource/lazy_bundle:lazy_bundle",
+      "../resource",
       "../runtime",
       "../shared_data",
       "../shell",
