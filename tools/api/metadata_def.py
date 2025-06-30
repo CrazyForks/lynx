@@ -5,7 +5,14 @@
 # /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
+
+@dataclass
+class BaseParam:
+    name: str
+    type: str
+    brief_desc: str
 
 
 @dataclass
@@ -26,6 +33,14 @@ class BaseMember:
     brief_desc: str
     detailed_desc: str
     definition: str
+    prototype: str
+    has_apidoc: bool
+    params: list[BaseParam]
+    returns: BaseParam = None
+    note: list[str] = field(default_factory=list)
+    info: list[str] = field(default_factory=list)
+    caution: list[str] = field(default_factory=list)
+    warning: list[str] = field(default_factory=list)
 
     def get_member_dump_str(self) -> str:
         spaces = f'{"  " if self.type != BaseMemberType.EnumType else ""}'
@@ -51,6 +66,8 @@ class BaseObject:
     brief_desc: str
     detailed_desc: str
     definition: str
+    has_apidoc: bool
+    language: str
     children: list[BaseMember]
 
     def get_api_str(self) -> str:
@@ -64,3 +81,13 @@ class BaseObject:
         elif api_str:
             api_str += "\n"
         return api_str
+
+
+@dataclass
+class API:
+    name: str
+    parent_name: str
+    kebab_name: str
+    brief_desc: str
+    android_member: BaseMember
+    ios_member: BaseMember

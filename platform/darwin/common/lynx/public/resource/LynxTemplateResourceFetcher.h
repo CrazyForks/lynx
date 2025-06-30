@@ -16,13 +16,23 @@ typedef void (^LynxTemplateResourceCompletionBlock)(LynxTemplateResource* _Nulla
 
 typedef void (^LynxSSRResourceCompletionBlock)(NSData* _Nullable data, NSError* _Nullable error);
 
+/**
+ * @apidoc
+ * @brief `LynxTemplateResourceFetcher` is defined inside LynxEngine and
+ * injected from outside to implement the resource loading interface of
+ * [Bundle](/guide/spec.html#lynx-bundle-or-bundle) and [Lazy Bundle](/guide/spec.html#lazy-bundle)
+ * etc.
+ */
 @protocol LynxTemplateResourceFetcher <NSObject>
 
 /**
- * fetch template resource of lynx & dynamic component etc.
+ * @apidoc
+ * @brief `LynxEngine` internally calls this method to obtain the contents of Bundle
+ * and Lazy Bundle. The returned result type can contain `byte[]` or `TemplateBundle`.
  *
- * @param request
- * @param callback response with the requiring content file: NSData* or TemplateBundle
+ * @param request Request for the requiring content file.
+ * @param callback Response with the requiring content file: byteArray or TemplateBundle
+ * @note This method must be implemented.
  */
 @required
 - (void)fetchTemplate:(LynxResourceRequest* _Nonnull)request

@@ -20,29 +20,45 @@ typedef NS_ENUM(NSInteger, LynxResourceOptionalBool) {
   LynxResourceOptionalBoolUndefined
 };
 
+/**
+ * @apidoc
+ * @brief `LynxMediaResourceFetcher` is defined inside LynxEngine and
+ * injected from outside to implement the path redirection capability
+ * of `Image` and other third-party resources.
+ */
 @protocol LynxMediaResourceFetcher <NSObject>
 
+/**
+ * @apidoc
+ * @brief `LynxEngine` redirects the image path by calling this method internally,
+ * and the return result is required to be of `String` type
+ * @param request Request for the resource.
+ * @param callback The target url.
+ * @note This method must be implemented.
+ */
 @required
 - (NSString* _Nonnull)shouldRedirectUrl:(LynxResourceRequest* _Nonnull)request;
 
-// TODO(zhoupeng.z): rename to isLocalResource
 /**
- * Quick check for a local path.
+ * @apidoc
+ * @brief `LynxEngine` internally calls this method to determine whether the
+ * resource path exists on disk.
  *
- * @param url input path
- * @return TRUE if is a local path; FALSE if not a local path
+ * @param url Input path.
+ * @return TRUE if is a local path, FALSE if not a local path and UNDEFINED if not sure.
+ * @note This method is optional to be implemented.
  */
 @optional
 - (LynxResourceOptionalBool)isLocalResource:(NSURL* _Nonnull)url;
 
 /**
- * fetch UIImage directly.
+ * @apidoc
+ * @brief `LynxEngine` will use this method to obtain the bitmap information of the image,
+ * and the return content must be of `Closeable` type.
  *
- * @param request
- * @param callback Response with the needed uiImage.
- *
- * @return A block which can cancel the image request if it is not finished. nil if cancel action is
- * not supported.
+ * @param request Request for the resource.
+ * @param response Response with the needed drawable.
+ * @note This method is optional to be implemented.
  */
 @optional
 - (dispatch_block_t)fetchUIImage:(LynxResourceRequest* _Nonnull)request

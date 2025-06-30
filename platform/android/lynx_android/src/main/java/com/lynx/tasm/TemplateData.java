@@ -24,6 +24,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+/**
+ * @apidoc
+ * @brief TemplateData is a data structure provided by Lynx.
+ * It is used to store the data types accepted by Lynx at runtime
+ * and can be constructed using either a string or a map type.
+ */
 public final class TemplateData {
   private static final String TAG = "LynxTemplateData";
 
@@ -96,8 +102,10 @@ public final class TemplateData {
   List<UpdateAction> mUpdateActions = new ArrayList<>();
 
   /**
-   * Create a templateData from Map with String keys.
-   * This method may has performance issue.
+   * @apidoc
+   * @brief Input data in key-value format and return the parsed `TemplateData` object.
+   * @param data `Map` type data.
+   * @return `TemplateData` constructed by `data`.
    */
   @NonNull
   public static TemplateData fromMap(Map<String, Object> data) {
@@ -116,7 +124,10 @@ public final class TemplateData {
   }
 
   /**
-   * Create a TemplateData from json formatted String.
+   * @apidoc
+   * @brief Input data in json and return the parsed `TemplateData` object.
+   * @param json `String` type data in json format.
+   * @return `TemplateData` constructed by `json`.
    */
   @NonNull
   public static TemplateData fromString(String json) {
@@ -443,6 +454,13 @@ public final class TemplateData {
     return LynxEnv.inst().isNativeLibraryLoaded();
   }
 
+  /**
+   * @apidoc
+   * @brief Mark the current TemplateData with the associated dataProcessor name.
+   * When this TemplateData is used in [UpdateData](/api/lynx-native-api/lynx-view/update-data),
+   * the corresponding dataProcessor will be found based on this name for data preprocessing.
+   * @param name Marked name.
+   */
   public void markState(String name) {
     mProcessorName = name;
   }

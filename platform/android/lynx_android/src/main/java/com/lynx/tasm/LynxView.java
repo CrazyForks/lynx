@@ -52,6 +52,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @apidoc
+ * @brief Similar to WebView in native developing. Renders bundle within host application’s context.
+ */
 @Keep
 public class LynxView extends UIBodyView {
   protected LynxTemplateRender mLynxTemplateRender;
@@ -186,6 +190,11 @@ public class LynxView extends UIBodyView {
     return null;
   }
 
+  /**
+   * @apidoc
+   * @brief Supplement key performance data before loading the Lynx page.
+   * @param extraTiming Used to supplement key performance data before loading the Lynx page.
+   */
   public void setExtraTiming(TimingHandler.ExtraTimingInfo extraTiming) {
     if (extraTiming == null || mLynxTemplateRender == null) {
       return;
@@ -336,6 +345,13 @@ public class LynxView extends UIBodyView {
     }
   }
 
+  /**
+   * @apidoc
+   * @brief Register lifecycle event observer for `LynxView`.
+   * @param client The structure implemented by the client and registered to
+   * the `LynxView` instance is used to obtain the callbacks of each process
+   * in the `LynxView` lifecycle
+   */
   public void addLynxViewClient(LynxViewClient client) {
     if (mLynxTemplateRender == null) {
       return;
@@ -373,6 +389,12 @@ public class LynxView extends UIBodyView {
     mLynxTemplateRender.updateScreenMetrics(width, height);
   }
 
+  /**
+   * @apidoc
+   * @brief Remove `LynxView` lifecycle event monitoring.
+   * @param client The structure implemented by the client and registered to the
+   * `LynxView` instance is used to obtain the callbacks of each process in the LynxView life cycle.
+   */
   public void removeLynxViewClient(LynxViewClient client) {
     if (mLynxTemplateRender == null) {
       return;
@@ -454,6 +476,13 @@ public class LynxView extends UIBodyView {
     return mLynxTemplateRender.getJSModule(module);
   }
 
+  /**
+   * @apidoc
+   * @brief Send global events to the front end through the client,
+   * and the front end can listen to the event through `GlobalEventEmitter`.
+   * @param name Global event name.
+   * @param params Parameters carried by global events.
+   */
   public void sendGlobalEvent(String name, JavaOnlyArray params) {
     if (LynxEnv.inst().isHighlightTouchEnabled()) {
       showMessageOnConsole(TAG + ": send global event " + name + " for lynx " + hashCode(),
@@ -555,9 +584,11 @@ public class LynxView extends UIBodyView {
   }
 
   /**
-   * Load LynxView with a wrapped load metaInfo data structure
-   * Load metaInfo data structure contains a pre-decoded template.js/lynx initData
-   * @param meta LynxLoadMeta data structure
+   * @apidoc
+   * @brief Using [`LynxLoadMeta`](../lynx-load-meta.mdx) to render `LynxView`,
+   * it is the main entrance for the client to load `Lynx` templates.
+   * @param meta Lynx template loads metadata, and developers use this data structure
+   * to specify optional data loaded by the template.
    */
   @AnyThread
   public void loadTemplate(@NonNull LynxLoadMeta meta) {
@@ -805,12 +836,11 @@ public class LynxView extends UIBodyView {
   }
 
   /**
-   * **EXPERIMENTAL API**
-   *
-   * Method to update Lynx All in One.
-   * Construct LynxUpdateMeta with coming data & globalProps & etc to be updated at once.
-   *
-   * @param meta LynxUpdateMeta to be used.
+   * @apidoc
+   * @brief Using [LynxUpdateMeta](/api/lynx-native-api/lynx-update-meta) to update `LynxView`,
+   * it is the main entrance for the client to update template data.
+   * @param meta Lynx template update metadata, developers use this data structure to
+   * specify the optional data content of the update template.
    */
   @AnyThread
   public void updateMetaData(LynxUpdateMeta meta) {
@@ -975,6 +1005,12 @@ public class LynxView extends UIBodyView {
     mLynxTemplateRender.updateData(data, processorName);
   }
 
+  /**
+   * @apidoc
+   * @brief The client updates the `LynxView` view size.
+   * @param widthMeasureSpec Current `LynxView` width.
+   * @param heightMeasureSpec Current `LynxView` height.
+   */
   public void updateViewport(int widthMeasureSpec, int heightMeasureSpec) {
     checkAccessFromNonUiThread("updateViewport");
     if (mLynxTemplateRender == null) {
@@ -984,9 +1020,10 @@ public class LynxView extends UIBodyView {
   }
 
   /**
-   * Changing the font scaling ratio in client settings will automatically change the text size;
-   *
-   * @param scale font scaling.
+   * @apidoc
+   * @brief Changing the font scaling ratio in client settings
+   * will automatically change the text size.
+   * @param scale The new font scaling ratio.
    */
   public void updateFontScale(float scale) {
     checkAccessFromNonUiThread("updateFontScale");
@@ -1001,6 +1038,11 @@ public class LynxView extends UIBodyView {
     mLynxTemplateRender.updateFontScale(scale);
   }
 
+  /**
+   * @apidoc
+   * @brief After `LynxView` becomes unavailable, you need to actively call this method
+   * to release the `LynxView` memory, otherwise there will be a memory leak.
+   */
   public void destroy() {
     LLog.i(TAG, "lynxview destroy " + this.toString());
     TraceEvent.beginSection(TraceEventDef.DESTORY_LYNXVIEW);
@@ -1238,6 +1280,12 @@ public class LynxView extends UIBodyView {
     super.onDetachedFromWindow();
   }
 
+  /**
+   * @apidoc
+   * @brief Find `UIView` based on name attribute.
+   * @param name The name attribute of the view specified by the front end in the layout file.
+   * @return The `UIView` node corresponding to the name attribute.
+   */
   @Nullable
   public View findViewByName(String name) {
     if (mLynxTemplateRender == null) {
@@ -1246,6 +1294,12 @@ public class LynxView extends UIBodyView {
     return mLynxTemplateRender.findViewByName(name);
   }
 
+  /**
+   * @apidoc
+   * @brief Find `LynxUI` nodes based on the name attribute.
+   * @param name The name attribute of the view specified by the front end in the layout file.
+   * @return The `LynxUI` node corresponding to the name attribute.
+   */
   @Nullable
   public LynxBaseUI findUIByName(String name) {
     if (mLynxTemplateRender == null) {
@@ -1254,6 +1308,12 @@ public class LynxView extends UIBodyView {
     return mLynxTemplateRender.findUIByName(name);
   }
 
+  /**
+   * @apidoc
+   * @brief Find `UIView` based on `idSelector` property.
+   * @param id The id attribute of the view specified by the front end in the layout file.
+   * @return The `UIView` node corresponding to the idSelector attribute.
+   */
   @Nullable
   public View findViewByIdSelector(String id) {
     if (mLynxTemplateRender == null) {
@@ -1262,6 +1322,12 @@ public class LynxView extends UIBodyView {
     return mLynxTemplateRender.findViewByIdSelector(id);
   }
 
+  /**
+   * @apidoc
+   * @brief Find `LynxUI` nodes based on the idSelector attribute.
+   * @param id The id attribute of the view specified by the front end in the layout file.
+   * @return The `LynxUI` node corresponding to the idSelector attribute.
+   */
   @Nullable
   public LynxBaseUI findUIByIdSelector(String id) {
     if (mLynxTemplateRender == null) {

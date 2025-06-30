@@ -134,3 +134,4 @@ js_libraries/lynx-core/src/common/feature.ts
 # api metadata
 /tools/api/android
 /tools/api/ios
+/tools/api/docs/gen

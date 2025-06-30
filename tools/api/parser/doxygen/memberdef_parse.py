@@ -5,19 +5,62 @@
 # /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from metadata_def import BaseMember, BaseMemberType
+from metadata_def import BaseMember, BaseMemberType, BaseParam, BaseObject
 from doxmlparser import compound as doxcompound
+from parser.doxygen.common_parse import (
+    briefdescription_parse_in_online,
+    is_apidoc,
+    detail_section_parse,
+    func_prototype_parse,
+)
 
 
-def function_parse(member_object: BaseMember, memberdef) -> bool:
+def function_parse(object: BaseObject, member_object: BaseMember, memberdef) -> bool:
     member_object.type = BaseMemberType.MethodType
     member_object.definition = (
         f"public {memberdef.get_definition()}{memberdef.get_argsstring()};"
     )
+    member_object.prototype = func_prototype_parse(object, memberdef)
+    member_object.returns = BaseParam(
+        name="", type=memberdef.get_type().get_valueOf_(), brief_desc=""
+    )
+    detaileddescription_obj = memberdef.get_detaileddescription()
+    detail_section_parse(detaileddescription_obj, member_object)
+
+    for para_obj in detaileddescription_obj.get_para():
+        for param_list_obj in para_obj.get_parameterlist():
+            for param_item_obj in param_list_obj.get_parameteritem():
+                param_name = ""
+                for param_name_list_obj in param_item_obj.get_parameternamelist():
+                    for param_name_obj in param_name_list_obj.get_parametername():
+                        param_name = param_name_obj.get_valueOf_().strip()
+
+                member_object.params.append(
+                    BaseParam(
+                        name=param_name,
+                        type="",
+                        brief_desc=briefdescription_parse_in_online(
+                            param_item_obj.get_parameterdescription()
+                        ),
+                    )
+                )
+        for simplesect in para_obj.get_simplesect():
+            if simplesect.get_kind() == "return":
+                member_object.returns.brief_desc = briefdescription_parse_in_online(
+                    simplesect
+                )
+
+    for param in memberdef.get_param():
+        param_name = param.get_declname()
+        param_type = param.get_type()
+        for member_param in member_object.params:
+            if member_param.name == param_name:
+                member_param.type = param_type.get_valueOf_().strip()
+                break
     return True
 
 
-def variable_parse(member_object: BaseMember, memberdef) -> bool:
+def variable_parse(object: BaseObject, member_object: BaseMember, memberdef) -> bool:
     member_object.type = BaseMemberType.VariableType
     member_object.definition = (
         f"public {memberdef.get_definition()} {member_object.name};"
@@ -25,7 +68,7 @@ def variable_parse(member_object: BaseMember, memberdef) -> bool:
     return True
 
 
-def property_parse(member_object: BaseMember, memberdef) -> bool:
+def property_parse(object: BaseObject, member_object: BaseMember, memberdef) -> bool:
     member_object.type = BaseMemberType.PropertyType
     member_object.definition = (
         f"public {memberdef.get_definition()} {member_object.name};"
@@ -33,13 +76,13 @@ def property_parse(member_object: BaseMember, memberdef) -> bool:
     return True
 
 
-def typedef_parse(member_object: BaseMember, memberdef) -> bool:
+def typedef_parse(object: BaseObject, member_object: BaseMember, memberdef) -> bool:
     member_object.type = BaseMemberType.TypedefType
     member_object.definition = memberdef.get_definition()
     return True
 
 
-def enum_parse(member_object: BaseMember, memberdef) -> bool:
+def enum_parse(object: BaseObject, member_object: BaseMember, memberdef) -> bool:
     member_object.type = BaseMemberType.EnumType
     enumvalue_list = memberdef.get_enumvalue()
     member_object.definition = f"public enum {memberdef.get_name()} {{"
@@ -49,7 +92,7 @@ def enum_parse(member_object: BaseMember, memberdef) -> bool:
     return True
 
 
-def define_parse(member_object: BaseMember, memberdef) -> bool:
+def define_parse(object: BaseObject, member_object: BaseMember, memberdef) -> bool:
     member_object.type = BaseMemberType.DefineType
     member_object.definition = f"define {memberdef.get_name()}"
     defname_list = memberdef.get_defname()
@@ -60,7 +103,7 @@ def define_parse(member_object: BaseMember, memberdef) -> bool:
     return True
 
 
-def parse(compounddef, only_public=True) -> list[BaseMember]:
+def parse(object: BaseObject, compounddef, only_public=True) -> list[BaseMember]:
     member_list = []
     for sectiondef in compounddef.get_sectiondef():
         for memberdef in sectiondef.get_memberdef():
@@ -74,11 +117,18 @@ def parse(compounddef, only_public=True) -> list[BaseMember]:
                 member_object = BaseMember(
                     name=memberdef.get_name(),
                     type=BaseMemberType.UnknownType,
-                    brief_desc=memberdef.get_briefdescription(),
+                    brief_desc=briefdescription_parse_in_online(
+                        memberdef.get_briefdescription()
+                    ),
                     detailed_desc=memberdef.get_detaileddescription(),
                     definition="",
+                    prototype="",
+                    has_apidoc=False,
+                    params=[],
+                    returns=None,
                 )
-                if memberdef_parse_func(member_object, memberdef):
+                if memberdef_parse_func(object, member_object, memberdef):
+                    member_object.has_apidoc = is_apidoc(memberdef)
                     member_list.append(member_object)
             elif memberdef_kind not in MEMBERDEF_IGNORE_LIST:
                 print(f"unknown memberdef: {memberdef_kind}")

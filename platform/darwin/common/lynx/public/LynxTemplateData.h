@@ -8,14 +8,30 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <Foundation/Foundation.h>
 
+/**
+ * @apidoc
+ * @brief TemplateData is a data structure provided by Lynx.
+ * It is used to store the data types accepted by Lynx at runtime
+ * and can be constructed using either a string or a map type.
+ */
 @interface LynxTemplateData : NSObject
 
 - (instancetype)init NS_UNAVAILABLE;
 
 /**
- * Init a TemplateData with a json/dictionary and useBoolLiterals is FALSE
+ * @apidoc
+ * @brief Input data in json and return the parsed `TemplateData` object.
+ * @param json `NSString*` type data in json format.
+ * @return `TemplateData` constructed by `json`.
  */
 - (instancetype)initWithJson:(NSString *)json;
+
+/**
+ * @apidoc
+ * @brief Input data in key-value format and return the parsed `TemplateData` object.
+ * @param dictionary `NSDictionary*` type data.
+ * @return `TemplateData` constructed by `data`.
+ */
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary;
 
 /**
@@ -45,6 +61,13 @@
 - (NSDictionary *)dictionary;
 
 #pragma mark -preprocess
+/**
+ * @apidoc
+ * @brief Mark the current TemplateData with the associated dataProcessor name.
+ * When this TemplateData is used in [UpdateData](/api/lynx-native-api/lynx-view/update-data),
+ * the corresponding dataProcessor will be found based on this name for data preprocessing.
+ * @param name Marked name.
+ */
 - (void)markState:(NSString *)name;
 
 /**

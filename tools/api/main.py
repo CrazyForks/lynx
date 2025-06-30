@@ -13,6 +13,7 @@ from api_dump import (
     generate_api_doc,
 )
 from env_setup import guarantee_generated_files
+from api_doc import generate_website_api_doc
 
 
 def main():
@@ -73,17 +74,13 @@ def main():
     if args.doc:
         # Ensure generated files are up-to-date
         guarantee_generated_files()
-        # Generate iOS API doc
-        if args.platform == "both" or args.platform == "ios":
-            ios_result = generate_api_doc(
-                os.path.dirname(os.path.abspath(__file__)), "ios"
-            )
-        # Generate Android API doc
+        platform_list = []
         if args.platform == "both" or args.platform == "android":
-            android_result = generate_api_doc(
-                os.path.dirname(os.path.abspath(__file__)), "android"
-            )
-        sys.exit(0 if (ios_result and android_result) else 1)
+            platform_list.append("android")
+        if args.platform == "both" or args.platform == "ios":
+            platform_list.append("ios")
+        result = generate_website_api_doc(platform_list)
+        sys.exit(0 if result else 1)
 
 
 if __name__ == "__main__":

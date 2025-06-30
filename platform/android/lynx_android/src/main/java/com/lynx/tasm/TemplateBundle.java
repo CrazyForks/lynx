@@ -23,7 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Class to decode `template.js` in Prev, and can get some Info in the `Template.js` file.
+ * @apidoc
+ * @brief `TemplateBundle` is the output product of the PreDecode capability
+ * provided by the Lynx SDK. Client developers can parse the Lynx App Bundle product
+ * in advance to obtain the `TemplateBundle` object and consume the App Bundle product.
  */
 public final class TemplateBundle {
   private final String url;
@@ -84,6 +87,15 @@ public final class TemplateBundle {
     return result;
   }
 
+  /**
+   * @apidoc
+   * @brief Input Lynx template binary content and return the parsed `TemplateBundle` object.
+   * @param template Template binary content.
+   * @return The `TemplateBundle` object.
+   * @note When the input `template` is `null`, this method returns `null` directly.
+   * @note When the input `template` is not a correct `Lynx` template data,
+   * an invalid `TemplateBundle` is returned.
+   */
   public static TemplateBundle fromTemplate(byte[] template) {
     return internalBuildTemplate(template, null);
   }
@@ -110,9 +122,13 @@ public final class TemplateBundle {
   }
 
   /**
-   * get ExtraInfo of a template.js
+   * @apidoc
+   * @brief Read the content of the `extraInfo` field configured in the `pageConfig` of the
+   * front-end template.
    *
-   * @return ExtraInfo of LynxTemplate
+   * @return When the front-end does not configure `extraInfo` or is called on an empty
+   *     `TemplateBundle` object,
+   * it returns `null`, else it returns the `extraInfo` field.
    */
   public Map<String, Object> getExtraInfo() {
     if (extraInfo == null) {
@@ -153,7 +169,9 @@ public final class TemplateBundle {
   }
 
   /**
-   * Release The TemplateBundle to avoid mem leak.
+   * @apidoc
+   * @brief Release the `Native` memory held by the current `TemplateBundle` object.
+   * After executing the `release` method, the `TemplateBundle` will become the `inValid` state.
    */
   public void release() {
     if (checkIfEnvPrepared() && nativePtr != 0) {
@@ -167,6 +185,11 @@ public final class TemplateBundle {
     release();
   }
 
+  /**
+   * @apidoc
+   * @brief Determines whether the current `TemplateBundle` object is valid.
+   * @return `true` if the current `TemplateBundle` object is valid, else `false`.
+   */
   public boolean isValid() {
     return nativePtr != 0;
   }
@@ -199,18 +222,20 @@ public final class TemplateBundle {
   }
 
   /**
-   * Post a task to generate bytecode for a given template bundle.
-   * The task will be executed in a background thread.
-   * @param bytecodeSourceUrl The source url of the template.
-   * @param useV8 Whether to generate bytecode for V8 engine instead of QuickJS.
+   * @apidoc
+   * @brief Start a sub-thread task to generate the `js code cache` of the current template.
+   * @param bytecodeSourceUrl The `url` of the current template.
+   * @param useV8 Whether to generate `V8 Code Cache`, otherwise generate `QuickJS Code Cache`.
    */
   public void postJsCacheGenerationTask(String bytecodeSourceUrl, boolean useV8) {
     postJsCacheGenerationTask(bytecodeSourceUrl, useV8, null);
   }
 
   /**
-   * Return the error message of parsing template.
-   * @return error message. If the bundle is valid, the return value will be null.
+   * @apidoc
+   * @brief When `TemplateBundle` is an invalid object, use this method to
+   * obtain the exception information that occurred during template parsing
+   * @return The exception information.
    */
   public String getErrorMessage() {
     return errorMsg;

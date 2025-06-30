@@ -6,6 +6,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+import re
 import subprocess
 import sys
 import shutil
@@ -23,6 +24,10 @@ def remove_dirs(dir_path):
         except Exception as e:
             print(f"Failed to remove directory {dir_path}: {e}", file=sys.stderr)
 
+def remove_and_create_dir(dir_path):
+    remove_dirs(dir_path)
+    os.makedirs(dir_path, exist_ok=True)
+
 
 def is_doxygen_installed():
     """Check if doxygen is installed in the system
@@ -39,3 +44,10 @@ def is_doxygen_installed():
             file=sys.stderr,
         )
         return False
+
+
+def camel_to_kebab_regex(s):
+    if not s:
+        return s
+    words = re.findall(r"[A-Z]?[a-z]+|[A-Z]+(?=[A-Z][a-z]|\b)", s)
+    return "-".join(word.lower() for word in words)

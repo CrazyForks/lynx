@@ -7,7 +7,8 @@
 
 from metadata_def import BaseObject, BaseObjectType
 from doxmlparser import compound as doxcompound
-from . import memberdef_parse
+from parser.doxygen import memberdef_parse
+from parser.doxygen.common_parse import briefdescription_parse_in_online, is_apidoc
 
 
 def class_parse(object: BaseObject, compounddef) -> bool:
@@ -23,44 +24,42 @@ def class_parse(object: BaseObject, compounddef) -> bool:
         if compounddef.get_basecompoundref() is not None
         else ""
     )
-    object.definition = (
-        f"public class {abstract_str}{object.name} : {basecompoundref_str}"
-    )
-    object.children = memberdef_parse.parse(compounddef)
+    object.definition = f"public class {abstract_str}{compounddef.get_compoundname()} : {basecompoundref_str}"
+    object.children = memberdef_parse.parse(object, compounddef)
     return True
 
 
 def enum_parse(object: BaseObject, compounddef) -> bool:
     object.type = BaseObjectType.EnumType
-    object.definition = f"public enum {object.name}"
-    object.children = memberdef_parse.parse(compounddef)
+    object.definition = f"public enum {compounddef.get_compoundname()}"
+    object.children = memberdef_parse.parse(object, compounddef)
     return True
 
 
 def interface_parse(object: BaseObject, compounddef) -> bool:
     object.type = BaseObjectType.InterfaceType
-    object.definition = f"public interface {object.name}"
-    object.children = memberdef_parse.parse(compounddef)
+    object.definition = f"public interface {compounddef.get_compoundname()}"
+    object.children = memberdef_parse.parse(object, compounddef)
     return True
 
 
 def file_parse(object: BaseObject, compounddef) -> bool:
     object.type = BaseObjectType.FileType
-    object.children = memberdef_parse.parse(compounddef)
+    object.children = memberdef_parse.parse(object, compounddef)
     return True
 
 
 def struct_parse(object: BaseObject, compounddef) -> bool:
     object.type = BaseObjectType.StructType
-    object.definition = f"public struct {object.name}"
-    object.children = memberdef_parse.parse(compounddef)
+    object.definition = f"public struct {compounddef.get_compoundname()}"
+    object.children = memberdef_parse.parse(object, compounddef)
     return True
 
 
 def category_parse(object: BaseObject, compounddef) -> bool:
     object.type = BaseObjectType.CategoryType
-    object.definition = f"public interface {object.name}"
-    object.children = memberdef_parse.parse(compounddef)
+    object.definition = f"public interface {compounddef.get_compoundname()}"
+    object.children = memberdef_parse.parse(object, compounddef)
     return True
 
 
@@ -76,8 +75,10 @@ def protocol_parse(object: BaseObject, compounddef) -> bool:
         if compounddef.get_basecompoundref() is not None
         else ""
     )
-    object.definition = f"public protocol {object.name} : {basecompoundref_str}"
-    object.children = memberdef_parse.parse(compounddef)
+    object.definition = (
+        f"public protocol {compounddef.get_compoundname()} : {basecompoundref_str}"
+    )
+    object.children = memberdef_parse.parse(object, compounddef)
     return True
 
 
@@ -85,14 +86,19 @@ def parse(compounddef) -> BaseObject:
     compounddef_parse_func = COMPOUNDDEF_PARSE_DICT.get(compounddef.get_kind())
     if compounddef_parse_func is not None:
         object = BaseObject(
-            name=compounddef.get_compoundname(),
+            name=compounddef.get_compoundname().split("::")[-1],
             type=BaseObjectType.UnknownType,
-            brief_desc=compounddef.get_briefdescription(),
+            brief_desc=briefdescription_parse_in_online(
+                compounddef.get_briefdescription()
+            ),
             detailed_desc=compounddef.get_detaileddescription(),
             definition="",
+            has_apidoc=False,
+            language=compounddef.get_language(),
             children=[],
         )
         if compounddef_parse_func(object, compounddef):
+            object.has_apidoc = is_apidoc(compounddef)
             return object
     elif compounddef.get_kind() not in IGNORE_COMPOUNDDEF_LIST:
         print(f"unknown compounddef kind: {compounddef.get_kind()}")

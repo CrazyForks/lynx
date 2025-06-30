@@ -8,39 +8,53 @@ import com.lynx.tasm.resourceprovider.LynxResourceRequest;
 import com.lynx.tasm.resourceprovider.LynxResourceResponse;
 
 /**
- * Generic Resource Provider for Lynx.
+ * @apidoc
+ * @brief `LynxGenericResourceFetcher` is defined inside `LynxEngine`
+ * and injected from outside to implement a general resource loading interface.
+ * It is used inside LynxEngine for resource loading capabilities of components such as `Text`
  */
 public abstract class LynxGenericResourceFetcher {
   /**
-   * fetch resource with contents.
+   * @apidoc
+   * @brief `LynxEngine` internally calls this method to obtain the general
+   * resource content, and the return result is required to be the resource content `byte[]` type.
    *
-   * @param request
-   * @param callback contents of the requiring resource.
+   * @param request Request for the requiring resource.
+   * @param callback Contents of the requiring resource.
+   * @note This method must be implemented.
    */
   public abstract void fetchResource(
       LynxResourceRequest request, LynxResourceCallback<byte[]> callback);
 
   /**
-   * fetch resource with res path.
+   * @apidoc
+   * @brief `LynxEngine` internally calls this method to obtain the path of the common
+   * resource on the local disk, and the return result is required to be of `String` type.
    *
-   * @param request
-   * @param callback path on the disk of the requiring resource.
+   * @param request Request for the requiring resource.
+   * @param callback Path on the disk of the requiring resource.
+   * @note This method must be implemented.
    */
   public abstract void fetchResourcePath(
       LynxResourceRequest request, LynxResourceCallback<String> callback);
 
   /**
-   * fetch resource with stream.
+   * @apidoc
+   * @brief `LynxEngine` internally calls this method to obtain resource content in a streaming
+   * manner.
    *
-   * @param request
-   * @param delegate streaming of the requiring resource.
+   * @param request Request for the requiring resource.
+   * @param delegate Streaming of the requiring resource.
+   * @note This method is optional to be implemented.
    */
   public void fetchStream(LynxResourceRequest request, StreamDelegate delegate){};
 
   /**
-   * cancel the request of the requiring resource.
+   * @apidoc
+   * @brief Cancel the request of the requiring resource.
    *
    * @param request the requiring request.
+   * @note This method is optional to be implemented.
    */
   public void cancel(LynxResourceRequest request){};
 }

@@ -34,42 +34,48 @@ typedef void (^LynxGenericResourcePathCompletionBlock)(NSString *_Nullable path,
 
 @end
 
+/**
+ * @apidoc
+ * @brief `LynxGenericResourceFetcher` is defined inside `LynxEngine`
+ * and injected from outside to implement a general resource loading interface.
+ * It is used inside LynxEngine for resource loading capabilities of components such as `Text`
+ */
 @protocol LynxGenericResourceFetcher <NSObject>
 
 /**
- * fetch resource with contents.
+ * @apidoc
+ * @brief `LynxEngine` internally calls this method to obtain the general
+ * resource content, and the return result is required to be the resource content `byte[]` type.
  *
- * @param request.
- * @param callback contents of the requiring resource.
- *
- * @return: A block which can cancel the image request if it is not finished. nil if cancel action
- * is not supported.
+ * @param request Request for the requiring resource.
+ * @param callback Contents of the requiring resource.
+ * @note This method must be implemented.
  */
 @required
 - (dispatch_block_t)fetchResource:(nonnull LynxResourceRequest *)request
                        onComplete:(LynxGenericResourceCompletionBlock _Nonnull)callback;
 
 /**
- * fetch resource with res path.
+ * @apidoc
+ * @brief `LynxEngine` internally calls this method to obtain the path of the common
+ * resource on the local disk, and the return result is required to be of `String` type.
  *
- * @param request
- * @param callback path on the disk of the requiring resource.
- *
- * @return: A block which can cancel the image request if it is not finished. nil if cancel action
- * is not supported.
+ * @param request Request for the requiring resource.
+ * @param callback Path on the disk of the requiring resource.
+ * @note This method must be implemented.
  */
 @required
 - (dispatch_block_t)fetchResourcePath:(nonnull LynxResourceRequest *)request
                            onComplete:(LynxGenericResourcePathCompletionBlock _Nonnull)callback;
 
 /**
- * fetch resource with stream.
+ * @apidoc
+ * @brief `LynxEngine` internally calls this method to obtain resource content in a streaming
+ * manner.
  *
- * @param request
- * @param delegate streaming of the requiring resource.
- *
- * @return: A block which can cancel the image request if it is not finished. nil if cancel action
- * is not supported.
+ * @param request Request for the requiring resource.
+ * @param delegate Streaming of the requiring resource.
+ * @note This method is optional to be implemented.
  */
 @optional
 - (dispatch_block_t)fetchStream:(nonnull LynxResourceRequest *)request

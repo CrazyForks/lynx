@@ -32,6 +32,10 @@
 @class LynxContext;
 @protocol LynxBaseInspectorOwner;
 
+/**
+ * @apidoc
+ * @brief Similar to WebView in native developing. Renders bundle within host application’s context.
+ */
 @interface LynxView : UIView <LUIBodyView>
 
 #pragma mark - Property
@@ -91,7 +95,13 @@
 
 #pragma mark - Template
 
-/// Load template
+/**
+ * @apidoc
+ * @brief Using [`LynxLoadMeta`](../lynx-load-meta.mdx) to render `LynxView`,
+ * it is the main entrance for the client to load `Lynx` templates.
+ * @param meta Lynx template loads metadata, and developers use this data structure
+ * to specify optional data loaded by the template.
+ */
 - (void)loadTemplate:(nonnull LynxLoadMeta*)meta;
 - (void)loadTemplateFromURL:(nonnull NSString*)url;
 - (void)loadTemplateFromURL:(nonnull NSString*)url initData:(nullable LynxTemplateData*)data;
@@ -158,12 +168,11 @@
                    processorName:(nullable NSString*)name;
 
 /**
- * **EXPERIMENTAL API**
- *
- * Method to update Lynx All in One.
- * Construct LynxUpdateMeta with coming data & globalProps & etc to be updated at once.
- *
- * @param meta LynxUpdateMeta to be used.
+ * @apidoc
+ * @brief Using [LynxUpdateMeta](/api/lynx-native-api/lynx-update-meta) to update `LynxView`,
+ * it is the main entrance for the client to update template data.
+ * @param meta Lynx template update metadata, developers use this data structure to
+ * specify the optional data content of the update template.
  */
 - (void)updateMetaData:(nonnull LynxUpdateMeta*)meta;
 
@@ -216,6 +225,12 @@
  */
 - (void)updateScreenMetricsWithWidth:(CGFloat)width height:(CGFloat)height;
 
+/**
+ * @apidoc
+ * @brief Changing the font scaling ratio in client settings
+ * will automatically change the text size.
+ * @param scale The new font scaling ratio.
+ */
 - (void)updateFontScale:(CGFloat)scale;
 
 /**
@@ -240,17 +255,59 @@
 - (void)triggerLayout;
 
 - (nullable LynxUI*)findUIByIndex:(int)index;
+
+/**
+ * @apidoc
+ * @brief Find `UIView` based on name attribute.
+ * @param name The name attribute of the view specified by the front end in the layout file.
+ * @return The `UIView` node corresponding to the name attribute.
+ */
 - (nullable UIView*)findViewWithName:(nonnull NSString*)name;
+
+/**
+ * @apidoc
+ * @brief Find `LynxUI` nodes based on the name attribute.
+ * @param name The name attribute of the view specified by the front end in the layout file.
+ * @return The `LynxUI` node corresponding to the name attribute.
+ */
 - (nullable LynxUI*)uiWithName:(nonnull NSString*)name;
+
+/**
+ * @apidoc
+ * @brief Find `LynxUI` nodes based on the idSelector attribute.
+ * @param idSelector The id attribute of the view specified by the front end in the layout file.
+ * @return The `LynxUI` node corresponding to the idSelector attribute.
+ */
 - (nullable LynxUI*)uiWithIdSelector:(nonnull NSString*)idSelector;
+
+/**
+ * @apidoc
+ * @brief Find `UIView` based on `idSelector` property.
+ * @param idSelector The id attribute of the view specified by the front end in the layout file.
+ * @return The `UIView` node corresponding to the idSelector attribute.
+ */
 - (nullable UIView*)viewWithIdSelector:(nonnull NSString*)idSelector;
 
+/**
+ * @apidoc
+ * @brief Register lifecycle event observer for `LynxView`.
+ * @param lifecycleClient The structure implemented by the client and registered to the `LynxView`
+ *instance is used to obtain the callbacks of each process in the `LynxView` lifecycle.
+ */
 - (void)addLifecycleClient:(nonnull id<LynxViewBaseLifecycle>)lifecycleClient;
 
 - (void)removeLifecycleClient:(nonnull id<LynxViewBaseLifecycle>)lifecycleClient;
 
 - (void)updateViewportWithPreferredLayoutWidth:(CGFloat)preferredLayoutWidth
                          preferredLayoutHeight:(CGFloat)preferredLayoutHeight;
+
+/**
+ * @apidoc
+ * @brief The client updates the `LynxView` view size.
+ * @param preferredLayoutWidth Current `LynxView` width.
+ * @param preferredLayoutHeight Current `LynxView` height.
+ * @param needLayout Whether layout needs to be triggered.
+ */
 - (void)updateViewportWithPreferredLayoutWidth:(CGFloat)preferredLayoutWidth
                          preferredLayoutHeight:(CGFloat)preferredLayoutHeight
                                     needLayout:(BOOL)needLayout;
@@ -283,6 +340,14 @@
 
 - (void)onEnterForeground;
 - (void)onEnterBackground;
+
+/**
+ * @apidoc
+ * @brief Send global events to the front end through the client, and the front end can listen to
+ * the event through GlobalEventEmitter.
+ * @param name Global event name.
+ * @param params Parameters carried by global events.
+ */
 - (void)sendGlobalEvent:(nonnull NSString*)name withParams:(nullable NSArray*)params;
 - (void)sendGlobalEventToLepus:(nonnull NSString*)name withParams:(nullable NSArray*)params;
 
@@ -330,6 +395,11 @@
 
 #pragma mark - Timing & Report
 
+/**
+ * @apidoc
+ * @brief Supplement key performance data before loading the Lynx page.
+ * @param timing Used to supplement key performance data before loading the Lynx page.
+ */
 - (void)setExtraTiming:(LynxExtraTiming* _Nonnull)timing;
 
 - (nullable NSDictionary*)getAllTimingInfo;
