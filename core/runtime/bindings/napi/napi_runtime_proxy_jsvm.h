@@ -4,6 +4,8 @@
 #ifndef CORE_RUNTIME_BINDINGS_NAPI_NAPI_RUNTIME_PROXY_JSVM_H_
 #define CORE_RUNTIME_BINDINGS_NAPI_NAPI_RUNTIME_PROXY_JSVM_H_
 
+#include <ark_runtime/jsvm_types.h>
+
 #include <memory>
 
 #include "core/runtime/bindings/napi/napi_runtime_proxy.h"
@@ -16,14 +18,14 @@ class NapiRuntimeProxyJSVM : public NapiRuntimeProxy {
  public:
   static std::unique_ptr<NapiRuntimeProxy> Create(
       const std::shared_ptr<JSVMContextWrapper>& context,
-      runtime::TemplateDelegate* delegate = nullptr) {
-    return nullptr;
-  };
+      runtime::TemplateDelegate* delegate = nullptr);
   NapiRuntimeProxyJSVM(const std::shared_ptr<JSVMContextWrapper>& context,
-                       runtime::TemplateDelegate* delegate)
-      : NapiRuntimeProxy(delegate){};
-  void Attach() override{};
-  void Detach() override{};
+                       runtime::TemplateDelegate* delegate);
+  void Attach() override;
+  void Detach() override;
+
+ private:
+  JSVM_Env jsvm_env_ = nullptr;
 };
 
 class NapiRuntimeProxyJSVMFactoryImpl : public NapiRuntimeProxyJSVMFactory {

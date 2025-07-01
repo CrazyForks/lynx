@@ -98,6 +98,11 @@ config("lynx_public_config") {
     if (enable_inspector) {
       defines += [ "EXPORT_SYMBOLS_FOR_DEVTOOL=1" ]
     }
+
+    defines += [ "ENABLE_JSVM=1" ]
+    if (jsengine_type == "jsvm") {
+      defines += [ "JS_ENGINE_TYPE=3" ]
+    }
   }
 
   # Attach arguments to turn on Lynx Clang static checker plugin.
