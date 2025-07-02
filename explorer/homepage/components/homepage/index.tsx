@@ -120,7 +120,7 @@ export default function HomePage(props: HomePageProps) {
 
       <view className={withTheme('input-card-url')}>
         <text className={withTheme('bold-text')}>Card URL</text>
-        <input
+        <explorer-input
           className="input-box"
           bindinput={handleInput}
           placeholder="Enter Card URL"

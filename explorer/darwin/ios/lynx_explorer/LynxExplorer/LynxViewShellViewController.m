@@ -38,8 +38,6 @@ NSString *const kBackButtonImageDark = @"back_dark";
 
 @end
 
-static int initCount = 0;
-
 @implementation LynxViewShellViewController
 
 - (id)init {
@@ -51,7 +49,6 @@ static int initCount = 0;
     self.titleColor = [UIColor blackColor];
     self.barColor = [UIColor whiteColor];
     self.frontendTheme = kBackButtonStyleLight;
-    initCount++;
   }
 
   return self;
@@ -100,10 +97,8 @@ static int initCount = 0;
     builder.screenSize = screenSize;
     builder.fontScale = 1.0;
     builder.fetcher = nil;
-    if (initCount == 1) {
-      // for homepage only
-      [builder.config registerUI:LynxExplorerInput.class withName:@"input"];
-    }
+    // for homepage only
+    [builder.config registerUI:LynxExplorerInput.class withName:@"explorer-input"];
     // Add fetchers
     builder.enableGenericResourceFetcher = true;
     builder.genericResourceFetcher = [[DemoGenericResourceFetcher alloc] init];

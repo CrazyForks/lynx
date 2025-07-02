@@ -61,7 +61,6 @@ public class LynxViewShellActivity extends AppCompatActivity {
   private LynxView mLynxView;
   private String mFrontendTheme;
   private TimingHandler.ExtraTimingInfo extraTimingInfo = new TimingHandler.ExtraTimingInfo();
-  static int initCount = 0;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -79,8 +78,6 @@ public class LynxViewShellActivity extends AppCompatActivity {
     mLynxContainer = findViewById(R.id.lynx_container);
 
     extraTimingInfo.mContainerInitEnd = System.currentTimeMillis();
-
-    initCount++;
 
     openTargetUrl(url);
   }
@@ -218,15 +215,13 @@ public class LynxViewShellActivity extends AppCompatActivity {
     LynxViewBuilder builder = new LynxViewBuilder();
     builder.addBehaviors(new ImageBehavior().create());
     builder.addBehaviors(new XElementBehaviors().create());
-    if (initCount == 1) {
-      // for homepage only
-      builder.addBehavior(new Behavior("input", false) {
-        @Override
-        public LynxExplorerInput createUI(LynxContext context) {
-          return new LynxExplorerInput(context);
-        }
-      });
-    }
+    // for homepage only
+    builder.addBehavior(new Behavior("explorer-input", false) {
+      @Override
+      public LynxExplorerInput createUI(LynxContext context) {
+        return new LynxExplorerInput(context);
+      }
+    });
     builder.setEnableGenericResourceFetcher(LynxBooleanOption.TRUE);
     builder.setGenericResourceFetcher(new DemoGenericResourceFetcher());
     builder.setTemplateResourceFetcher(new DemoTemplateResourceFetcher(this));
