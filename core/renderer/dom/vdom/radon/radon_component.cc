@@ -260,8 +260,8 @@ void RadonComponent::PrepareComponentExternalStyles(AttributeHolder* holder) {
   }
 }
 
-static void update_root_css_variable(
-    AttributeHolder* holder, const std::shared_ptr<CSSParseToken>& root) {
+static void update_root_css_variable(AttributeHolder* holder,
+                                     const fml::RefPtr<CSSParseToken>& root) {
   auto& variables = root->GetStyleVariables();
   if (variables.empty()) {
     return;

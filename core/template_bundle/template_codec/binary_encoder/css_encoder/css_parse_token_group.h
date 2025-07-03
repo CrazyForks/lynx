@@ -65,7 +65,7 @@ class CSSParseTokenGroup {
    */
 
  private:
-  std::vector<std::shared_ptr<CSSParseToken>> tokens;
+  std::vector<fml::RefPtr<CSSParseToken>> tokens;
   std::string path_;
 
   std::string& replace_all(std::string& str, const std::string& old_value,
@@ -81,7 +81,7 @@ class CSSParseTokenGroup {
   }
 
  public:
-  std::vector<std::shared_ptr<CSSParseToken>>& getCssTokens() { return tokens; }
+  std::vector<fml::RefPtr<CSSParseToken>>& getCssTokens() { return tokens; }
   std::string selector_key_;
   encoder::LynxCSSSelectorTuple selector_tuple_;
   /**
@@ -112,8 +112,9 @@ class CSSParseTokenGroup {
             for (std::vector<std::string>::const_iterator iter = rule.cbegin();
                  iter != rule.cend(); iter++) {
               std::string str = *iter;
-              std::shared_ptr<CSSParseToken> token(new encoder::CSSParseToken(
-                  css_style, str, path, style_variables, compile_options_));
+              fml::RefPtr<CSSParseToken> token =
+                  fml::AdoptRef(new encoder::CSSParseToken(
+                      css_style, str, path, style_variables, compile_options_));
               tokens.push_back(std::move(token));
             }
           } else {
@@ -143,8 +144,9 @@ class CSSParseTokenGroup {
                 selector_vector, selector_tuple_.selector_arr.get(),
                 flattened_size);
 
-            std::shared_ptr<CSSParseToken> token(new encoder::CSSParseToken(
-                css_style, selector, path, style_variables, compile_options_));
+            fml::RefPtr<CSSParseToken> token = fml::AdoptRef(
+                new encoder::CSSParseToken(css_style, selector, path,
+                                           style_variables, compile_options_));
             selector_tuple_.parse_token = std::move(token);
           }
         }

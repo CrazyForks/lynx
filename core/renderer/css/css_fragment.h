@@ -33,10 +33,10 @@ struct PseudoNotContent {
 using PseudoClassStyleMap = std::unordered_map<std::string, PseudoNotContent>;
 
 using CSSParserTokenMap =
-    std::unordered_map<std::string, std::shared_ptr<CSSParseToken>>;
+    std::unordered_map<std::string, fml::RefPtr<CSSParseToken>>;
 
 using CSSKeyframesTokenMap =
-    base::LinearFlatMap<base::String, std::shared_ptr<CSSKeyframesToken>>;
+    base::LinearFlatMap<base::String, fml::RefPtr<CSSKeyframesToken>>;
 
 struct PseudoNotStyle {
   PseudoClassStyleMap pseudo_not_for_tag;
@@ -84,7 +84,7 @@ class CSSFragment {
       css::InvalidationLists& lists,
       css::LynxCSSSelector::PseudoType pseudo) = 0;
 
-  virtual std::shared_ptr<CSSParseToken> GetSharedCSSStyle(
+  virtual fml::RefPtr<CSSParseToken> GetSharedCSSStyle(
       const std::string& key) = 0;
 
   virtual const CSSKeyframesTokenMap& GetKeyframesRuleMap();

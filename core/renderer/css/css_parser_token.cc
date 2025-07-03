@@ -31,8 +31,7 @@ bool CSSParseToken::IsCascadeSelectorStyleToken() const {
 }
 
 const StyleMap& CSSParseToken::GetAttributes() {
-  if (parser_state_.load(std::memory_order_acquire) ==
-      static_cast<int>(ParseState::kParsed)) {
+  if (parser_state_.load(std::memory_order_acquire) == ParseState::kParsed) {
     // If token is already parsed, return the parsed attributes.
     return attributes_;
   }
@@ -53,25 +52,22 @@ const StyleMap& CSSParseToken::GetAttributes() {
     });
   }
 
-  int expected = static_cast<int>(ParseState::kNotParsed);
+  int expected = ParseState::kNotParsed;
   // Try to set the parser state to kParsing.
-  while (!parser_state_.compare_exchange_strong(
-             expected, static_cast<int>(ParseState::kParsing)) &&
-         parser_state_.load(std::memory_order_acquire) !=
-             static_cast<int>(ParseState::kParsed)) {
-    expected = static_cast<int>(ParseState::kNotParsed);
+  while (
+      !parser_state_.compare_exchange_strong(expected, ParseState::kParsing) &&
+      parser_state_.load(std::memory_order_acquire) != ParseState::kParsed) {
+    expected = ParseState::kNotParsed;
   }
 
   // If the parser state is already kParsed, return the parsed attributes.
-  if (parser_state_.load(std::memory_order_acquire) ==
-      static_cast<int>(ParseState::kParsed)) {
+  if (parser_state_.load(std::memory_order_acquire) == ParseState::kParsed) {
     return attributes_;
   }
 
   attributes_ = std::move(css_attribute);
   // Set the parser state to kParsed.
-  parser_state_.store(static_cast<int>(ParseState::kParsed),
-                      std::memory_order_release);
+  parser_state_.store(ParseState::kParsed, std::memory_order_release);
   return attributes_;
 }
 

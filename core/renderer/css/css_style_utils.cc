@@ -1272,7 +1272,7 @@ void CSSStyleUtils::UpdateCSSKeyframes(
     if (!keyframes.IsArray() || keyframes.Array()->size() < 2) {
       return;
     }
-    keyframes_map[name] = std::make_unique<tasm::CSSKeyframesToken>(configs);
+    keyframes_map[name] = fml::MakeRefCounted<tasm::CSSKeyframesToken>(configs);
     const auto& ary = keyframes.Array();
     float interval = 1.0f / (ary->size() - 1);
     for (size_t i = 0; i < ary->size(); ++i) {
@@ -1284,7 +1284,7 @@ void CSSStyleUtils::UpdateCSSKeyframes(
   if (keyframes.Table()->size() < 2) {
     return;
   }
-  keyframes_map[name] = std::make_unique<tasm::CSSKeyframesToken>(configs);
+  keyframes_map[name] = fml::MakeRefCounted<tasm::CSSKeyframesToken>(configs);
   auto table = keyframes.Table();
   for (auto& iter : *table) {
     const std::string& per = iter.first.str();

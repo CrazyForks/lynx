@@ -4,6 +4,7 @@
 
 #include "core/renderer/css/ng/style/rule_set.h"
 
+#include "core/renderer/css/css_parser_token.h"
 #include "core/renderer/css/ng/parser/css_parser_token_range.h"
 #include "core/renderer/css/ng/parser/css_tokenizer.h"
 #include "core/renderer/css/ng/selector/css_parser_context.h"
@@ -27,7 +28,7 @@ struct TestFragment {
     CSSSelectorParser::AdoptSelectorVector(vector, selector_array.get(),
                                            flattened_size);
     rule_set_.AddStyleRule(
-        std::make_unique<StyleRule>(std::move(selector_array), nullptr));
+        fml::MakeRefCounted<StyleRule>(std::move(selector_array), nullptr));
   }
   RuleSet& GetRuleSet() { return rule_set_; }
   RuleSet rule_set_;

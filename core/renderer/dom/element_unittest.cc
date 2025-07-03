@@ -167,14 +167,14 @@ TEST_F(ElementTest, ResolveCSSKeyframesByNames) {
       names, keyframes, length_context, configs, false);
   EXPECT_TRUE(result.IsTable() && result.Table()->size() == 0);
 
-  std::shared_ptr<tasm::CSSKeyframesToken> token0(
-      new tasm::CSSKeyframesToken(configs));
-  std::shared_ptr<tasm::CSSKeyframesToken> token1(
-      new tasm::CSSKeyframesToken(configs));
-  std::shared_ptr<tasm::CSSKeyframesToken> token2(
-      new tasm::CSSKeyframesToken(configs));
-  std::shared_ptr<tasm::CSSKeyframesToken> token3(
-      new tasm::CSSKeyframesToken(configs));
+  fml::RefPtr<tasm::CSSKeyframesToken> token0 =
+      fml::AdoptRef(new tasm::CSSKeyframesToken(configs));
+  fml::RefPtr<tasm::CSSKeyframesToken> token1 =
+      fml::AdoptRef(new tasm::CSSKeyframesToken(configs));
+  fml::RefPtr<tasm::CSSKeyframesToken> token2 =
+      fml::AdoptRef(new tasm::CSSKeyframesToken(configs));
+  fml::RefPtr<tasm::CSSKeyframesToken> token3 =
+      fml::AdoptRef(new tasm::CSSKeyframesToken(configs));
   keyframes.insert({c_name0, token0});
   keyframes.insert({c_name1, token1});
   keyframes.insert({c_name2, token2});

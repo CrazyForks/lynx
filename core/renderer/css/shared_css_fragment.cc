@@ -74,7 +74,7 @@ CSSParseToken* SharedCSSFragment::GetCSSStyle(const std::string& key) {
   return nullptr;
 }
 
-std::shared_ptr<CSSParseToken> SharedCSSFragment::GetSharedCSSStyle(
+fml::RefPtr<CSSParseToken> SharedCSSFragment::GetSharedCSSStyle(
     const std::string& key) {
   auto it = css_.find(key);
   if (it != css_.end()) {
@@ -250,7 +250,7 @@ void SharedCSSFragment::InitPseudoNotStyle() {
 }
 
 void SharedCSSFragment::FindSpecificMapAndAdd(
-    const std::string& key, const std::shared_ptr<CSSParseToken>& parse_token) {
+    const std::string& key, const fml::RefPtr<CSSParseToken>& parse_token) {
   if (parse_token->IsCascadeSelectorStyleToken()) {
     cascade_map_.emplace(key, parse_token);
   }
@@ -272,9 +272,9 @@ void SharedCSSFragment::FindSpecificMapAndAdd(
 
 void SharedCSSFragment::AddStyleRule(
     std::unique_ptr<css::LynxCSSSelector[]> selector_arr,
-    std::shared_ptr<CSSParseToken> parse_token) {
+    fml::RefPtr<CSSParseToken> parse_token) {
   // We know the pointer is not empty
-  rule_set_->AddStyleRule(std::make_shared<css::StyleRule>(
+  rule_set_->AddStyleRule(fml::MakeRefCounted<css::StyleRule>(
       std::move(selector_arr), std::move(parse_token)));
 }
 

@@ -19,7 +19,7 @@ namespace lynx {
 namespace encoder {
 
 using CSSKeyframesTokenMapForEncode =
-    std::unordered_map<std::string, std::shared_ptr<CSSKeyframesToken>>;
+    std::unordered_map<std::string, fml::RefPtr<CSSKeyframesToken>>;
 
 using CSSFontFaceTokenMapForEncode =
     std::unordered_map<std::string,
@@ -31,7 +31,7 @@ struct LynxCSSSelectorTuple {
   std::string selector_key;
   size_t flattened_size;
   std::unique_ptr<css::LynxCSSSelector[]> selector_arr;
-  std::shared_ptr<tasm::CSSParseToken> parse_token;
+  fml::RefPtr<tasm::CSSParseToken> parse_token;
 };
 
 // TODO(songshourui.null): Subsequently, `encoder::SharedCSSFragment` will be

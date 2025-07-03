@@ -92,8 +92,7 @@ class SharedCSSFragment : public CSSFragment {
   void CollectInvalidationSetsForPseudoClass(
       css::InvalidationLists& lists,
       css::LynxCSSSelector::PseudoType pseudo) override;
-  std::shared_ptr<CSSParseToken> GetSharedCSSStyle(
-      const std::string& key) override;
+  fml::RefPtr<CSSParseToken> GetSharedCSSStyle(const std::string& key) override;
   bool HasCSSStyle() override;
   CSSParseToken* GetCSSStyle(const std::string& key) override;
   CSSParseToken* GetPseudoStyle(const std::string& key) override;
@@ -105,9 +104,9 @@ class SharedCSSFragment : public CSSFragment {
   bool HasPseudoNotStyle() override { return has_pseudo_not_style_; }
   void InitPseudoNotStyle() override;
   void FindSpecificMapAndAdd(const std::string& key,
-                             const std::shared_ptr<CSSParseToken>& parse_token);
+                             const fml::RefPtr<CSSParseToken>& parse_token);
   void AddStyleRule(std::unique_ptr<css::LynxCSSSelector[]> selector_arr,
-                    std::shared_ptr<CSSParseToken> parse_token);
+                    fml::RefPtr<CSSParseToken> parse_token);
   bool HasIdSelector() override { return !id_map_.empty(); }
 
  protected:

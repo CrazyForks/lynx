@@ -47,13 +47,14 @@ static void MatchKey(
 }
 
 void RuleSet::AddToRuleSet(const std::string& text,
-                           const std::shared_ptr<tasm::CSSParseToken>& token) {
+                           const fml::RefPtr<tasm::CSSParseToken>& token) {
   auto selector_array = std::make_unique<LynxCSSSelector[]>(1);
   selector_array[0].SetValue(text);
   selector_array[0].SetMatch(LynxCSSSelector::MatchType::kClass);
   selector_array[0].SetLastInTagHistory(true);
   selector_array[0].SetLastInSelectorList(true);
-  AddStyleRule(std::make_shared<StyleRule>(std::move(selector_array), token));
+  AddStyleRule(
+      fml::MakeRefCounted<StyleRule>(std::move(selector_array), token));
 }
 
 void RuleSet::MatchStyles(StyleNode* node, unsigned& level,
@@ -73,7 +74,7 @@ void RuleSet::MatchStyles(StyleNode* node, unsigned& level,
   MatchKey(node, node->idSelector().str(), id_rules_, level, output);
 }
 
-void RuleSet::AddStyleRule(const std::shared_ptr<StyleRule>& rule) {
+void RuleSet::AddStyleRule(const fml::RefPtr<StyleRule>& rule) {
   if (rule == nullptr) return;
 
   for (unsigned selector_index = 0; selector_index != UINT_MAX;
@@ -198,7 +199,7 @@ bool RuleSet::AddToRuleSetInternal(const LynxCSSSelector& selector,
   return false;
 }
 
-std::shared_ptr<tasm::CSSParseToken> RuleSet::GetRootToken() {
+fml::RefPtr<tasm::CSSParseToken> RuleSet::GetRootToken() {
   auto iter = std::find_if(universal_rules_.begin(), universal_rules_.end(),
                            [](const RuleData& rd) {
                              return rd.Selector().GetPseudoType() ==

@@ -149,7 +149,7 @@ void ComponentElement::PrepareForFontFaceIfNeeded() {
 }
 
 void ComponentElement::UpdateRootCSSVariables(
-    AttributeHolder* holder, const std::shared_ptr<CSSParseToken>& root_token) {
+    AttributeHolder* holder, const fml::RefPtr<CSSParseToken>& root_token) {
   auto style_variables = root_token->GetStyleVariables();
   if (style_variables.empty()) {
     return;

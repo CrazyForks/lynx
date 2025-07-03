@@ -108,7 +108,7 @@ bool LynxBinaryBaseCSSReader::DecodeCSSFragment(SharedCSSFragment* fragment,
           fragment->MarkHasTouchPseudoToken();
         }
       }
-      auto parser_token = std::make_shared<CSSParseToken>(parser_config);
+      auto parser_token = fml::MakeRefCounted<CSSParseToken>(parser_config);
       ERROR_UNLESS(DecodeCSSParseToken(parser_token.get()));
       fragment->AddStyleRule(std::move(selector_array),
                              std::move(parser_token));
@@ -125,7 +125,7 @@ bool LynxBinaryBaseCSSReader::DecodeCSSFragment(SharedCSSFragment* fragment,
   fragment->css_.reserve(css_size);
   for (size_t i = 0; i < css_size; ++i) {
     DECODE_STDSTR(key);
-    auto parser_token = std::make_shared<CSSParseToken>(parser_config);
+    auto parser_token = fml::MakeRefCounted<CSSParseToken>(parser_config);
     ERROR_UNLESS(DecodeCSSParseToken(parser_token.get()));
     if (parser_token->IsTouchPseudoToken()) {
       fragment->MarkHasTouchPseudoToken();

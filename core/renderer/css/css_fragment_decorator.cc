@@ -141,7 +141,7 @@ CSSFragmentDecorator::GetFontFaceRule(const std::string& key) {
   return intrinsic_style_sheets_->GetFontFaceRule(key);
 }
 
-std::shared_ptr<CSSParseToken> CSSFragmentDecorator::GetSharedCSSStyle(
+fml::RefPtr<CSSParseToken> CSSFragmentDecorator::GetSharedCSSStyle(
     const std::string& key) {
   if (intrinsic_style_sheets_ &&
       intrinsic_style_sheets_->enable_css_selector()) {
@@ -162,8 +162,8 @@ std::shared_ptr<CSSParseToken> CSSFragmentDecorator::GetSharedCSSStyle(
   return nullptr;
 }
 
-void CSSFragmentDecorator::AddExternalStyle(
-    const std::string& key, std::shared_ptr<CSSParseToken> value) {
+void CSSFragmentDecorator::AddExternalStyle(const std::string& key,
+                                            fml::RefPtr<CSSParseToken> value) {
   // A new independent attribute map is needed for each component instance, as
   // multiple external tokens may merge to become the new token.
   if (external_css_.find(key) == external_css_.end()) {

@@ -61,7 +61,7 @@ TEST_F(CSSPatchingTest, GetCSSStyleForFiber) {
   // constructor css fragment
   StyleMap indexAttributes;
   CSSParserConfigs configs;
-  auto tokens = std::make_shared<CSSParseToken>(configs);
+  auto tokens = fml::MakeRefCounted<CSSParseToken>(configs);
 
   CSSParserTokenMap indexTokensMap;
   // class .text-c
@@ -157,7 +157,7 @@ TEST_F(CSSPatchingTest, GetCSSStyleForFiberDescendantSelector) {
   //  constructor css fragment
   StyleMap indexAttributes;
   CSSParserConfigs configs;
-  auto tokens = std::make_shared<CSSParseToken>(configs);
+  auto tokens = fml::MakeRefCounted<CSSParseToken>(configs);
 
   CSSParserTokenMap indexTokensMap;
   // class .a
@@ -192,7 +192,7 @@ TEST_F(CSSPatchingTest, GetCSSStyleForFiberDescendantSelector) {
 
   // class .a.b
   {
-    auto tokens = std::make_shared<CSSParseToken>(configs);
+    auto tokens = fml::MakeRefCounted<CSSParseToken>(configs);
     auto id = CSSPropertyID::kPropertyIDFontSize;
     auto impl = lepus::Value("20px");
     tokens.get()->raw_attributes_[id] = CSSValue(impl);
@@ -253,7 +253,7 @@ TEST_F(CSSPatchingTest, FiberDescendantSelectorScope) {
   //  constructor css fragment
   StyleMap indexAttributes;
   CSSParserConfigs configs;
-  auto tokens = std::make_shared<CSSParseToken>(configs);
+  auto tokens = fml::MakeRefCounted<CSSParseToken>(configs);
 
   CSSParserTokenMap indexTokensMap;
   // class .a
@@ -288,7 +288,7 @@ TEST_F(CSSPatchingTest, FiberDescendantSelectorScope) {
 
   // class .a.b
   {
-    auto tokens = std::make_shared<CSSParseToken>(configs);
+    auto tokens = fml::MakeRefCounted<CSSParseToken>(configs);
     auto id = CSSPropertyID::kPropertyIDFontSize;
     auto impl = lepus::Value("20px");
     tokens.get()->raw_attributes_[id] = CSSValue(impl);
@@ -357,7 +357,7 @@ TEST_F(CSSPatchingTest, CSSSelectorDescendantSelectorScope) {
 
   constexpr CSSPropertyID key = CSSPropertyID::kPropertyIDWidth;
   CSSParserConfigs configs;
-  auto token = std::make_shared<CSSParseToken>(configs);
+  auto token = fml::MakeRefCounted<CSSParseToken>(configs);
   token.get()->raw_attributes_[key] = CSSValue(lepus::Value("20px"));
 
   SharedCSSFragment fragment;
@@ -375,8 +375,8 @@ TEST_F(CSSPatchingTest, CSSSelectorDescendantSelectorScope) {
   selector_array[1].SetLastInTagHistory(true);
   selector_array[1].SetLastInSelectorList(true);
 
-  fragment.rule_set()->AddStyleRule(
-      std::make_unique<StyleRule>(std::move(selector_array), std::move(token)));
+  fragment.rule_set()->AddStyleRule(fml::MakeRefCounted<StyleRule>(
+      std::move(selector_array), std::move(token)));
   StyleMap result;
   fiber_element->style_resolver_.ResolveStyle(result, &fragment, nullptr);
 

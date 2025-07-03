@@ -22,7 +22,7 @@ namespace tasm {
 
 TEST(CSSParseToken, GetAttributes) {
   CSSParserConfigs parser_configs;
-  auto tokens = std::make_shared<CSSParseToken>(parser_configs);
+  auto tokens = fml::MakeRefCounted<CSSParseToken>(parser_configs);
   tokens->raw_attributes().insert_or_assign(CSSPropertyID::kPropertyIDFontSize,
                                             CSSValue(lepus::Value("18px")));
 
@@ -47,7 +47,7 @@ TEST(CSSParseToken, ParallelGetAttributes) {
   UnitHandler::Process(CSSPropertyID::kPropertyIDWidth, lepus::Value("18px"),
                        expected, parser_configs);
 
-  auto tokens = std::make_shared<CSSParseToken>(parser_configs);
+  auto tokens = fml::MakeRefCounted<CSSParseToken>(parser_configs);
   tokens->SetAttributes(std::move(expected));
 
   using TestOnceTaskRefptr = base::OnceTaskRefptr<void>;
@@ -99,7 +99,7 @@ TEST(CSSParseToken, ParallelProcessAttributes) {
   raw_attributes.insert_or_assign(CSSPropertyID::kPropertyIDWidth,
                                   CSSValue(lepus::Value("18px")));
 
-  auto tokens = std::make_shared<CSSParseToken>(parser_configs);
+  auto tokens = fml::MakeRefCounted<CSSParseToken>(parser_configs);
   tokens->raw_attributes_ = std::move(raw_attributes);
 
   using TestOnceTaskRefptr = base::OnceTaskRefptr<std::tuple<bool, bool, bool>>;
@@ -141,7 +141,7 @@ TEST(CSSParseToken, ParallelProcessAttributes) {
 
 TEST(CSSParseToken, TestTouchPseudoToken) {
   CSSParserConfigs parser_configs;
-  auto tokens = std::make_shared<CSSParseToken>(parser_configs);
+  auto tokens = fml::MakeRefCounted<CSSParseToken>(parser_configs);
 
   tokens->MarkAsTouchPseudoToken();
   EXPECT_TRUE(tokens->IsTouchPseudoToken());
@@ -149,7 +149,7 @@ TEST(CSSParseToken, TestTouchPseudoToken) {
 
 TEST(CSSParseToken, TestGetStyleTokenTypeCornerCase) {
   CSSParserConfigs parser_configs;
-  auto tokens = std::make_shared<CSSParseToken>(parser_configs);
+  auto tokens = fml::MakeRefCounted<CSSParseToken>(parser_configs);
   EXPECT_EQ(tokens->GetStyleTokenType(), 0);
 
   tokens->sheets_.push_back(nullptr);
@@ -158,7 +158,7 @@ TEST(CSSParseToken, TestGetStyleTokenTypeCornerCase) {
 
 TEST(CSSParseToken, TestIsPseudoStyleTokenCornerCase) {
   CSSParserConfigs parser_configs;
-  auto tokens = std::make_shared<CSSParseToken>(parser_configs);
+  auto tokens = fml::MakeRefCounted<CSSParseToken>(parser_configs);
   tokens->sheets_.push_back(nullptr);
 
   EXPECT_FALSE(tokens->IsPseudoStyleToken());

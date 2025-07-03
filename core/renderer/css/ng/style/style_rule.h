@@ -11,6 +11,7 @@
 #include <string>
 #include <utility>
 
+#include "base/include/fml/memory/ref_counted.h"
 #include "core/renderer/css/ng/selector/lynx_css_selector_list.h"
 
 namespace lynx {
@@ -21,11 +22,13 @@ class CSSParseToken;
 
 namespace css {
 
-class StyleRule {
+class StyleRule : public fml::RefCountedThreadSafeStorage {
  public:
   StyleRule(std::unique_ptr<LynxCSSSelector[]> selector_array,
-            std::shared_ptr<lynx::tasm::CSSParseToken> token)
+            fml::RefPtr<tasm::CSSParseToken> token)
       : selector_array_(std::move(selector_array)), token_(std::move(token)) {}
+
+  void ReleaseSelf() const override { delete this; }
 
   unsigned IndexOfNextSelectorAfter(size_t index) const {
     const LynxCSSSelector& current = SelectorAt(index);
@@ -42,11 +45,11 @@ class StyleRule {
     return static_cast<unsigned>(&selector - FirstSelector());
   }
 
-  const std::shared_ptr<lynx::tasm::CSSParseToken>& Token() { return token_; }
+  const auto& Token() { return token_; }
 
  private:
   std::unique_ptr<LynxCSSSelector[]> selector_array_;
-  std::shared_ptr<lynx::tasm::CSSParseToken> token_;
+  fml::RefPtr<tasm::CSSParseToken> token_;
 };
 
 }  // namespace css

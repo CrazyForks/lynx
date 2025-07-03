@@ -17,7 +17,7 @@ struct RuleData {
 
   static constexpr size_t kPositionBits = 19;
 
-  RuleData(const std::shared_ptr<StyleRule>& rule, unsigned selector_index,
+  RuleData(const fml::RefPtr<StyleRule>& rule, unsigned selector_index,
            unsigned position)
       : rule_(rule),
         selector_index_(selector_index),
@@ -37,7 +37,7 @@ struct RuleData {
   unsigned Specificity() const { return specificity_; }
 
  private:
-  std::shared_ptr<StyleRule> rule_;
+  fml::RefPtr<StyleRule> rule_;
   unsigned selector_index_ : kSelectorIndexBits;
   unsigned position_ : kPositionBits;
   unsigned specificity_;

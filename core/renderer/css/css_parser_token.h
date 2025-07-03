@@ -11,11 +11,11 @@
 #include <atomic>
 #include <memory>
 #include <string>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "base/include/base_export.h"
+#include "base/include/fml/memory/ref_counted.h"
 #include "base/include/vector.h"
 #include "core/renderer/css/css_property.h"
 #include "core/renderer/css/css_sheet.h"
@@ -25,12 +25,14 @@
 namespace lynx {
 namespace tasm {
 
-class CSSParseToken {
+class CSSParseToken : public fml::RefCountedThreadSafeStorage {
  public:
   CSSParseToken(const CSSParserConfigs& parser_configs)
       : parser_configs_(parser_configs) {}
 
   virtual ~CSSParseToken() = default;
+
+  void ReleaseSelf() const override { delete this; }
 
   auto& sheets() { return sheets_; }
   const std::shared_ptr<CSSSheet>& TargetSheet() const {
@@ -63,9 +65,7 @@ class CSSParseToken {
 
   const CSSParserConfigs& GetCSSParserConfigs() { return parser_configs_; }
 
-  inline void MarkParsed() {
-    parser_state_ = static_cast<int>(ParseState::kParsed);
-  }
+  inline void MarkParsed() { parser_state_ = ParseState::kParsed; }
 
  protected:
   bool is_touch_pseudo_{false};
@@ -77,13 +77,13 @@ class CSSParseToken {
   CSSParserConfigs parser_configs_;
 
  private:
-  enum class ParseState {
+  enum ParseState : int {
     kNotParsed = 0,
     kParsing,
     kParsed,
   };
 
-  std::atomic_int parser_state_{static_cast<int>(ParseState::kNotParsed)};
+  std::atomic_int parser_state_{ParseState::kNotParsed};
 };
 }  // namespace tasm
 }  // namespace lynx

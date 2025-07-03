@@ -11,6 +11,7 @@
 #include <utility>
 
 #include "base/include/debug/lynx_assert.h"
+#include "base/include/fml/memory/ref_counted.h"
 #include "base/include/string/string_utils.h"
 #include "core/renderer/css/css_parser_token.h"
 #include "core/renderer/css/unit_handler.h"
@@ -35,12 +36,14 @@ typedef base::LinearFlatMap<float, std::shared_ptr<StyleMap>>
 typedef base::LinearFlatMap<float, std::shared_ptr<RawStyleMap>>
     CSSRawKeyframesContent;
 
-class CSSKeyframesToken {
+class CSSKeyframesToken : public fml::RefCountedThreadSafeStorage {
  public:
   CSSKeyframesToken(const CSSParserConfigs& parser_configs)
       : parser_configs_(parser_configs) {}
 
-  virtual ~CSSKeyframesToken() {}
+  virtual ~CSSKeyframesToken() = default;
+
+  void ReleaseSelf() const override { delete this; }
 
   void SetKeyframesContent(CSSKeyframesContent&& content) {
     content_ = std::move(content);

@@ -17,7 +17,7 @@ TEST(SharedCSSFragment, Handler) {
   // create the index fragment with four css classes
   StyleMap indexAttributes;
   CSSParserConfigs configs;
-  auto indexTokens = std::make_shared<CSSParseToken>(configs);
+  auto indexTokens = fml::MakeRefCounted<CSSParseToken>(configs);
   CSSParserTokenMap indexTokensMap;
   // create class text-1
   auto id = CSSPropertyID::kPropertyIDFontSize;
@@ -39,7 +39,7 @@ TEST(SharedCSSFragment, Handler) {
 
   // create class text-3
   StyleMap indexAttributes1;
-  auto indexTokens1 = std::make_shared<CSSParseToken>(configs);
+  auto indexTokens1 = fml::MakeRefCounted<CSSParseToken>(configs);
   id = CSSPropertyID::kPropertyIDFontSize;
   impl = lepus::Value("18px");
   ret = UnitHandler::Process(id, impl, indexAttributes1, configs);
@@ -61,7 +61,7 @@ TEST(SharedCSSFragment, Handler) {
       std::make_pair(std::string(".text-3"), std::move(indexTokens1)));
   // create class text-4
   StyleMap indexAttributes2;
-  auto indexTokens2 = std::make_shared<CSSParseToken>(configs);
+  auto indexTokens2 = fml::MakeRefCounted<CSSParseToken>(configs);
   id = CSSPropertyID::kPropertyIDBackgroundColor;
   impl = lepus::Value("blue");
   ret = UnitHandler::Process(id, impl, indexAttributes2, configs);
@@ -71,7 +71,7 @@ TEST(SharedCSSFragment, Handler) {
       std::make_pair(std::string(".text-4"), std::move(indexTokens2)));
   // create class text-5
   StyleMap indexAttributes3;
-  auto indexTokens3 = std::make_shared<CSSParseToken>(configs);
+  auto indexTokens3 = fml::MakeRefCounted<CSSParseToken>(configs);
   id = CSSPropertyID::kPropertyIDBackgroundColor;
   impl = lepus::Value("lightblue");
   ret = UnitHandler::Process(id, impl, indexAttributes3, configs);
@@ -96,7 +96,7 @@ TEST(SharedCSSFragment, Handler) {
   CSSParserTokenMap importTokensMap;
   // create class text-2
   StyleMap importAttributes1;
-  auto importTokens1 = std::make_shared<CSSParseToken>(configs);
+  auto importTokens1 = fml::MakeRefCounted<CSSParseToken>(configs);
   id = CSSPropertyID::kPropertyIDFontSize;
   impl = lepus::Value("20px");
   ret = UnitHandler::Process(id, impl, importAttributes1, configs);
@@ -114,7 +114,7 @@ TEST(SharedCSSFragment, Handler) {
       std::make_pair(std::string(".text-2"), std::move(importTokens1)));
   // create class text-3
   StyleMap importAttributes2;
-  auto importTokens2 = std::make_shared<CSSParseToken>(configs);
+  auto importTokens2 = fml::MakeRefCounted<CSSParseToken>(configs);
   id = CSSPropertyID::kPropertyIDFontWeight;
   impl = lepus::Value("100");
   ret = UnitHandler::Process(id, impl, importAttributes2, configs);
@@ -124,7 +124,7 @@ TEST(SharedCSSFragment, Handler) {
       std::make_pair(std::string(".text-3"), std::move(importTokens2)));
   // create class text-4
   StyleMap importAttributes3;
-  auto importTokens3 = std::make_shared<CSSParseToken>(configs);
+  auto importTokens3 = fml::MakeRefCounted<CSSParseToken>(configs);
   id = CSSPropertyID::kPropertyIDFontSize;
   impl = lepus::Value("18px");
   ret = UnitHandler::Process(id, impl, importAttributes3, configs);
@@ -142,7 +142,7 @@ TEST(SharedCSSFragment, Handler) {
       std::make_pair(std::string(".text-4"), std::move(importTokens3)));
   // create class text-5
   StyleMap importAttributes4;
-  auto importTokens4 = std::make_shared<CSSParseToken>(configs);
+  auto importTokens4 = fml::MakeRefCounted<CSSParseToken>(configs);
   id = CSSPropertyID::kPropertyIDFontSize;
   impl = lepus::Value("20px");
   ret = UnitHandler::Process(id, impl, importAttributes4, configs);
@@ -279,7 +279,7 @@ TEST(SharedCSSFragment, CheckHasID) {
   {
     StyleMap indexAttributes;
     CSSParserConfigs configs;
-    auto tokens = std::make_shared<CSSParseToken>(configs);
+    auto tokens = fml::MakeRefCounted<CSSParseToken>(configs);
 
     CSSParserTokenMap indexTokensMap;
     auto id = CSSPropertyID::kPropertyIDFontSize;
@@ -307,7 +307,7 @@ TEST(SharedCSSFragment, CheckHasID) {
   {
     StyleMap indexAttributes1;
     CSSParserConfigs configs;
-    auto tokens1 = std::make_shared<CSSParseToken>(configs);
+    auto tokens1 = fml::MakeRefCounted<CSSParseToken>(configs);
 
     CSSParserTokenMap indexTokensMap1;
     auto id1 = CSSPropertyID::kPropertyIDFontSize;

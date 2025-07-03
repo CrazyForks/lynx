@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "base/include/fml/memory/ref_counted.h"
 #include "base/include/vector.h"
 #include "core/renderer/css/ng/style/rule_data.h"
 #include "core/renderer/css/style_node.h"
@@ -51,13 +52,13 @@ class RuleSet {
                    base::Vector<MatchedRule>& output) const;
 
   void AddToRuleSet(const std::string& text,
-                    const std::shared_ptr<lynx::tasm::CSSParseToken>& token);
+                    const fml::RefPtr<tasm::CSSParseToken>& token);
 
   void Merge(const RuleSet& rule_set) { deps_.push_back(rule_set); }
 
-  void AddStyleRule(const std::shared_ptr<StyleRule>& r);
+  void AddStyleRule(const fml::RefPtr<StyleRule>& r);
 
-  std::shared_ptr<tasm::CSSParseToken> GetRootToken();
+  fml::RefPtr<tasm::CSSParseToken> GetRootToken();
 
   const auto& id_rules(const std::string& key) { return id_rules_[key]; }
 

@@ -45,8 +45,7 @@ class CSSFragmentDecorator : public CSSFragment {
   bool HasPseudoNotStyle() override;
   void InitPseudoNotStyle() override;
 
-  std::shared_ptr<CSSParseToken> GetSharedCSSStyle(
-      const std::string& key) override;
+  fml::RefPtr<CSSParseToken> GetSharedCSSStyle(const std::string& key) override;
   const CSSKeyframesTokenMap& GetKeyframesRuleMap() override;
   const CSSFontFaceRuleMap& GetFontFaceRuleMap() override;
   CSSKeyframesToken* GetKeyframesRule(const base::String& key) override;
@@ -54,7 +53,7 @@ class CSSFragmentDecorator : public CSSFragment {
       const std::string& key) override;
 
   void AddExternalStyle(const std::string& key,
-                        std::shared_ptr<CSSParseToken> value);
+                        fml::RefPtr<CSSParseToken> value);
 
   inline bool enable_css_selector() override {
     return intrinsic_style_sheets_ &&

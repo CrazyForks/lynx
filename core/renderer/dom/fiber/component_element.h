@@ -106,7 +106,7 @@ class ComponentElement : public WrapperElement, public BaseComponent {
   void OnNodeRemoved(FiberElement* child) override;
 
   void UpdateRootCSSVariables(AttributeHolder* holder,
-                              const std::shared_ptr<CSSParseToken>& root_token);
+                              const fml::RefPtr<CSSParseToken>& root_token);
   void PrepareForRootCSSVariables();
   void PrepareForFontFaceIfNeeded();
 

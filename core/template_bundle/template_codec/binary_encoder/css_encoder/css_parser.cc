@@ -100,8 +100,8 @@ void CSSParser::ParseAppTTSS(const rapidjson::Value &value) {
   }
 }
 
-void CSSParser::MergeCSSParseToken(std::shared_ptr<CSSParseToken> &originToken,
-                                   std::shared_ptr<CSSParseToken> &newToken) {
+void CSSParser::MergeCSSParseToken(fml::RefPtr<CSSParseToken> &originToken,
+                                   fml::RefPtr<CSSParseToken> &newToken) {
   StyleMap originStyle = originToken->GetAttributes();
   StyleMap newStyle = newToken->GetAttributes();
   for (auto iter : newStyle) {
@@ -139,7 +139,7 @@ void CSSParser::ParseCSS(const rapidjson::Value &ttss, const std::string &path,
   fragments_.insert({path, parse_result});
 }
 
-void HandleCascadeSelector(std::shared_ptr<CSSParseToken> &token,
+void HandleCascadeSelector(fml::RefPtr<CSSParseToken> &token,
                            std::string &key) {
   const auto &sheets = token->sheets();
   if (sheets.size() != 2) {
@@ -165,10 +165,10 @@ void CSSParser::ParseCSSTokens(CSSParserTokenMap &css,
                                const std::string &path) {
   std::shared_ptr<CSSParseTokenGroup> tokengroup(
       new CSSParseTokenGroup(value, path, compile_options_));
-  std::vector<std::shared_ptr<CSSParseToken>> tokens =
+  std::vector<fml::RefPtr<CSSParseToken>> tokens =
       tokengroup.get()->getCssTokens();
   for (auto iter = tokens.cbegin(); iter != tokens.cend(); iter++) {
-    std::shared_ptr<CSSParseToken> token = std::move(*iter);
+    fml::RefPtr<CSSParseToken> token = std::move(*iter);
     int token_size = token.get()->sheets().size();
     if (token_size == 0 ||
         (token_size >= 3 && compile_options_.disable_multiple_cascade_css_)) {
@@ -225,14 +225,14 @@ void CSSParser::ParseCSSKeyframes(
   if (key.empty()) {
     return;
   }
-  std::shared_ptr<encoder::CSSKeyframesToken> token(
+  fml::RefPtr<encoder::CSSKeyframesToken> token = fml::AdoptRef(
       new encoder::CSSKeyframesToken(value, path, compile_options_));
 
   auto it = keyframes.find(key);
   if (it != keyframes.end()) {
     keyframes.erase(it);
   }
-  keyframes.insert({key, token});
+  keyframes.insert({key, std::move(token)});
 }
 
 void CSSParser::ParseCSSFontFace(

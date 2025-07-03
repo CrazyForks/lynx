@@ -30,8 +30,8 @@ class CSSParser {
 
   ~CSSParser() {}
 
-  static void MergeCSSParseToken(std::shared_ptr<CSSParseToken> &originToken,
-                                 std::shared_ptr<CSSParseToken> &newToken);
+  static void MergeCSSParseToken(fml::RefPtr<CSSParseToken> &originToken,
+                                 fml::RefPtr<CSSParseToken> &newToken);
 
   // Parse result
   const std::unordered_map<std::string, encoder::SharedCSSFragment *> &
