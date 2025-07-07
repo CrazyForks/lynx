@@ -1126,6 +1126,8 @@ class ElementManager : public ElementContextDelegate {
     return fix_font_size_override_direction_change_bug_;
   }
 
+  bool FixNegativeZIndexBug() { return fix_negative_z_index_bug_; }
+
   bool CSSFragmentParsingOnTASMWorkerMTSRender();
 
   inline void SetCSSFragmentParsingOnTASMWorkerMTSRender(bool enable) {
@@ -1247,6 +1249,7 @@ class ElementManager : public ElementContextDelegate {
   bool fix_parallel_z_index_crash_{true};
   bool fix_insert_before_fixed_bug_{true};
   bool fix_font_size_override_direction_change_bug_{true};
+  bool fix_negative_z_index_bug_{true};
   bool css_fragment_parsing_tasm_worker_thread_{false};
 
   bool enable_fiber_element_memory_reporter_{false};
