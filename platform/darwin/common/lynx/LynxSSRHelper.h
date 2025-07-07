@@ -8,13 +8,17 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface LynxSSRHelper : NSObject
 
-- (void)onLoadSSRDataBegan:(NSString *)url;
+- (void)onLoadSSRDataStart;
 
-- (void)onHydrateBegan:(NSString *)url;
+- (void)onHydrateStart;
 
-- (void)onHydrateFinished:(NSString *)url;
+- (void)onHydrateExecuting;
+
+- (void)onHydrateFinished;
 
 - (void)onErrorOccurred:(NSInteger)code sourceError:(NSError *)source;
+
+- (BOOL)isHydrateStarted;
 
 - (BOOL)isHydratePending;
 

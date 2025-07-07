@@ -8,7 +8,8 @@
 typedef NS_ENUM(NSInteger, LynxSSRHydrateStatus) {
   LynxSSRHydrateStatusUndefined = 0,
   LynxSSRHydrateStatusPending,
-  LynxSSRHydrateStatusBeginning,
+  LynxSSRHydrateStatusStarted,
+  LynxSSRHydrateStatusExecuting,
   LynxSSRHydrateStatusFailed,
   LynxSSRHydrateStatusSuccessful,
 };
@@ -24,15 +25,19 @@ typedef NS_ENUM(NSInteger, LynxSSRHydrateStatus) {
   return self;
 }
 
-- (void)onLoadSSRDataBegan:(NSString*)url {
+- (void)onLoadSSRDataStart {
   _hydrateStatus = LynxSSRHydrateStatusPending;
 }
 
-- (void)onHydrateBegan:(NSString*)url {
-  _hydrateStatus = LynxSSRHydrateStatusBeginning;
+- (void)onHydrateStart {
+  _hydrateStatus = LynxSSRHydrateStatusStarted;
 }
 
-- (void)onHydrateFinished:(NSString*)url {
+- (void)onHydrateExecuting {
+  _hydrateStatus = LynxSSRHydrateStatusExecuting;
+}
+
+- (void)onHydrateFinished {
   _hydrateStatus = LynxSSRHydrateStatusSuccessful;
 }
 
@@ -40,6 +45,10 @@ typedef NS_ENUM(NSInteger, LynxSSRHydrateStatus) {
   if (code == EBLynxAppBundleLoad) {
     _hydrateStatus = LynxSSRHydrateStatusFailed;
   }
+}
+
+- (BOOL)isHydrateStarted {
+  return _hydrateStatus == LynxSSRHydrateStatusStarted;
 }
 
 - (BOOL)isHydratePending {
@@ -59,7 +68,8 @@ typedef NS_ENUM(NSInteger, LynxSSRHydrateStatus) {
 
 - (BOOL)shouldSendEventToSSR {
   if (_hydrateStatus == LynxSSRHydrateStatusPending ||
-      _hydrateStatus == LynxSSRHydrateStatusBeginning ||
+      _hydrateStatus == LynxSSRHydrateStatusStarted ||
+      _hydrateStatus == LynxSSRHydrateStatusExecuting ||
       _hydrateStatus == LynxSSRHydrateStatusFailed) {
     return YES;
   }

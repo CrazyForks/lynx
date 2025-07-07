@@ -3102,10 +3102,12 @@ public class LynxSizeValue : NSObject {
 }
 
 public class LynxSSRHelper : NSObject {
-  public void LynxSSRHelper::onLoadSSRDataBegan:(NSString *url);
-  public void LynxSSRHelper::onHydrateBegan:(NSString *url);
-  public void LynxSSRHelper::onHydrateFinished:(NSString *url);
+  public void LynxSSRHelper::onLoadSSRDataStart();
+  public void LynxSSRHelper::onHydrateStart();
+  public void LynxSSRHelper::onHydrateExecuting();
+  public void LynxSSRHelper::onHydrateFinished();
   public void LynxSSRHelper::onErrorOccurred:sourceError:(NSInteger code,[sourceError] NSError *source);
+  public BOOL LynxSSRHelper::isHydrateStarted();
   public BOOL LynxSSRHelper::isHydratePending();
   public BOOL LynxSSRHelper::shouldSendEventToSSR();
   public NSArray * LynxSSRHelper::processEventParams:(NSArray *params);
@@ -5621,6 +5623,8 @@ public enum LynxEnvKey {
 public enum LynxLoadMode {
   LynxLoadModeNormal
   LynxLoadModePrePainting
+  LynxLoadModeRenderSSR
+  LynxLoadModeHydrateSSR
 }
 
   public typedef NS_OPTIONS(NSInteger, LynxLoadOption);

@@ -402,6 +402,15 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
     [self updateGlobalPropsWithTemplateData:meta.globalProps];
   }
 
+  if (meta.loadMode == LynxLoadModeRenderSSR) {
+    [self loadSSRDataWithMeta:meta];
+    return;
+  }
+
+  if (_lynxSSRHelper && meta.loadMode == LynxLoadModeHydrateSSR) {
+    [_lynxSSRHelper onHydrateStart];
+  }
+
   if (meta.templateBundle) {
     [self loadTemplateBundle:meta.templateBundle withURL:meta.url initData:meta.initialData];
   } else if (meta.binaryData) {
@@ -631,6 +640,11 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
     [LynxService(LynxServiceMonitorProtocol) reportErrorGlobalContextTag:LynxContextTagLastLynxURL
                                                                     data:finalSchema];
   }
+
+  if (_lynxSSRHelper) {
+    [self onLoadTemplateFromSSRPage];
+  }
+
   if (_hasStartedLoad || self->shell_->IsDestroyed()) {
     [self reset];
   } else {
@@ -824,6 +838,16 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
 
 #pragma mark - SSR
 
+- (void)loadSSRDataWithMeta:(LynxLoadMeta*)meta {
+  if (meta.binaryData) {
+    [self loadSSRData:meta.binaryData withURL:meta.url initData:meta.initialData];
+  } else if (meta.url) {
+    [self loadSSRDataFromURL:meta.url initData:meta.initialData];
+  } else {
+    _LogE(@"SSR rendering failed: Binary data is invalid or URL is empty.");
+  }
+}
+
 - (void)loadSSRData:(NSData*)tem
             withURL:(NSString*)url
            initData:(nullable LynxTemplateData*)initData {
@@ -851,7 +875,8 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
 
         // wating for hydarte
         _hasStartedLoad = YES;
-        [strongSelf.lynxSSRHelper onLoadSSRDataBegan:url];
+        _lynxSSRHelper = [[LynxSSRHelper alloc] init];
+        [_lynxSSRHelper onLoadSSRDataStart];
         auto data = ConvertNSBinary(tem);
         std::shared_ptr<lynx::tasm::TemplateData> ptr(nullptr);
         lynx::lepus::Value value;
@@ -913,21 +938,26 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
   }
 }
 
+- (void)onLoadTemplateFromSSRPage {
+  if (_lynxSSRHelper && [_lynxSSRHelper isHydrateStarted]) {
+    _hasStartedLoad = NO;
+    [_lynxSSRHelper onHydrateExecuting];
+  }
+}
+
 - (void)ssrHydrate:(nonnull NSData*)tem
            withURL:(nonnull NSString*)url
           initData:(nullable LynxTemplateData*)data {
-  if ([_lynxSSRHelper isHydratePending]) {
-    _hasStartedLoad = NO;
-    [_lynxSSRHelper onHydrateBegan:url];
+  if (_lynxSSRHelper) {
+    [_lynxSSRHelper onHydrateStart];
   }
 
   [self loadTemplate:tem withURL:url initData:data];
 }
 
 - (void)ssrHydrateFromURL:(NSString*)url initData:(nullable LynxTemplateData*)data {
-  if ([_lynxSSRHelper isHydratePending]) {
-    _hasStartedLoad = NO;
-    [_lynxSSRHelper onHydrateBegan:url];
+  if (_lynxSSRHelper) {
+    [_lynxSSRHelper onHydrateStart];
   }
 
   [self loadTemplateFromURL:url initData:data];
@@ -1376,13 +1406,6 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
   if (!self->shell_->IsDestroyed()) {
     self->shell_->SetEnableUIFlush(!needPendingUIOperation);
   }
-}
-
-- (LynxSSRHelper*)lynxSSRHelper {
-  if (!_lynxSSRHelper) {
-    _lynxSSRHelper = [[LynxSSRHelper alloc] init];
-  }
-  return _lynxSSRHelper;
 }
 
 - (LynxUIOwner*)uiOwner {
@@ -2012,7 +2035,7 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
 }
 
 - (void)onSSRHydrateFinished:(NSString*)url {
-  [_lynxSSRHelper onHydrateFinished:url];
+  [_lynxSSRHelper onHydrateFinished];
 }
 
 - (void)onRuntimeReady {

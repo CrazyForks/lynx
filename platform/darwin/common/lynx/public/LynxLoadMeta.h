@@ -13,6 +13,10 @@
 typedef NS_ENUM(NSInteger, LynxLoadMode) {
   LynxLoadModeNormal = 0,
   LynxLoadModePrePainting = 1 << 0,
+  // Render ssr page by ssr data.
+  LynxLoadModeRenderSSR = 1 << 1,
+  // Hydrate ssr page by template.js.
+  LynxLoadModeHydrateSSR = 1 << 2,
 };
 
 // Switches for each atomic abaility

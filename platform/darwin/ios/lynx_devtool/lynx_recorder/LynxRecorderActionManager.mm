@@ -785,10 +785,20 @@ static const int kVirtual = 1 << 2;
     loadMeta.initialData = initData;
     [_lynxView loadTemplate:loadMeta];
   } else if (isCSR && _isSSRLoaded) {
-    [_lynxView ssrHydrate:_source withURL:url initData:initData];
+    LynxLoadMeta* loadMeta = [LynxLoadMeta new];
+    loadMeta.binaryData = _source;
+    loadMeta.url = url;
+    loadMeta.initialData = initData;
+    loadMeta.loadMode = LynxLoadModeHydrateSSR;
+    [_lynxView loadTemplate:loadMeta];
     _isSSRLoaded = false;
   } else {
-    [_lynxView loadSSRData:_source withURL:url initData:initData];
+    LynxLoadMeta* loadMeta = [LynxLoadMeta new];
+    loadMeta.binaryData = _source;
+    loadMeta.url = url;
+    loadMeta.initialData = initData;
+    loadMeta.loadMode = LynxLoadModeRenderSSR;
+    [_lynxView loadTemplate:loadMeta];
     _isSSRLoaded = true;
   }
 }
