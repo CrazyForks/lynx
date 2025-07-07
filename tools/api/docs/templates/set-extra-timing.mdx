@@ -24,7 +24,7 @@ Timestamps within extraTiming cannot be overwritten, meaning that multiple calls
 ```
 {% if api.android_member.params %}
 
-### Parameters
+#### Parameters
 
 {%  for param in api.android_member.params %}
 - `{{ param.name }}`: {{ param.brief_desc }}
@@ -32,7 +32,7 @@ Timestamps within extraTiming cannot be overwritten, meaning that multiple calls
 {% endif %}
 {% if api.android_member.returns.brief_desc %}
 
-### Return
+#### Return
 
 - {{ api.android_member.returns.brief_desc }}
 {% endif %}
@@ -62,7 +62,7 @@ public static class ExtraTimingInfo {
 ```
 {% if api.ios_member.params %}
 
-### Parameters
+#### Parameters
 
 {%  for param in api.ios_member.params %}
 - `{{ param.name }}`: {{ param.brief_desc }}
@@ -70,7 +70,7 @@ public static class ExtraTimingInfo {
 {% endif %}
 {% if api.ios_member.returns.brief_desc %}
 
-### Return
+#### Return
 - {{ api.ios_member.returns.brief_desc }}
 {% endif %}
 
@@ -90,6 +90,44 @@ The specific definition of `LynxExtraTiming` is as follows:
 @property(nonatomic, assign) uint64_t containerInitEnd;
 
 @end
+```
+{% endif %}
+{% if api.harmony_member %}
+
+### Harmony
+
+```typescript
+{{ api.harmony_member.prototype }}
+```
+{% if api.harmony_member.params %}
+
+#### Parameters
+
+{%  for param in api.harmony_member.params %}
+- `{{ param.name }}`: {{ param.brief_desc }}
+{% endfor %}
+{% endif %}
+{% if api.harmony_member.returns.brief_desc %}
+
+#### Return
+- {{ api.harmony_member.returns.brief_desc }}
+{% endif %}
+
+The specific definition of `LynxExtraTiming` is as follows:
+```typescript
+export class LynxExtraTiming {
+  public static readonly OPEN_TIME = 'openTime';
+  public static readonly CONTAINER_INIT_START = 'containerInitStart';
+  public static readonly CONTAINER_INIT_END = 'containerInitEnd';
+  public static readonly PREPARE_TEMPLATE_START = 'prepareTemplateStart';
+  public static readonly PREPARE_TEMPLATE_END = 'prepareTemplateEnd';
+
+  public openTime: number = 0;
+  public containerInitStart: number = 0;
+  public containerInitEnd: number = 0;
+  public prepareTemplateStart: number = 0;
+  public prepareTemplateEnd: number = 0;
+}
 ```
 {% endif %}
 

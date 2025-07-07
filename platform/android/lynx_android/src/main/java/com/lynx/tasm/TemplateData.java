@@ -457,8 +457,9 @@ public final class TemplateData {
   /**
    * @apidoc
    * @brief Mark the current TemplateData with the associated dataProcessor name.
-   * When this TemplateData is used in [UpdateData](/api/lynx-native-api/lynx-view/update-data),
-   * the corresponding dataProcessor will be found based on this name for data preprocessing.
+   * When this TemplateData is used in
+   * [UpdateData](/api/lynx-native-api/lynx-view/update-meta-data), the corresponding dataProcessor
+   * will be found based on this name for data preprocessing.
    * @param name Marked name.
    */
   public void markState(String name) {

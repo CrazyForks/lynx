@@ -343,8 +343,8 @@
 
 /**
  * @apidoc
- * @brief Send global events to the front end through the client, and the front end can listen to
- * the event through GlobalEventEmitter.
+ * @brief Send global events to the front end through the client,
+ * and the front end can listen to the event through `GlobalEventEmitter`.
  * @param name Global event name.
  * @param params Parameters carried by global events.
  */

@@ -60,7 +60,10 @@ typedef void (^LynxBytecodeResponseBlock)(NSString* _Nullable errorMsg,
 - (NSDictionary* _Nullable)extraInfo;
 
 /**
- * Whether the TemplateBundle contains a Valid ElementBundle.
+ * @apidoc
+ * @brief Whether the TemplateBundle contains a Valid ElementBundle.
+ *
+ * @return True if the TemplateBundle contains a Valid ElementBundle, otherwise false.
  */
 - (BOOL)isElementBundleValid;
 

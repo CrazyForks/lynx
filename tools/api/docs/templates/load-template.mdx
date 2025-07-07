@@ -6,9 +6,6 @@
 {% if api.android_member %}
 
 ### Android
-{% if api.harmony_member.since %}
-> Added in version {{ api.android_member.since }}.
-{% endif %}
 
 ```java
 {{ api.android_member.prototype }}
@@ -41,9 +38,6 @@
 {% if api.ios_member %}
 
 ### iOS
-{% if api.harmony_member.since %}
-> Added in version {{ api.ios_member.since }}.
-{% endif %}
 
 ```objc
 {{ api.ios_member.prototype }}
@@ -72,30 +66,41 @@
 :::
 {% endif %}
 {% endif %}
-{% if api.harmony_member %}
 
 ### Harmony
-{% if api.harmony_member.since %}
-> Added in version {{ api.harmony_member.since }}.
-{% endif %}
+
+LynxView has the following members:
+
+- `url: String `: Template file path.
+- `buffer: ArrayBuffer`: The binary file data of the template.
+- `templateBundle: TemplateBundle`: [TemplateBundle](../template-bundle) object parsed in advance by the template's binary file data.
+- `metaData: MetaData`: Initial data specified by the client during the first screen loading process.
+- `loadOption: LynxLoadOption`: Additional configuration information when loading templates.
+
+On the HarmonyOS platfrom, you need to pass your implemented LynxViewClient as a parameter during the initialization of LynxView:
 
 ```typescript
-{{ api.harmony_member.definition }}
+@Entry
+@Component
+struct Index {
+  private url: string = 'playground/main.lynx.bundle';
+  private buffer: ArrayBuffer = getTemplateBuffer();
+  private metaData = new MetaData(
+    new TemplateData('{"text":"TD"}'),
+    new TemplateData({ "theme": "Light" }));
+
+  build() {
+    Column() {
+      LynxView({
+        url: this.url,
+        buffer: this.buffer,
+        metadata: this.metaData,
+      }).width('100%').height('100%');
+    }
+    .size({ width: '100%', height: '100%' })
+  }
+}
 ```
-{% if api.harmony_member.params %}
-
-#### Parameters
-
-{%  for param in api.harmony_member.params %}
-- `{{ param.name }}`: {{ param.brief_desc }}
-{% endfor %}
-{% endif %}
-{% if api.harmony_member.returns.brief_desc %}
-
-#### Return
-- {{ api.harmony_member.returns.brief_desc }}
-{% endif %}
-{% endif %}
 
 ## Compatibility
 

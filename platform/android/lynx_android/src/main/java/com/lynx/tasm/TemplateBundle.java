@@ -144,8 +144,9 @@ public final class TemplateBundle {
   }
 
   /**
-   * Check if the ElementBundle contained in TemplateBundle is Valid.
-   * @return state of ElementBundle
+   * @apidoc
+   * @brief Whether the TemplateBundle contains a Valid ElementBundle.
+   * @returns True if valid, else false.
    */
   public boolean isElementBundleValid() {
     boolean valid = false;
@@ -155,6 +156,11 @@ public final class TemplateBundle {
     return valid;
   }
 
+  /**
+   * Get the size of current template.
+   * @apidoc
+   * @returns Template size.
+   */
   public int getTemplateSize() {
     return this.templateSize;
   }
@@ -207,6 +213,7 @@ public final class TemplateBundle {
   }
 
   /**
+   * @apidoc
    * Post a task to generate bytecode for a given template bundle.
    * The task will be executed in a background thread.
    * @param bytecodeSourceUrl The source url of the template.
