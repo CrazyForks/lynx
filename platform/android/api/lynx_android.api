@@ -2585,8 +2585,8 @@ public interface com::lynx::tasm::performance::timing::ITimingCollector {
   public void com.lynx.tasm.performance.timing.ITimingCollector.markPaintEndTimingIfNeeded();
 }
 
-public interface com::lynx::tasm::IUIRenderCreator {
-  public ILynxUIRenderer com.lynx.tasm.IUIRenderCreator.createLynxUIRender();
+public interface com::lynx::tasm::IUIRendererCreator {
+  public ILynxUIRenderer com.lynx.tasm.IUIRendererCreator.createLynxUIRender();
 }
 
 public interface com::lynx::tasm::behavior::ui::text::IUIText {
@@ -6049,10 +6049,6 @@ public class com::lynx::tasm::behavior::LynxUIOwner :  {
   public Object com.lynx.tasm.behavior.LynxUIOwner.takeTextLayout(int sign);
 }
 
-public class com::lynx::tasm::behavior::LynxUIRenderCreator : com.lynx.tasm.IUIRenderCreator {
-  public ILynxUIRenderer com.lynx.tasm.behavior.LynxUIRenderCreator.createLynxUIRender();
-}
-
 public class com::lynx::tasm::behavior::LynxUIRenderer : com.lynx.tasm.behavior.ILynxUIRenderer {
   public static synchronized void com.lynx.tasm.behavior.LynxUIRenderer.startPixelCopyHandlerThreadIfNecessary();
   public void com.lynx.tasm.behavior.LynxUIRenderer.onInitBodyView(UIBodyView bodyView, Context context, LynxGroup group);
@@ -6104,6 +6100,10 @@ public class com::lynx::tasm::behavior::LynxUIRenderer : com.lynx.tasm.behavior.
   public int com.lynx.tasm.behavior.LynxUIRenderer.findNodeIdForLocationFromUI(float x, float y, int uiSign, String mode);
   public int com.lynx.tasm.behavior.LynxUIRenderer.getNodeForLocation(float x, float y, String mode);
   public float[] com.lynx.tasm.behavior.LynxUIRenderer.getTransformValue(int sign, float[] padBorderMarginLayout);
+}
+
+public class com::lynx::tasm::behavior::LynxUIRendererCreator : com.lynx.tasm.IUIRendererCreator {
+  public ILynxUIRenderer com.lynx.tasm.behavior.LynxUIRendererCreator.createLynxUIRender();
 }
 
 public interface com::lynx::tasm::behavior::utils::LynxUISetter {
@@ -6251,8 +6251,8 @@ public class com::lynx::tasm::LynxViewBuilder :  {
   public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.setBehaviors(@Nullable List< Behavior > bundle);
   public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.addBehaviors(@NonNull List< Behavior > bundle);
   public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.addBehavior(@NonNull Behavior bundle);
-  public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.setUIRenderCreator(@NonNull IUIRenderCreator uiRenderCreator);
-  public IUIRenderCreator com.lynx.tasm.LynxViewBuilder.getUIRenderCreator();
+  public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.setUIRendererCreator(@NonNull IUIRendererCreator uiRendererCreator);
+  public IUIRendererCreator com.lynx.tasm.LynxViewBuilder.getUIRenderCreator();
   public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.setUIRunningMode(boolean ui);
   public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.setPresetMeasuredSpec(int widthMeasureSpec, int heightMeasureSpec);
   public LynxViewBuilder com.lynx.tasm.LynxViewBuilder.setScreenSize(int width, int height);
