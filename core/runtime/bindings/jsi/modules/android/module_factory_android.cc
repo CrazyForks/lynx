@@ -42,11 +42,12 @@ ModuleFactoryAndroid::~ModuleFactoryAndroid() {
   JNIEnv* env = base::android::AttachCurrentThread();
   if (strong_jni_object_.IsNull()) {
     LOGE(
-        "lynx module_factory_android destroy error: strong_jni_object_ is "
+        "NativeModule: lynx module_factory_android destroy error: "
+        "strong_jni_object_ is "
         "empty.");
     return;
   }
-  LOGI("lynx module_factory_android destroy.");
+  LOGI("NativeModule: lynx module_factory_android destroy.");
   Java_LynxModuleFactory_destroy(env, strong_jni_object_.Get());
   strong_jni_object_.Reset(env, nullptr);
 }
@@ -64,7 +65,7 @@ std::shared_ptr<LynxNativeModule> ModuleFactoryAndroid::CreateModule(
     const std::string& name) {
   base::android::ScopedLocalJavaRef<jobject> local_ref(jni_object_);
   if (local_ref.IsNull()) {
-    LOGW("LynxModule, "
+    LOGW("NativeModule: LynxModule, "
          << "ModuleFactoryAndroid::ModuleFactoryAndroid, "
          << "bindingPtr, failed to find module: " << name
          << ", local_ref is IsNull()");

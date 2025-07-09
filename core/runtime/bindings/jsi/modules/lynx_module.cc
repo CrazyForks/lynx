@@ -25,7 +25,7 @@ std::string JSTypeToString(const piper::Value* arg) {
 
 std::string ExpectedButGot(const std::string& expected,
                            const std::string& but_got) {
-  return std::string{"expected: "}
+  return std::string{" NativeModule: expected: "}
       .append(expected)
       .append(", but got ")
       .append(but_got)
@@ -35,7 +35,7 @@ std::string ExpectedButGot(const std::string& expected,
 std::string ExpectedButGotAtIndexError(const std::string& expected,
                                        const std::string& but_got,
                                        int arg_index) {
-  auto message = std::string{" argument: "};
+  auto message = std::string{" NativeModule: argument: "};
   message += std::to_string(arg_index);
   message += ", expected: ";
   message += expected;
@@ -46,14 +46,14 @@ std::string ExpectedButGotAtIndexError(const std::string& expected,
 }
 
 std::string ExpectedButGotError(int expected, int but_got) {
-  return " invoked with wrong number of arguments," +
+  return " NativeModule: invoked with wrong number of arguments," +
          ExpectedButGot(std::to_string(expected), std::to_string(but_got));
 }
 
 std::string GenerateErrorMessage(const std::string& module,
                                  const std::string& method,
                                  const std::string& error) {
-  auto message = std::string{"In module '"}.append(module);
+  auto message = std::string{"NativeModule: In module '"}.append(module);
   message.append("' method '").append(method);
   message.append("' :").append(error);
   return message;
@@ -87,16 +87,16 @@ piper::Value LynxModule::get(Runtime* runtime, const PropNameID& prop) {
             size_t count) -> base::expected<Value, JSINativeException> {
           auto lock_module = weak_self.lock();
           if (!lock_module) {
-            LOGE("LynxModule has been destroyed.");
-            return base::unexpected(
-                BUILD_JSI_NATIVE_EXCEPTION("LynxModule has been destroyed."));
+            LOGE("NativeModule: LynxJSIModule has been destroyed.");
+            return base::unexpected(BUILD_JSI_NATIVE_EXCEPTION(
+                "NativeModule: LynxJSIModule has been destroyed."));
           }
           if (meta.get() == nullptr) {
-            LOGE("LynxModule, module: "
+            LOGE("NativeModule: LynxJSIModule, module: "
                  << lock_module->name_
                  << " failed in invokeMethod(), method is a nullptr");
             return base::unexpected(BUILD_JSI_NATIVE_EXCEPTION(
-                "LynxModule, module:" + lock_module->name_ +
+                "NativeModule: LynxJSIModule, module:" + lock_module->name_ +
                 " failed in invokeMethod(), method is nullptr"));
           }
           return lock_module->invokeMethod(*(meta.get()), &rt, args, count);
@@ -105,8 +105,8 @@ piper::Value LynxModule::get(Runtime* runtime, const PropNameID& prop) {
     // AllowList For Special Methods
     // see issue: #1979
     if (!MethodAllowList().count(propNameUtf8)) {
-      LOGI("module: " << name_ << ", method: " << propNameUtf8
-                      << " cannot be found in the method map");
+      LOGI("NativeModule: module: " << name_ << ", method: " << propNameUtf8
+                                    << " cannot be found in the method map");
       delegate_->OnMethodInvoked(
           name_, propNameUtf8,
           error::E_NATIVE_MODULES_COMMON_FUNCTION_NOT_FOUND);

@@ -34,7 +34,7 @@ void ModuleCallback::Invoke(Runtime* runtime,
                 ctx.event()->add_debug_annotations("method_name", method_name_);
               });
   if ((!args_ || !args_->IsArray()) && !custom_args_converter_) {
-    LOGW("callback's args is invalid.");
+    LOGW("NativeModule: Callback's args is invalid.");
     return;
   }
   TRACE_EVENT_BEGIN(LYNX_TRACE_CATEGORY_JSB, PUB_VALUE_TO_JS_VALUE);
@@ -53,7 +53,7 @@ void ModuleCallback::Invoke(Runtime* runtime,
     args_ = custom_args_converter_(runtime, this);
   }
   if (!args_ || !args_->IsArray()) {
-    LOGW("callback's args is invalid.");
+    LOGW("NativeModule: Callback's args is invalid.");
   }
   size_t size = static_cast<size_t>(args_->Length());
   piper::Value values[size];

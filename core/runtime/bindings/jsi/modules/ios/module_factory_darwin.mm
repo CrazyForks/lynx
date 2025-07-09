@@ -27,7 +27,8 @@ ModuleFactoryDarwin::ModuleFactoryDarwin() : parent(nullptr), context(nil) {
 }
 
 ModuleFactoryDarwin::~ModuleFactoryDarwin() {
-  LOGI("lynx module_factory_darwin destroy: " << reinterpret_cast<std::uintptr_t>(this));
+  LOGI("NativeModule: lynx module_factory_darwin destroy: "
+       << reinterpret_cast<std::uintptr_t>(this));
 }
 
 std::shared_ptr<LynxNativeModule> ModuleFactoryDarwin::CreateModule(const std::string &name) {
@@ -71,11 +72,11 @@ std::shared_ptr<LynxNativeModule> ModuleFactoryDarwin::CreateModule(const std::s
           [instance conformsToProtocol:@protocol(LynxContextModule)];
       [[maybe_unused]] auto conformsToLynxModule =
           [instance conformsToProtocol:@protocol(LynxModule)];
-      LOGV("LynxModule, module: " << name << "(conforming to LynxModule?: " << conformsToLynxModule
-                                  << ", conforming to LynxContextModule?: "
-                                  << conformsToLynxContextModule << ", with param(address): "
-                                  << reinterpret_cast<std::uintptr_t>(param) << ")"
-                                  << ", is created in getModule()");
+      LOGV("NativeModule: LynxModule, module: "
+           << name << "(conforming to LynxModule?: " << conformsToLynxModule
+           << ", conforming to LynxContextModule?: " << conformsToLynxContextModule
+           << ", with param(address): " << reinterpret_cast<std::uintptr_t>(param) << ")"
+           << ", is created in getModule()");
     }
     return moduleDarwin;
   }
@@ -93,7 +94,7 @@ void ModuleFactoryDarwin::registerModule(Class<LynxModule> cls, id param) {
     wrapper.namescope = [((NSDictionary *)param) objectForKey:@"namescope"];
   }
   modulesClasses_[[cls name]] = wrapper;
-  _LogI(@"LynxModule, module: %@ registered with param (address): %p", cls, param);
+  _LogI(@"NativeModule: LynxModule, module: %@ registered with param (address): %p", cls, param);
 }
 
 void ModuleFactoryDarwin::registerMethodAuth(LynxMethodBlock block) {
@@ -130,7 +131,7 @@ void ModuleFactoryDarwin::addModuleParamWrapperIfAbsent(
     NSMutableDictionary<NSString *, id> *wrappers) {
   for (NSString *name in wrappers) {
     if ([modulesClasses_ objectForKey:name]) {
-      LOGW("Duplicated LynxModule For Name: " << name << ", will be ignored");
+      LOGW("NativeModule: Duplicated LynxModule For Name: " << name << ", will be ignored");
       continue;
     }
     modulesClasses_[name] = wrappers[name];

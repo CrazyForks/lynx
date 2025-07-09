@@ -382,7 +382,7 @@ base::expected<std::unique_ptr<pub::Value>, ErrorPair> MethodInvoker::Invoke(
         std::make_pair(std::move(error_message), std::move(error)));
   }
 
-  LOGI("LynxModule, MethodInvoker::InvokeMethod, method: ("
+  LOGI("NativeModule: LynxModuleAndroid MethodInvoker::InvokeMethod, method: ("
        << module_name_ << "." << method_name_ << "." << first_arg_str
        << ") will fire " << this);
 
@@ -410,8 +410,7 @@ base::expected<std::unique_ptr<pub::Value>, ErrorPair> MethodInvoker::Invoke(
         callback_container.push_back(std::move(expected_callback.value()));
         ret = {.l = callback_container.back().Get()};
       } else {
-        LOGE("MethodInvoker: Create Callback"
-             << expected_callback.error().c_str());
+        LOGE(expected_callback.error().c_str());
         ret = {.l = nullptr};
       }
     } else {
@@ -441,7 +440,7 @@ base::expected<std::unique_ptr<pub::Value>, ErrorPair> MethodInvoker::Invoke(
     return base::unexpected(std::move(ret.error()));
   }
   TRACE_EVENT(LYNX_TRACE_CATEGORY_JSB, MODULE_ON_METHOD_INVOKE);
-  LOGI("LynxModule, MethodInvoker::InvokeMethod, method: ("
+  LOGI("NativeModules: LynxModuleAndroid MethodInvoker::InvokeMethod, method: ("
        << module_name_ << "." << method_name_ << "." << first_arg_str
        << ") did fire " << this)
   return ret;
@@ -681,9 +680,10 @@ base::expected<std::unique_ptr<pub::Value>, ErrorPair> MethodInvoker::Fire(
               base::android::JavaValue::JavaValueType::LynxObject));
     }
     default:
-      LOGF("Unknown return type: " << return_type);
+      LOGF("NativeModule: FireMethod Unknown Return Type: " << return_type);
       std::string error_message =
-          "Unknown return type: " + std::to_string(return_type);
+          "NativeModule: FireMethod Unknown Return Type: " +
+          std::to_string(return_type);
       return base::unexpected(
           std::make_pair(std::move(error_message), std::nullopt));
   }

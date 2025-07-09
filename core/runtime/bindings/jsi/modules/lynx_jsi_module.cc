@@ -41,7 +41,7 @@ class InvokeScope {
 };
 
 void LynxJSIModule::Destroy() {
-  LOGI("LynxJSIModule Destroy " << name_);
+  LOGI("NativeModule: LynxJSIModule Destroy " << name_);
   if (native_module_) {
     native_module_->Destroy();
     native_module_ = nullptr;

@@ -11,7 +11,7 @@ namespace lynx {
 namespace piper {
 
 LynxModuleManager::~LynxModuleManager() {
-  LOGI("~LynxModuleManager");
+  LOGI("NativeModule: ~LynxJSIModuleManager");
   for (auto &module : module_map_) {
     module.second->Destroy();
   }
@@ -81,10 +81,10 @@ LynxModuleProviderFunction LynxModuleManager::BindingFunc(
     // ptr == nullptr
     // issue: #1510
     if (!LynxModuleUtils::LynxModuleManagerAllowList::get().count(name)) {
-      LOGW("LynxModule, try to find module: " << name << "failed. manager: "
-                                              << manager);
+      LOGW("NativeModule: LynxJSIModule, try to find module: "
+           << name << "failed. manager: " << manager);
     } else {
-      LOGV("LynxModule, module: "
+      LOGV("NativeModule: LynxJSIModule, module: "
            << name << " is not found but it is in the allow list");
     }
     return std::shared_ptr<LynxModule>(nullptr);

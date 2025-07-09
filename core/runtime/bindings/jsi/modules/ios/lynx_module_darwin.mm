@@ -29,7 +29,7 @@ namespace {
 constexpr const char *IS_NATIVE_PROMISE = "__IS_NATIVE_PROMISE__";
 
 std::string genExceptionErrorMessage(NSException *exception) {
-  auto message = std::string{" throws an uncaught exception: "}
+  auto message = std::string{" NativeModule: throws an uncaught exception: "}
                      .append([exception.name UTF8String])
                      .append(". Reason: ")
                      .append([exception.reason UTF8String]);
@@ -98,10 +98,10 @@ LynxModuleDarwin::LynxModuleDarwin(id<LynxModule> instance)
 void LynxModuleDarwin::Destroy() {
 #if !defined(OS_OSX)
   if (instance_ == nil || [instance_ isEqual:[NSNull null]]) {
-    LOGI("lynx LynxModule Destroy: " << module_name_ << ", module is empty.");
+    LOGI("NativeModule: LynxModuleDarwin Destroy: " << module_name_ << ", module is empty.");
     return;
   }
-  LOGI("lynx LynxModule Destroy: " << module_name_);
+  LOGI("LynxModuleDarwin Destroy: " << module_name_);
   if ([instance_ respondsToSelector:@selector(destroy)]) {
     [instance_ destroy];
   }
@@ -151,8 +151,8 @@ base::expected<std::unique_ptr<pub::Value>, std::string> LynxModuleDarwin::Invok
   @try {
     NSString *jsMethodNameNSString = [NSString stringWithUTF8String:method_name.c_str()];
     if (methodLookup[jsMethodNameNSString] != nil) {
-      LOGI("LynxModuleDarwin will invokeMethod: " << module_name_ << "." << method_name
-                                                  << " , args: " << first_arg_str << " " << this);
+      LOGI("NativeModule: LynxModuleDarwin will invokeMethod: "
+           << module_name_ << "." << method_name << " , args: " << first_arg_str << " " << this);
       SEL selector = NSSelectorFromString(methodLookup[jsMethodNameNSString]);
       auto invoke_res = invokeObjCMethod(method_name, start_time, selector, args.get(), count,
                                          callErrorCode, callbacks);
@@ -162,20 +162,21 @@ base::expected<std::unique_ptr<pub::Value>, std::string> LynxModuleDarwin::Invok
       }
       if (!invoke_res.has_value()) {
         return base::unexpected(
-            "Exception happen in LynxModuleDarwin invokeMethod: " + module_name_ + "." +
-            method_name + " , args: " + first_arg_str + " errorInfo:" + invoke_res.error());
+            "NativeModule: Exception happen in LynxModuleDarwin invokeMethod: " + module_name_ +
+            "." + method_name + " , args: " + first_arg_str + " errorInfo:" + invoke_res.error());
       }
       res = std::move(invoke_res);
-      LOGI("LynxModuleDarwin did invokeMethod: " << module_name_ << "." << method_name
-                                                 << " , args: " << first_arg_str << " " << this);
+      LOGI("NativeModule: LynxModuleDarwin did invokeMethod: "
+           << module_name_ << "." << method_name << " , args: " << first_arg_str << " " << this);
     } else {
-      LOGE("LynxModuleDarwin::invokeMethod module: "
+      LOGE("NativeModule: LynxModuleDarwin::invokeMethod module: "
            << module_name_ << ", method: " << method_name << " , args: " << first_arg_str
            << " failed in invokeMethod(), cannot find method in methodLookup: " <<
            [[methodLookup description] UTF8String]);
     }
   } @catch (NSException *exception) {
-    _LogE(@"Exception '%@' was thrown while invoking function %s on target %@\n call stack: %@",
+    _LogE(@"NativeModule: Exception '%@' was thrown while invoking function %s on target %@\n call "
+          @"stack: %@",
           exception, method_name.c_str(), instance_, exception.callStackSymbols);
     // NSInvalidArgumentException is already handle in iOS.3
     callErrorCode = error::E_NATIVE_MODULES_EXCEPTION;
@@ -244,7 +245,7 @@ NSInvocation *LynxModuleDarwin::getMethodInvocation(
     if (objCArgType[0] == _C_ID) {
       id obj;
       if (arg->IsInt64() && callbacks.find(i) != callbacks.end()) {
-        LOGV("LynxModuleDarwin::getMethodInvocation, "
+        LOGV("NativeModule: LynxModuleDarwin::getMethodInvocation, "
              << " module: " << module_name_ << " method: " << methodName
              << " |JS FUNCTION| found at argument " << i);
         obj =
@@ -269,7 +270,7 @@ NSInvocation *LynxModuleDarwin::getMethodInvocation(
       } else  // obj == nil
       {
         // issue: #1510
-        reportError("sub class of NSObject");
+        reportError("NativeModule: sub class of NSObject");
       }
 
     } else {
@@ -417,8 +418,8 @@ base::expected<std::unique_ptr<pub::Value>, std::string> LynxModuleDarwin::invok
                                                                   invokedErrorMessage),
                             "Please check the arguments.", base::LynxErrorLevel::Error});
       }
-      return base::unexpected("invoke LynxModule:" + module_name_ + " method:" + methodName +
-                              " parameter error");
+      return base::unexpected("NativeModule: invoke LynxModule:" + module_name_ +
+                              " method:" + methodName + " parameter error");
     }
   }
 
@@ -494,13 +495,13 @@ base::expected<std::unique_ptr<pub::Value>, std::string> LynxModuleDarwin::invok
   }
 
   if (inv == nil) {
-    return base::unexpected(
-        "Exception happened in getMethodInvocation when convert js value to objc value.");
+    return base::unexpected("NativeModule: Exception happened in getMethodInvocation when convert "
+                            "js value to objc value.");
   }
 
   if (argumentsCount - 4 == count) {
-    LOGE("LynxModule, invokeObjCMethod, module: " << module_name_ << " method: " << methodName
-                                                  << " is a promise");
+    LOGE("NativeModule: LynxModule, invokeObjCMethod, module: " << module_name_ << " method: "
+                                                                << methodName << " is a promise");
     if (lock_delegate) {
       lock_delegate->OnErrorOccurred(
           module_name_, methodName,
@@ -511,34 +512,35 @@ base::expected<std::unique_ptr<pub::Value>, std::string> LynxModuleDarwin::invok
     tasm::report::FeatureCounter::Instance()->Count(
         tasm::report::LynxFeature::CPP_USE_NATIVE_PROMISE);
     // objc arguments: [this, _cmd, args..., resoledBlock, rejectedBlock]
-    auto promise_ret = createPromise(*scope_rts_.back(), ^(Runtime &rt,
-                                                           LynxPromiseResolveBlock resolveBlock,
-                                                           LynxPromiseRejectBlock rejectBlock) {
-      @try {
-        [inv setArgument:(void *)&resolveBlock atIndex:count + 2];
-        [inv setArgument:(void *)&rejectBlock atIndex:count + 3];
-        [retainedObjectsForInvocation addObject:resolveBlock];
-        [retainedObjectsForInvocation addObject:rejectBlock];
-        auto opt_value = PerformMethodInvocation(inv, instance_);
-        // issue: #1510
-        LOGV("LynxModuleDarwin::invokeObjCMethod, module: "
-             << module_name_ << " method: " << methodName
-             << " |PROMISE|, did PerformMethodInvocation, success:" << opt_value.has_value());
-      } @catch (NSException *exception) {
-        _LogE(@"Exception '%@' was thrown while invoking function %s on target %@\n call stack: %@",
-              exception, methodName.c_str(), instance_, exception.callStackSymbols);
-        if (lock_delegate) {
-          lock_delegate->OnErrorOccurred(
-              module_name_, methodName,
-              base::LynxError{
-                  error::E_NATIVE_MODULES_EXCEPTION,
-                  LynxModuleUtils::GenerateErrorMessage(module_name_, methodName,
-                                                        genExceptionErrorMessage(exception)),
-                  "This error is caught by native, please ask RD of Lynx or client for help.",
-                  base::LynxErrorLevel::Error});
-        }
-      }
-    });
+    auto promise_ret = createPromise(
+        *scope_rts_.back(),
+        ^(Runtime &rt, LynxPromiseResolveBlock resolveBlock, LynxPromiseRejectBlock rejectBlock) {
+          @try {
+            [inv setArgument:(void *)&resolveBlock atIndex:count + 2];
+            [inv setArgument:(void *)&rejectBlock atIndex:count + 3];
+            [retainedObjectsForInvocation addObject:resolveBlock];
+            [retainedObjectsForInvocation addObject:rejectBlock];
+            auto opt_value = PerformMethodInvocation(inv, instance_);
+            // issue: #1510
+            LOGV("NativeModule: LynxModuleDarwin::invokeObjCMethod, module: "
+                 << module_name_ << " method: " << methodName
+                 << " |PROMISE|, did PerformMethodInvocation, success:" << opt_value.has_value());
+          } @catch (NSException *exception) {
+            _LogE(@"NativeModule: Exception '%@' was thrown while invoking function %s on target "
+                  @"%@\n call stack: %@",
+                  exception, methodName.c_str(), instance_, exception.callStackSymbols);
+            if (lock_delegate) {
+              lock_delegate->OnErrorOccurred(
+                  module_name_, methodName,
+                  base::LynxError{
+                      error::E_NATIVE_MODULES_EXCEPTION,
+                      LynxModuleUtils::GenerateErrorMessage(module_name_, methodName,
+                                                            genExceptionErrorMessage(exception)),
+                      "This error is caught by native, please ask RD of Lynx or client for help.",
+                      base::LynxErrorLevel::Error});
+            }
+          }
+        });
     if (promise_ret.has_value()) {
       scope_native_promise_rets_.push_back(
           std::optional<piper::Value>(std::move(promise_ret.value())));
@@ -561,8 +563,8 @@ base::expected<std::unique_ptr<pub::Value>, std::string> LynxModuleDarwin::invok
     }
     return res;
   }
-  LOGV("LynxModuleDarwin::invokeObjCMethod, module: " << module_name_ << " method: " << methodName
-                                                      << " did PerformMethodInvocation");
+  LOGV("NativeModule: LynxModuleDarwin::invokeObjCMethod, module: "
+       << module_name_ << " method: " << methodName << " did PerformMethodInvocation");
   TRACE_EVENT(LYNX_TRACE_CATEGORY_JSB, MODULE_ON_METHOD_INVOKE);
   return res;
 }
@@ -575,7 +577,7 @@ base::expected<piper::Value, std::string> LynxModuleDarwin::createPromise(
 
   auto Promise = runtime.global().getPropertyAsFunction(runtime, "Promise");
   if (!Promise) {
-    return base::unexpected<std::string>("Can't find Promise.");
+    return base::unexpected<std::string>("NativeModule: Can't find Promise.");
   }
 
   PromiseInvocationBlock invokeCopy = [invoke copy];
@@ -587,13 +589,14 @@ base::expected<piper::Value, std::string> LynxModuleDarwin::createPromise(
           size_t count) -> base::expected<piper::Value, piper::JSINativeException> {
         auto module_delegate_lock = weak_module_delegate.lock();
         if (!module_delegate_lock) {
-          return base::unexpected(BUILD_JSI_NATIVE_EXCEPTION("ModuleDelegate has been destroyed."));
+          return base::unexpected(
+              BUILD_JSI_NATIVE_EXCEPTION("NativeModule: ModuleDelegate has been destroyed."));
         }
         piper::Scope scope(rt);
         if (count != 2) {
           return base::unexpected(BUILD_JSI_NATIVE_EXCEPTION(
-              "Promise must pass constructor function two args. Passed " + std::to_string(count) +
-              " args."));
+              "NativeModule: Promise must pass constructor function two args. Passed " +
+              std::to_string(count) + " args."));
         }
         if (!invokeCopy) {
           return piper::Value::undefined();
@@ -604,27 +607,27 @@ base::expected<piper::Value, std::string> LynxModuleDarwin::createPromise(
             module_delegate_lock->RegisterJSCallbackFunction(args[1].getObject(rt).getFunction(rt));
         if (resolveCallbackId == ModuleCallback::kInvalidCallbackId ||
             rejectCallbackId == ModuleCallback::kInvalidCallbackId) {
-          LOGW("LynxModuleDarwin::create promise failed, LynxRuntime has destroyed");
+          LOGW("NativeModule: LynxModuleDarwin::create promise failed, LynxRuntime has destroyed");
           return piper::Value::undefined();
         }
 
-        LOGV("LynxModuleDarwin::createPromise, resolve block id: "
+        LOGV("NativeModule: LynxModuleDarwin::createPromise, resolve block id: "
              << resolveCallbackId << ", reject block id: " << rejectCallbackId);
         __block BOOL resolveWasCalled = NO;
         __block BOOL rejectWasCalled = NO;
 
         LynxPromiseResolveBlock resolveBlock = ^(id result) {
           if (rejectWasCalled) {
-            LOGE("Tried to resolve a promise after it's already been rejected.");
+            LOGE("NativeModule: Tried to resolve a promise after it's already been rejected.");
             return;
           }
           if (resolveWasCalled) {
-            LOGE("Tried to resolve a promise more than once.");
+            LOGE("NativeModule: Tried to resolve a promise more than once.");
             return;
           }
           auto lock_delegate = delegate.lock();
           if (!lock_delegate) {
-            LOGW("Promise has been destroyed.");
+            LOGW("NativeModule: Promise has been destroyed.");
             return;
           }
 
@@ -632,21 +635,22 @@ base::expected<piper::Value, std::string> LynxModuleDarwin::createPromise(
           auto array = lock_delegate->GetValueFactory()->CreateArray();
           array->PushValueToArray(std::make_unique<pub::ValueImplDarwin>(result));
           resolveCallback->SetArgs(std::move(array));
-          LOGV("LynxModule, LynxResolveBlock, put to JSThread id: " << resolveCallbackId);
+          LOGV("NativeModule: LynxModule, LynxResolveBlock, put to JSThread id: "
+               << resolveCallbackId);
           module_delegate_lock->CallJSCallback(resolveCallback, rejectCallbackId);
         };
         LynxPromiseRejectBlock rejectBlock = ^(NSString *code, NSString *message) {
           if (resolveWasCalled) {
-            LOGE("Tried to reject a promise after it's already been resolved.");
+            LOGE("NativeModule: Tried to reject a promise after it's already been resolved.");
             return;
           }
           if (rejectWasCalled) {
-            LOGE("Tried to reject a promise more than once.");
+            LOGE("NativeModule: Tried to reject a promise more than once.");
             return;
           }
           auto lock_delegate = delegate.lock();
           if (lock_delegate) {
-            LOGW("Promise has been destroyed.");
+            LOGW("NativeModule: Promise has been destroyed.");
             return;
           }
           auto strongRejectWrapper = std::make_shared<piper::ModuleCallback>(rejectCallbackId);
@@ -655,7 +659,8 @@ base::expected<piper::Value, std::string> LynxModuleDarwin::createPromise(
           array->PushValueToArray(std::make_unique<pub::ValueImplDarwin>(jsError));
           strongRejectWrapper->SetArgs(std::move(array));
           rejectWasCalled = YES;
-          LOGV("LynxModule, LynxRejectBlock, put to JSThread id: " << rejectCallbackId);
+          LOGV("NativeModule: LynxModule, LynxRejectBlock, put to JSThread id: "
+               << rejectCallbackId);
           module_delegate_lock->CallJSCallback(strongRejectWrapper, resolveCallbackId);
         };
 
@@ -667,7 +672,7 @@ base::expected<piper::Value, std::string> LynxModuleDarwin::createPromise(
   if (res.has_value()) {
     return std::move(*res);
   } else {
-    return base::unexpected<std::string>("Promise callAsConstructor failed.");
+    return base::unexpected<std::string>("NativeModule: Promise callAsConstructor failed.");
   }
 }
 
@@ -754,7 +759,7 @@ LynxCallbackBlock LynxModuleDarwin::ConvertModuleCallbackToCallbackBlock(
     std::shared_ptr<LynxModuleCallback> callback, const std::string &method_name,
     const pub::Value *first_arg, uint64_t start_time) {
   __block int64_t callback_id = callback->CallbackId();
-  LOGV("LynxModuleDarwin::ConvertModuleCallbackToCallbackBlock, |JS FUNCTION| id: "
+  LOGV("NativeModule: LynxModuleDarwin::ConvertModuleCallbackToCallbackBlock, |JS FUNCTION| id: "
        << callback_id << " " << module_name_ << "." << method_name);
 
   std::weak_ptr<Delegate> delegate(delegate_);
@@ -771,13 +776,14 @@ LynxCallbackBlock LynxModuleDarwin::ConvertModuleCallbackToCallbackBlock(
 
   return ^(id response) {
     if (wrapperWasCalled) {
-      LOGR("LynxModule, callback id: " << callback_id << " is called more than once.");
+      LOGR("NativeModule: LynxModule, callback id: " << callback_id
+                                                     << " is called more than once.");
       return;
     }
     wrapperWasCalled = YES;
     auto lock_delegate = delegate.lock();
     if (!lock_delegate) {
-      LOGR("LynxModuleCallback has been destroyed. id:" << callback_id);
+      LOGR("NativeModule: LynxModuleCallback has been destroyed. id:" << callback_id);
       return;
     }
 
@@ -791,7 +797,7 @@ LynxCallbackBlock LynxModuleDarwin::ConvertModuleCallbackToCallbackBlock(
           module_name_copy, jsb_func_name.size() == 0 ? method_name_copy : jsb_func_name,
           schema_copy, response, std::to_string(start_time_copy));
     }
-    LOGV("LynxModule, LynxCallbackBlock, put function to JSThread, "
+    LOGV("NativeModule: LynxModule, LynxCallbackBlock, put function to JSThread, "
          << "callback id: " << callback_id << "piper::ModuleCallback: " << callback);
     lock_delegate->InvokeCallback(callback);
   };
