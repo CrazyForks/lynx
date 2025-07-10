@@ -278,6 +278,10 @@ uint32_t LynxEnv::GetMemoryChangeThresholdMb() {
   return static_cast<uint32_t>(GetLongEnv(Key::MEMORY_CHANGE_THRESHOLD_MB, 0));
 }
 
+uint32_t LynxEnv::GetMemoryAcquisitionDelayMs() {
+  return static_cast<uint32_t>(GetLongEnv(Key::MEMORY_ACQUISITION_DELAY_MS, 2));
+}
+
 bool LynxEnv::IsDevToolConnected() {
   return GetBoolEnv(Key::DEVTOOL_CONNECTED, false, EnvType::LOCAL);
 }

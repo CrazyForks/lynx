@@ -19,6 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
 @class LynxWeakProxy;
 @class LynxGestureDetectorDarwin;
 @class LynxGestureArenaManager;
+@class LynxMemoryRecord;
 
 @protocol LynxBaseInspectorOwner;
 @protocol LynxForegroundProtocol;
@@ -170,6 +171,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)didMoveToWindow:(BOOL)windowIsNil;
 
 - (void)updateAnimationKeyframes:(NSDictionary*)keyframesDict;
+
+- (NSDictionary<NSString*, LynxMemoryRecord*>*)getMemoryUsage;
 
 #pragma mark - A11y
 - (NSArray<LynxUI*>*)uiWithA11yID:(NSString*)a11yID;

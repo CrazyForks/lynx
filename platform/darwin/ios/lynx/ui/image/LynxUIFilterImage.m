@@ -73,6 +73,25 @@ LYNX_REGISTER_UI("filter-image")
   [self view].frame = CGRectMake(origin.x + x, origin.y + y, width, height);
 }
 
+// Override
+- (float)memoryUsageKB {
+  float sizeKB = [super memoryUsageKB];
+  UIImage* image = self.view.image;
+  if (image) {
+    sizeKB += (image.size.height * image.size.width * image.scale * 4) / 1024.f;
+  }
+  return sizeKB;
+}
+
+// Override
+- (NSDictionary<NSString*, NSString*>*)memoryUsageDetail {
+  NSString* url = self.src;
+  if (!url) {
+    return nil;
+  }
+  return @{url : [NSString stringWithFormat:@"%f", [self memoryUsageKB]]};
+}
+
 - (bool)updateLayerMaskOnFrameChanged {
   // we do not need to run super, as overflow is not used for image,
   // border-radius will be processed by myself

@@ -20,7 +20,7 @@ using namespace lynx::tasm;
 std::unique_ptr<std::unordered_map<std::string, std::string>> ConvertNSDictToUnorderedMap(
     NSDictionary<NSString*, NSString*>* _Nullable nsDict) {
   if (!nsDict) {
-    return std::make_unique<std::unordered_map<std::string, std::string>>();
+    return nullptr;
   }
   auto cppMap = std::make_unique<std::unordered_map<std::string, std::string>>();
   for (NSString* key in nsDict) {
@@ -86,13 +86,25 @@ std::unique_ptr<std::unordered_map<std::string, std::string>> ConvertNSDictToUno
   }
   [self ActAsync:^(const std::unique_ptr<performance::PerformanceController>& controller) {
     LynxMemoryRecord* record = recordBuilder();
-    if (record.detail) {
+    if (record) {
       controller->GetMemoryMonitor().UpdateMemoryUsage(performance::MemoryRecord(
-          [record.category UTF8String], record.sizeKb, ConvertNSDictToUnorderedMap(record.detail)));
-    } else {
-      controller->GetMemoryMonitor().UpdateMemoryUsage(
-          performance::MemoryRecord([record.category UTF8String], record.sizeKb));
+          [record.category UTF8String], record.sizeKb, record.instanceCount,
+          ConvertNSDictToUnorderedMap(record.detail)));
     }
+  }];
+}
+
+- (void)updateMemoryUsageWithRecords:(NSDictionary<NSString*, LynxMemoryRecord*>*)records {
+  if (!records) {
+    return;
+  }
+  [self ActAsync:^(const std::unique_ptr<performance::PerformanceController>& controller) {
+    [records enumerateKeysAndObjectsUsingBlock:^(
+                 NSString* _Nonnull key, LynxMemoryRecord* _Nonnull record, BOOL* _Nonnull stop) {
+      controller->GetMemoryMonitor().UpdateMemoryUsage(performance::MemoryRecord(
+          [record.category UTF8String], record.sizeKb, record.instanceCount,
+          ConvertNSDictToUnorderedMap(record.detail)));
+    }];
   }];
 }
 

@@ -21,6 +21,7 @@ inline constexpr float KB = 1024.f;
 inline constexpr char kMemoryEntryType[] = "memory";
 inline constexpr char kCategory[] = "category";
 inline constexpr char kSizeKb[] = "sizeKb";
+inline constexpr char kInstanceCount[] = "instanceCount";
 inline constexpr char kDetail[] = "detail";
 
 // Memory types
@@ -40,6 +41,9 @@ struct MemoryRecord {
   // Memory size, required attribute, in KB.
   float size_kb_ = 0.0f;
 
+  // The number of instances of the category, default is one.
+  int32_t instance_count_ = 1;
+
   // Detailed description of the memory information, optional attribute.
   // For example, when category_ is kMemoryCategoryImage, detail_ can include
   // image URL information.
@@ -58,6 +62,9 @@ struct MemoryRecord {
   MemoryRecord(MemoryCategory category, float size_kb);
   MemoryRecord(
       MemoryCategory category, float size_kb,
+      std::unique_ptr<std::unordered_map<std::string, std::string>> detail);
+  MemoryRecord(
+      MemoryCategory category, float size_kb, int32_t instance_count,
       std::unique_ptr<std::unordered_map<std::string, std::string>> detail);
   MemoryRecord() = default;
   ~MemoryRecord() = default;

@@ -1896,6 +1896,27 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
   }
 }
 
+- (void)updateMemoryUsage {
+  if (![LynxPerformanceController isMemoryMonitorEnabled]) {
+    return;
+  }
+  __weak __typeof(self) weakSelf = self;
+  int delay = [[LynxEnv sharedInstance] memoryAcquisitionDelayMs];
+  // Since resources are usually loaded asynchronously, such as images downloaded asynchronously
+  // from the network, it is necessary to delay the collection of memory so as to collect as much
+  // resource memory as possible.
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delay * NSEC_PER_SEC)),
+                 dispatch_get_main_queue(), ^{
+                   __strong __typeof(weakSelf) strongSelf = weakSelf;
+                   if (!strongSelf) {
+                     return;
+                   }
+                   NSDictionary<NSString*, LynxMemoryRecord*>* records =
+                       [[strongSelf uiOwner] getMemoryUsage];
+                   [[strongSelf performanceController] updateMemoryUsageWithRecords:records];
+                 });
+}
+
 #pragma mark - Preload
 
 - (void)attachLynxView:(LynxView* _Nonnull)lynxView {
@@ -1978,6 +1999,7 @@ LYNX_NOT_IMPLEMENTED(-(instancetype)initWithCoder : (NSCoder*)aDecoder)
     [_devTool onPageUpdate];
   }
   [_delegate templateRender:self onPageChanged:isFirstScreen];
+  [self updateMemoryUsage];
 }
 
 - (void)onTasmFinishByNative {

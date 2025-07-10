@@ -45,6 +45,7 @@
 #import <Lynx/LynxView+Internal.h>
 #import <Lynx/LynxView.h>
 #import <Lynx/UIView+Lynx.h>
+#import <malloc/malloc.h>
 #import "LBSCoreGraphicsPathParser.h"
 #import "LynxEventHandler+Internal.h"
 #import "LynxFeatureCounter.h"
@@ -283,6 +284,14 @@ static const CGFloat OFFSET_ROTATE_AUTO = -1024.f;
 }
 
 - (void)setContentOffset:(CGPoint)contentOffset {
+}
+
+- (float)memoryUsageKB {
+  return malloc_size((__bridge void*)self) / 1024.f;
+}
+
+- (NSDictionary<NSString*, NSString*>*)memoryUsageDetail {
+  return nil;
 }
 
 /**

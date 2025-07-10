@@ -33,7 +33,7 @@ inline std::string ValueToJsonString(const pub::Value& value) {
   } else if (value.IsNumber()) {
     std::ostringstream oss;
     oss.precision(15);
-    oss << value.Double();
+    oss << value.Number();
     return oss.str();
   } else if (value.IsString()) {
     std::ostringstream oss;
@@ -275,6 +275,7 @@ void MemoryMonitor::ReportMemory() {
       auto record_map = sender_->GetValueFactory()->CreateMap();
       record_map->PushStringToMap(kCategory, record.category_);
       record_map->PushDoubleToMap(kSizeKb, record.size_kb_);
+      record_map->PushInt32ToMap(kInstanceCount, record.instance_count_);
       sizeKb += record.size_kb_;
       if (record.detail_) {
         auto map = sender_->GetValueFactory()->CreateMap();

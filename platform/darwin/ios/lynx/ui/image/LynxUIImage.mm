@@ -206,6 +206,23 @@ LYNX_REGISTER_UI("image")
   }
 }
 
+- (float)memoryUsageKB {
+  float sizeKB = [super memoryUsageKB];
+  UIImage* image = self.image;
+  if (image) {
+    sizeKB += (image.size.height * image.size.width * image.scale * 4) / 1024.f;
+  }
+  return sizeKB;
+}
+
+- (NSDictionary<NSString*, NSString*>*)memoryUsageDetail {
+  NSString* url = self.src.url.path;
+  if (!url) {
+    return nil;
+  }
+  return @{url : [NSString stringWithFormat:@"%f", [self memoryUsageKB]]};
+}
+
 - (void)setContext:(LynxUIContext*)context {
   [super setContext:context];
   _enableGenericFetcher = self.context.mediaResourceFetcher != nil;

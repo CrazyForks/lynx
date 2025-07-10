@@ -11,6 +11,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)targetOnScreen;
 - (void)freeMemoryCache;
 - (void)targetOffScreen;
+- (float)memoryUsageKB;
+- (NSDictionary<NSString *, NSString *> *)memoryUsageDetail;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -1233,6 +1233,7 @@ public class LynxEnv : NSObject {
   public BOOL LynxEnv::enableGenericResourceFetcher();
   public BOOL LynxEnv::enableTextContainerOpt();
   public BOOL LynxEnv::enableTextStorageDeallocFix();
+  public int LynxEnv::memoryAcquisitionDelayMs();
   public NSDictionary< NSString *, NSString * > * LynxEnv::cppEnvDebugDescription();
   public NSDictionary< NSString *, NSString * > * LynxEnv::platformEnvDebugDescription();
   public BOOL LynxEnv()::enableCreateUIAsync();
@@ -2466,12 +2467,14 @@ public protocol LynxMemoryMonitorProtocol-p : <NSObject> {
   public void LynxMemoryMonitorProtocol-p::allocateMemory:(LynxMemoryRecordBuilder _Nonnull recordBuilder);
   public void LynxMemoryMonitorProtocol-p::deallocateMemory:(LynxMemoryRecordBuilder _Nonnull recordBuilder);
   public void LynxMemoryMonitorProtocol-p::updateMemoryUsage:(LynxMemoryRecordBuilder _Nonnull recordBuilder);
+  public void LynxMemoryMonitorProtocol-p::updateMemoryUsageWithRecords:(NSDictionary< NSString *, LynxMemoryRecord * > *records);
   public BOOL LynxMemoryMonitorProtocol-p::isMemoryMonitorEnabled();
 }
 
 public class LynxMemoryRecord : NSObject {
   public NSString* LynxMemoryRecord::category category;
   public float LynxMemoryRecord::sizeKb sizeKb;
+  public int LynxMemoryRecord::instanceCount instanceCount;
   public NSDictionary<NSString*, NSString*>* LynxMemoryRecord::detail detail;
   public instancetype LynxMemoryRecord::initWithCategory:sizeKb:detail:(NSString *category,[sizeKb] float sizeKb,[detail] NSDictionary< NSString *, NSString * > *_Nullable detail);
 }
@@ -4371,6 +4374,7 @@ public class LynxUIOwner : NSObject {
   public LynxComponentScopeRegistry * LynxUIOwner::getComponentRegistry();
   public void LynxUIOwner::didMoveToWindow:(BOOL windowIsNil);
   public void LynxUIOwner::updateAnimationKeyframes:(NSDictionary *keyframesDict);
+  public NSDictionary< NSString *, LynxMemoryRecord * > * LynxUIOwner::getMemoryUsage();
   public NSArray< LynxUI * > * LynxUIOwner::uiWithA11yID:(NSString *a11yID);
   public NSArray< UIView * > * LynxUIOwner::viewsWithA11yID:(NSString *a11yID);
   public NSInteger LynxUIOwner::getTagInfo:(NSString *tagName);
@@ -4510,6 +4514,8 @@ public protocol LynxUITarget-p : <NSObject> {
   public void LynxUITarget-p::targetOnScreen();
   public void LynxUITarget-p::freeMemoryCache();
   public void LynxUITarget-p::targetOffScreen();
+  public float LynxUITarget-p::memoryUsageKB();
+  public NSDictionary< NSString *, NSString * > * LynxUITarget-p::memoryUsageDetail();
 }
 
 public class LynxUIText : LynxUI, <LynxTextView> {
@@ -5506,6 +5512,7 @@ public enum LynxEnvKey {
   LynxEnvEnableTextStorageDeallocFix
   LynxEnvEnableJSGroupThreadByDefault
   LynxEnvEnableTextLayoutCache
+  LynxEnvMemoryAcquisitionDelayMs
   LynxEnvKeyEndMark
 }
 

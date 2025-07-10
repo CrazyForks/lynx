@@ -33,6 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
 // with the new size and detail information.
 - (void)updateMemoryUsage:(LynxMemoryRecordBuilder _Nonnull)recordBuilder;
 
+// Updates the memory usage and sends a PerformanceEntry.
+// This interface updates the record corresponding to the specified category
+// with the new size and detail information.
+- (void)updateMemoryUsageWithRecords:(NSDictionary<NSString*, LynxMemoryRecord*>*)records;
+
 // Checks if memory monitoring is enabled.
 // Modules can call this before collecting data to avoid unnecessary
 // collection.

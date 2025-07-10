@@ -18,8 +18,17 @@ MemoryRecord::MemoryRecord(
       size_kb_(size_kb),
       detail_(std::move(detail)) {}
 
+MemoryRecord::MemoryRecord(
+    MemoryCategory category, float size_kb, int32_t instance_count,
+    std::unique_ptr<std::unordered_map<std::string, std::string>> detail)
+    : category_(std::move(category)),
+      size_kb_(size_kb),
+      instance_count_(instance_count),
+      detail_(std::move(detail)) {}
+
 MemoryRecord& MemoryRecord::operator+=(const MemoryRecord& other) {
   size_kb_ += other.size_kb_;
+  instance_count_ += other.instance_count_;
   // Merge detail_
   if (!other.detail_) {
     return *this;
@@ -38,6 +47,7 @@ MemoryRecord& MemoryRecord::operator+=(const MemoryRecord& other) {
 
 MemoryRecord& MemoryRecord::operator-=(const MemoryRecord& other) {
   size_kb_ -= other.size_kb_;
+  instance_count_ -= other.instance_count_;
   // Deduplicate detail_
   if (!other.detail_ || !detail_) {
     return *this;
