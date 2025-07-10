@@ -10,9 +10,11 @@
 #include <unordered_map>
 #include <vector>
 
+#include "base/include/base_export.h"
 #include "base/include/closure.h"
 #include "base/include/fml/synchronization/shared_mutex.h"
 #include "core/public/pub_value.h"
+#include "core/shared_data/white_board_inspector.h"
 
 namespace lynx {
 namespace tasm {
@@ -49,10 +51,19 @@ class WhiteBoard final {
   WhiteBoard(WhiteBoard&&) = delete;
   WhiteBoard& operator=(WhiteBoard&&) = delete;
 
+  std::shared_ptr<WhiteBoardInspector> GetInspector() { return inspector_; }
+  void SetInspector(const std::shared_ptr<WhiteBoardInspector>& inspector) {
+    inspector_ = inspector;
+  }
+
   // set & get operation
-  void SetGlobalSharedData(const std::string& key,
-                           const std::shared_ptr<pub::Value>& value);
-  std::shared_ptr<pub::Value> GetGlobalSharedData(const std::string& key);
+  BASE_EXPORT_FOR_DEVTOOL void SetGlobalSharedData(
+      const std::string& key, const std::shared_ptr<pub::Value>& value);
+  BASE_EXPORT_FOR_DEVTOOL std::shared_ptr<pub::Value> GetGlobalSharedData(
+      const std::string& key);
+
+  BASE_EXPORT_FOR_DEVTOOL void RemoveGlobalSharedData(const std::string& key);
+  BASE_EXPORT_FOR_DEVTOOL void ClearGlobalSharedData();
 
   // subscribe & unsubscribe operation
   void RegisterSharedDataListener(const WhiteBoardStorageType& type,
@@ -62,6 +73,11 @@ class WhiteBoard final {
                                 const std::string& key, int32_t listener_id);
 
   ~WhiteBoard() = default;
+
+  // only used for inspector
+  BASE_EXPORT_FOR_DEVTOOL const auto& GetAllGlobalSharedData() {
+    return data_center_;
+  }
 
  private:
   using LynxWhiteBoardMap =
@@ -77,6 +93,7 @@ class WhiteBoard final {
   std::unordered_map<WhiteBoardStorageType, std::unique_ptr<fml::SharedMutex>>
       listener_lock_;
   std::vector<WhiteBoardListenerMap> listeners_;
+  std::shared_ptr<WhiteBoardInspector> inspector_;
 };
 
 }  // namespace tasm

@@ -55,7 +55,7 @@ class DevToolMediatorTest : public ::testing::Test {
     devtool_mediator_->ui_executor_ =
         std::make_shared<devtool::InspectorUIExecutor>(devtool_mediator_);
     devtool_mediator_->element_executor_ =
-        std::make_shared<devtool::InspectorTasmExecutor>(devtool_mediator_);
+        std::make_shared<devtool::InspectorTasmExecutor>(devtool_mediator_, 1);
     facade_ = std::make_shared<testing::DevToolPlatformFacadeMock>();
     devtool_mediator_->devtool_executor_->SetDevToolPlatformFacade(facade_);
     devtool_mediator_->ui_executor_->SetDevToolPlatformFacade(facade_);

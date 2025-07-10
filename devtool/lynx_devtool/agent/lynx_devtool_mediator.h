@@ -5,13 +5,17 @@
 #ifndef DEVTOOL_LYNX_DEVTOOL_AGENT_LYNX_DEVTOOL_MEDIATOR_H_
 #define DEVTOOL_LYNX_DEVTOOL_AGENT_LYNX_DEVTOOL_MEDIATOR_H_
 
+#include <memory>
+
 #include "base/include/fml/task_runner.h"
+#include "core/shared_data/white_board_delegate.h"
 #include "core/shell/lynx_shell.h"
 #include "devtool/base_devtool/native/public/message_sender.h"
 #include "devtool/lynx_devtool/agent/inspector_default_executor.h"
 #include "devtool/lynx_devtool/agent/inspector_tasm_executor.h"
 #include "devtool/lynx_devtool/agent/inspector_ui_executor.h"
 #include "devtool/lynx_devtool/agent/lynx_devtool_mediator_base.h"
+#include "devtool/lynx_devtool/shared_data/white_board_inspector_delegate.h"
 
 namespace lynx {
 namespace devtool {
@@ -184,6 +188,16 @@ class LynxDevToolMediator
   DECLARE_DEVTOOL_METHOD(GetUIInfoForNode)
   DECLARE_DEVTOOL_METHOD(SetUIStyle)
 
+  // WhiteBoard domain:
+  // When tasm_executor_ is not nullptr, dispatch to tasm_executor_. Otherwise,
+  // dispatch to js_debugger_.
+  DECLARE_DEVTOOL_METHOD(WhiteBoardEnable)
+  DECLARE_DEVTOOL_METHOD(WhiteBoardDisable)
+  DECLARE_DEVTOOL_METHOD(WhiteBoardSetSharedData)
+  DECLARE_DEVTOOL_METHOD(WhiteBoardGetSharedData)
+  DECLARE_DEVTOOL_METHOD(WhiteBoardRemoveSharedData)
+  DECLARE_DEVTOOL_METHOD(WhiteBoardClear)
+
  public:
   std::shared_ptr<InspectorUIExecutor> GetUIExecutor() { return ui_executor_; }
   std::shared_ptr<InspectorTasmExecutor> GetTasmExecutor() {
@@ -220,6 +234,10 @@ class LynxDevToolMediator
   void ScrollIntoView(int node_id);
   void PageReload(bool ignore_cache);
 
+  void InitWhiteBoardInspector(
+      const std::shared_ptr<tasm::WhiteBoardDelegate>& delegate,
+      const std::shared_ptr<WhiteBoardInspectorDelegate>& inspector_delegate);
+
  private:
   bool RunOnUIThread(lynx::base::closure&& closure, bool run_now = true);
 
@@ -234,6 +252,7 @@ class LynxDevToolMediator
   std::shared_ptr<InspectorLepusDebuggerImpl> lepus_debugger_;
 
   std::weak_ptr<LynxDevToolNG> devtool_wp_;
+  int view_id_{-1};
   bool fully_initialized_{false};
 };
 

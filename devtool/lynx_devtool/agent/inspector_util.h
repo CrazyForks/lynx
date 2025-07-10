@@ -24,6 +24,15 @@ namespace devtool {
     return res;                                            \
   }
 
+enum CDPErrorCode {
+  kParseError = -32700,
+  kInvalidRequest = -32600,
+  kMethodNotFound = -32601,
+  kInvalidParams = -32602,
+  kInternalError = -32603,
+  kServerError = -32000,
+};
+
 class InspectorUtil {
  public:
   static int CompressData(const std::string& tag, const std::string& data,

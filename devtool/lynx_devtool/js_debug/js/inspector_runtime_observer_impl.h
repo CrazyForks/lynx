@@ -31,6 +31,8 @@ class InspectorRuntimeObserverImpl : public piper::InspectorRuntimeObserverNG {
       const std::string& vm_type) override;
   std::shared_ptr<piper::ConsoleMessagePostMan> CreateConsoleMessagePostMan()
       override;
+  void InitWhiteBoardInspector(
+      const std::shared_ptr<tasm::WhiteBoardDelegate>& delegate) override;
 
   // Runtime may be destroyed after reloading but InspectorRuntimeObserverImpl
   // only be destroyed when destroying the LynxView, so that the runtime_id may

@@ -18,25 +18,48 @@
 namespace lynx {
 namespace devtool {
 
+#define HANDLE_WHITE_BOARD_METHOD(method, cur_func_name)                     \
+  do {                                                                       \
+    CHECK_NULL_AND_LOG_RETURN(white_board_inspector_delegate_,               \
+                              "InspectorTasmExecutor::" #cur_func_name       \
+                              ", white_board_inspector_delegate_ is null");  \
+    std::string response = white_board_inspector_delegate_->method(message); \
+    if (!response.empty()) {                                                 \
+      sender->SendMessage("CDP", response);                                  \
+    }                                                                        \
+  } while (0)
+
 InspectorTasmExecutor::InspectorTasmExecutor(
-    const std::shared_ptr<LynxDevToolMediator>& devtool_mediator)
+    const std::shared_ptr<LynxDevToolMediator>& devtool_mediator, int view_id)
     : dom_use_compression_(false),
       dom_compression_threshold_(10240),
       element_root_(nullptr),
       tasm_(),
-      devtool_mediator_wp_(devtool_mediator) {}
+      devtool_mediator_wp_(devtool_mediator),
+      view_id_(view_id) {}
 InspectorTasmExecutor::InspectorTasmExecutor(
     const std::shared_ptr<LynxDevToolMediator>& devtool_mediator,
-    tasm::TemplateAssembler* tasm)
+    tasm::TemplateAssembler* tasm, int view_id)
     : dom_use_compression_(false),
       dom_compression_threshold_(10240),
       element_root_(nullptr),
       tasm_(tasm),
-      devtool_mediator_wp_(devtool_mediator) {}
+      devtool_mediator_wp_(devtool_mediator),
+      view_id_(view_id) {}
 
 void InspectorTasmExecutor::SetDevToolPlatformFacade(
     const std::shared_ptr<DevToolPlatformFacade>& devtool_platform_facade) {
   devtool_platform_facade_ = devtool_platform_facade;
+}
+
+const std::shared_ptr<WhiteBoardInspectorTasmDelegate>&
+InspectorTasmExecutor::GetWhiteBoardInspectorDelegate() {
+  if (white_board_inspector_delegate_ == nullptr) {
+    white_board_inspector_delegate_ =
+        std::make_shared<WhiteBoardInspectorTasmDelegate>(shared_from_this(),
+                                                          view_id_);
+  }
+  return white_board_inspector_delegate_;
 }
 
 void InspectorTasmExecutor::SendDOMEventMsg(const DomCdpEvent& event_name,
@@ -869,6 +892,42 @@ void InspectorTasmExecutor::ScrollIntoViewIfNeeded(
   sender->SendMessage("CDP", response.toStyledString());
 }
 
+void InspectorTasmExecutor::WhiteBoardEnable(
+    const std::shared_ptr<lynx::devtool::MessageSender>& sender,
+    const Json::Value& message) {
+  HANDLE_WHITE_BOARD_METHOD(Enable, WhiteBoardEnable);
+}
+
+void InspectorTasmExecutor::WhiteBoardDisable(
+    const std::shared_ptr<lynx::devtool::MessageSender>& sender,
+    const Json::Value& message) {
+  HANDLE_WHITE_BOARD_METHOD(Disable, WhiteBoardDisable);
+}
+
+void InspectorTasmExecutor::WhiteBoardSetSharedData(
+    const std::shared_ptr<lynx::devtool::MessageSender>& sender,
+    const Json::Value& message) {
+  HANDLE_WHITE_BOARD_METHOD(SetSharedData, WhiteBoardSetSharedData);
+}
+
+void InspectorTasmExecutor::WhiteBoardGetSharedData(
+    const std::shared_ptr<lynx::devtool::MessageSender>& sender,
+    const Json::Value& message) {
+  HANDLE_WHITE_BOARD_METHOD(GetSharedData, WhiteBoardGetSharedData);
+}
+
+void InspectorTasmExecutor::WhiteBoardRemoveSharedData(
+    const std::shared_ptr<lynx::devtool::MessageSender>& sender,
+    const Json::Value& message) {
+  HANDLE_WHITE_BOARD_METHOD(RemoveSharedData, WhiteBoardRemoveSharedData);
+}
+
+void InspectorTasmExecutor::WhiteBoardClear(
+    const std::shared_ptr<lynx::devtool::MessageSender>& sender,
+    const Json::Value& message) {
+  HANDLE_WHITE_BOARD_METHOD(Clear, WhiteBoardClear);
+}
+
 void InspectorTasmExecutor::DOMEnableDomTree(
     const std::shared_ptr<lynx::devtool::MessageSender>& sender,
     const Json::Value& message) {
@@ -981,6 +1040,27 @@ void InspectorTasmExecutor::SendCSSEventMsg(const CssCdpEvent& event_name,
 
 void InspectorTasmExecutor::OnCSSStyleSheetAdded(lynx::tasm::Element* ptr) {
   SendCSSEventMsg(CssCdpEvent::STYLE_SHEET_ADDED, "", ptr);
+}
+
+void InspectorTasmExecutor::SendWhiteBoardEvent(const Json::Value& msg) {
+  auto devtool_mediator = devtool_mediator_wp_.lock();
+  CHECK_NULL_AND_LOG_RETURN(
+      devtool_mediator,
+      "InspectorTasmExecutor::SendWhiteBoardEvent, devtool_mediator is null");
+  devtool_mediator->SendCDPEvent(msg);
+}
+
+bool InspectorTasmExecutor::IsWhiteBoardEnabled() {
+  if (white_board_inspector_delegate_ != nullptr) {
+    return white_board_inspector_delegate_->IsEnabled();
+  }
+  return false;
+}
+
+void InspectorTasmExecutor::SetWhiteBoardEnabled(bool enable) {
+  if (white_board_inspector_delegate_ != nullptr) {
+    white_board_inspector_delegate_->SetEnabled(enable);
+  }
 }
 
 // Enable CSS debugging, get all style sheet of current page

@@ -16,6 +16,10 @@ namespace runtime {
 class RuntimeManagerDelegate;
 }
 
+namespace tasm {
+class WhiteBoardDelegate;
+}
+
 namespace devtool {
 class InspectorClientNG;
 }
@@ -43,6 +47,8 @@ class InspectorRuntimeObserverNG {
   virtual std::shared_ptr<ConsoleMessagePostMan> CreateConsoleMessagePostMan() {
     return nullptr;
   }
+  virtual void InitWhiteBoardInspector(
+      const std::shared_ptr<tasm::WhiteBoardDelegate>& delegate) = 0;
 
   // The following functions are used to observe the js runtime and notify
   // LynxDevtool.

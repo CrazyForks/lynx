@@ -87,5 +87,11 @@ targets({
         "owners":["ZhaoSongGOO"],
         "coverage": True,
         "enable_parallel":True,
+    },
+    "shared_data_unittest_exec": {
+        "cwd": ".",
+        "owners":["ZhaoSongGOO"],
+        "coverage": True,
+        "enable_parallel":True,
     }
 })

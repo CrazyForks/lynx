@@ -22,6 +22,21 @@ WhiteBoardDelegate::WhiteBoardDelegate(
     const std::shared_ptr<WhiteBoard>& white_board)
     : white_board_(white_board) {}
 
+std::shared_ptr<WhiteBoardInspector> WhiteBoardDelegate::GetInspector() {
+  if (white_board_) {
+    return white_board_->GetInspector();
+  }
+  return nullptr;
+}
+
+void WhiteBoardDelegate::SetInspector(
+    const std::shared_ptr<WhiteBoardInspector>& inspector) {
+  if (white_board_) {
+    inspector->SetWhiteBoard(white_board_);
+    white_board_->SetInspector(inspector);
+  }
+}
+
 void WhiteBoardDelegate::AddEventListeners(
     runtime::ContextProxy* js_context_proxy) {
   if (!js_context_proxy) {

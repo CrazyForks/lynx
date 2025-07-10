@@ -65,6 +65,10 @@ InitRuntimeStandaloneResult InitRuntimeStandalone(
   auto white_board_delegate =
       std::make_shared<tasm::WhiteBoardRuntimeDelegate>(white_board);
 
+  if (runtime_observer != nullptr) {
+    runtime_observer->InitWhiteBoardInspector(white_board_delegate);
+  }
+
   auto delegate = std::make_unique<RuntimeMediator>(
       native_runtime_facade, nullptr, performance_actor, nullptr,
       js_task_runner, std::move(external_resource_loader));

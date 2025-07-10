@@ -232,6 +232,7 @@ subspec_target("Native") {
     "../../../../devtool/lynx_devtool/config",
     "../../../../devtool/lynx_devtool/element",
     "../../../../devtool/lynx_devtool/recorder",
+    "../../../../devtool/lynx_devtool/shared_data",
   ]
   if (!enable_unittests) {
     deps += [ "../../../../core/renderer/css:css_decoder" ]

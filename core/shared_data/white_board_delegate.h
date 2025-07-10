@@ -15,12 +15,17 @@ namespace lynx {
 namespace tasm {
 
 class WhiteBoard;
+class WhiteBoardInspector;
 class WhiteBoardDelegate
     : public std::enable_shared_from_this<WhiteBoardDelegate> {
  public:
   explicit WhiteBoardDelegate(const std::shared_ptr<WhiteBoard>& white_board);
 
   virtual ~WhiteBoardDelegate() = default;
+
+  BASE_EXPORT_FOR_DEVTOOL std::shared_ptr<WhiteBoardInspector> GetInspector();
+  BASE_EXPORT_FOR_DEVTOOL void SetInspector(
+      const std::shared_ptr<WhiteBoardInspector>& inspector);
 
   virtual void CallLepusCallbackWithValue(const lepus::Value& closure,
                                           const lepus::Value& param) = 0;

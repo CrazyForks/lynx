@@ -14,6 +14,7 @@
 #include "devtool/base_devtool/native/public/message_sender.h"
 #include "devtool/lynx_devtool/agent/agent_defines.h"
 #include "devtool/lynx_devtool/agent/devtool_platform_facade.h"
+#include "devtool/lynx_devtool/shared_data/white_board_inspector_tasm_delegate.h"
 #include "third_party/jsoncpp/include/json/json.h"
 
 namespace lynx {
@@ -32,13 +33,17 @@ class InspectorTasmExecutor
     : public std::enable_shared_from_this<InspectorTasmExecutor> {
  public:
   InspectorTasmExecutor(
-      const std::shared_ptr<LynxDevToolMediator>& devtool_mediator);
+      const std::shared_ptr<LynxDevToolMediator>& devtool_mediator,
+      int view_id);
   InspectorTasmExecutor(
       const std::shared_ptr<LynxDevToolMediator>& devtool_mediator,
-      tasm::TemplateAssembler* tasm);
+      tasm::TemplateAssembler* tasm, int view_id);
 
   void SetDevToolPlatformFacade(
       const std::shared_ptr<DevToolPlatformFacade>& devtool_platform_facade);
+
+  const std::shared_ptr<WhiteBoardInspectorTasmDelegate>&
+  GetWhiteBoardInspectorDelegate();
 
  public:
   // event
@@ -69,6 +74,13 @@ class InspectorTasmExecutor
   void OnSetNativeProps(lynx::tasm::Element* ptr, const std::string& name,
                         const std::string& value, bool is_style);
   void OnCSSStyleSheetAdded(lynx::tasm::Element* ptr);
+
+ public:
+  void SendWhiteBoardEvent(const Json::Value& msg);
+  // The following two functions are used only for resetting enabled state after
+  // reloading.
+  bool IsWhiteBoardEnabled();
+  void SetWhiteBoardEnabled(bool enable);
 
  public:
   // dom related
@@ -143,6 +155,14 @@ class InspectorTasmExecutor
   // DOM ScrollIntoViewIfNeeded
   DECLARE_DEVTOOL_METHOD(ScrollIntoViewIfNeeded)
 
+  // WhiteBoard domain
+  DECLARE_DEVTOOL_METHOD(WhiteBoardEnable)
+  DECLARE_DEVTOOL_METHOD(WhiteBoardDisable)
+  DECLARE_DEVTOOL_METHOD(WhiteBoardSetSharedData)
+  DECLARE_DEVTOOL_METHOD(WhiteBoardGetSharedData)
+  DECLARE_DEVTOOL_METHOD(WhiteBoardRemoveSharedData)
+  DECLARE_DEVTOOL_METHOD(WhiteBoardClear)
+
  public:
   void LayerTreeDidChange(
       const std::shared_ptr<lynx::devtool::MessageSender>& sender);
@@ -198,6 +218,10 @@ class InspectorTasmExecutor
   std::shared_ptr<DevToolPlatformFacade> devtool_platform_facade_;
 
   std::set<std::string> css_used_selector_;
+
+  int view_id_;
+  std::shared_ptr<WhiteBoardInspectorTasmDelegate>
+      white_board_inspector_delegate_;
 };
 
 }  // namespace devtool

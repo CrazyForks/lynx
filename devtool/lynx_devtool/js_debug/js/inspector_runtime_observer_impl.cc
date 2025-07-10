@@ -49,6 +49,14 @@ InspectorRuntimeObserverImpl::CreateConsoleMessagePostMan() {
   return std::make_shared<ConsoleMessagePostManImpl>();
 }
 
+void InspectorRuntimeObserverImpl::InitWhiteBoardInspector(
+    const std::shared_ptr<tasm::WhiteBoardDelegate>& delegate) {
+  auto sp = debugger_wp_.lock();
+  if (sp != nullptr) {
+    sp->InitWhiteBoardInspector(delegate);
+  }
+}
+
 void InspectorRuntimeObserverImpl::OnInspectorInited(
     const std::string& vm_type, int64_t runtime_id, const std::string& group_id,
     bool single_group,

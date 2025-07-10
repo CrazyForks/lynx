@@ -24,6 +24,7 @@ unittest_set("devtool_agent_testset") {
     "../../lynx_devtool/config:config",
     "../../lynx_devtool/element:element",
     "../../lynx_devtool/js_debug:js_debug",
+    "../../lynx_devtool/shared_data:shared_data",
     "//third_party/zlib",
   ]
 

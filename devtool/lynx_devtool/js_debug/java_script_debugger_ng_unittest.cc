@@ -56,8 +56,6 @@ TEST_F(JavaScriptDebuggerNGTest, SendResponse) {
     auto message_sender = std::make_shared<devtool::MessageSenderMock>();
     devtool->message_sender_ = message_sender;
 
-    mediator->devtool_wp_ = devtool;
-    debugger_->devtool_mediator_wp_ = mediator;
     debugger_->SendResponse(message);
     EXPECT_EQ(MockReceiver::GetInstance().received_message_.first, "CDP");
     EXPECT_EQ(MockReceiver::GetInstance().received_message_.second, message);

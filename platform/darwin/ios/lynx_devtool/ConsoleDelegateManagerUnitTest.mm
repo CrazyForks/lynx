@@ -47,7 +47,7 @@
   [_platform attachLynxUIOwner:OCMClassMock([LynxUIOwner class])];
   [_platform setLynxInspectorConsoleDelegate:_consoleDelegate];
 
-  debugger_ = std::make_shared<lynx::devtool::InspectorJavaScriptDebuggerImpl>(nullptr);
+  debugger_ = std::make_shared<lynx::devtool::InspectorJavaScriptDebuggerImpl>(nullptr, 1);
   [_platform getNativePtr]->js_debugger_wp_ = debugger_;
 }
 

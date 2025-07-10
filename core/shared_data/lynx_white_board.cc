@@ -32,6 +32,13 @@ void WhiteBoard::SetGlobalSharedData(const std::string& key,
                                      const std::shared_ptr<pub::Value>& value) {
   {
     fml::UniqueLock lock(*data_center_lock_);
+    if (inspector_ != nullptr) {
+      if (data_center_.find(key) != data_center_.end()) {
+        inspector_->OnSharedDataUpdated(key, *value);
+      } else {
+        inspector_->OnSharedDataAdded(key, *value);
+      }
+    }
     data_center_[key] = value;
   }
 
@@ -48,6 +55,26 @@ std::shared_ptr<pub::Value> WhiteBoard::GetGlobalSharedData(
     return iter->second;
   }
   return nullptr;
+}
+
+void WhiteBoard::RemoveGlobalSharedData(const std::string& key) {
+  {
+    fml::UniqueLock lock(*data_center_lock_);
+    data_center_.erase(key);
+  }
+  if (inspector_ != nullptr) {
+    inspector_->OnSharedDataRemoved(key);
+  }
+}
+
+void WhiteBoard::ClearGlobalSharedData() {
+  {
+    fml::UniqueLock lock(*data_center_lock_);
+    data_center_.clear();
+  }
+  if (inspector_ != nullptr) {
+    inspector_->OnSharedDataCleared();
+  }
 }
 
 void WhiteBoard::TriggerListener(const WhiteBoardStorageType& type,

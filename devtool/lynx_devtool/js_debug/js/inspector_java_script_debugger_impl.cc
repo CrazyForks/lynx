@@ -13,20 +13,22 @@
 namespace lynx {
 namespace devtool {
 
-namespace {
-
-int GenerateViewId() {
-  static base::NoDestructor<std::atomic<int>> id{1};
-  return (*id)++;
-}
-
-}  // namespace
+#define HANDLE_WHITE_BOARD_METHOD(method, cur_func_name)                     \
+  do {                                                                       \
+    CHECK_NULL_AND_LOG_RETURN(                                               \
+        white_board_inspector_delegate_,                                     \
+        "InspectorJavaScriptDebuggerImpl::" #cur_func_name                   \
+        ", white_board_inspector_delegate_ is null");                        \
+    std::string response = white_board_inspector_delegate_->method(message); \
+    if (!response.empty()) {                                                 \
+      sender->SendMessage("CDP", response);                                  \
+    }                                                                        \
+  } while (0)
 
 InspectorJavaScriptDebuggerImpl::InspectorJavaScriptDebuggerImpl(
-    const std::shared_ptr<lynx::devtool::LynxDevToolMediator>& devtool_mediator)
-    : JavaScriptDebuggerNG(devtool_mediator) {
-  view_id_ = GenerateViewId();
-}
+    const std::shared_ptr<lynx::devtool::LynxDevToolMediator>& devtool_mediator,
+    int view_id)
+    : JavaScriptDebuggerNG(devtool_mediator), view_id_(view_id) {}
 
 InspectorJavaScriptDebuggerImpl::~InspectorJavaScriptDebuggerImpl() {
   if (delegate_ != nullptr) {
@@ -44,6 +46,21 @@ InspectorJavaScriptDebuggerImpl::GetInspectorRuntimeObserver() {
             shared_from_this()));
   }
   return observer_;
+}
+
+void InspectorJavaScriptDebuggerImpl::InitWhiteBoardInspector(
+    const std::shared_ptr<tasm::WhiteBoardDelegate>& delegate) {
+  if (white_board_inspector_delegate_ == nullptr) {
+    white_board_inspector_delegate_ =
+        std::make_shared<WhiteBoardInspectorRuntimeDelegate>(
+            std::static_pointer_cast<InspectorJavaScriptDebuggerImpl>(
+                shared_from_this()),
+            view_id_);
+  }
+  auto sp = devtool_mediator_wp_.lock();
+  if (sp != nullptr) {
+    sp->InitWhiteBoardInspector(delegate, white_board_inspector_delegate_);
+  }
 }
 
 void InspectorJavaScriptDebuggerImpl::OnInspectorInited(
@@ -170,6 +187,42 @@ void InspectorJavaScriptDebuggerImpl::RunOnTargetThread(base::closure&& closure,
   auto sp = devtool_mediator_wp_.lock();
   CHECK_NULL_AND_LOG_RETURN(sp, "js debug: devtool_mediator_ is null");
   sp->RunOnJSThread(std::move(closure), run_now);
+}
+
+void InspectorJavaScriptDebuggerImpl::WhiteBoardEnable(
+    const std::shared_ptr<lynx::devtool::MessageSender>& sender,
+    const Json::Value& message) {
+  HANDLE_WHITE_BOARD_METHOD(Enable, WhiteBoardEnable);
+}
+
+void InspectorJavaScriptDebuggerImpl::WhiteBoardDisable(
+    const std::shared_ptr<lynx::devtool::MessageSender>& sender,
+    const Json::Value& message) {
+  HANDLE_WHITE_BOARD_METHOD(Disable, WhiteBoardDisable);
+}
+
+void InspectorJavaScriptDebuggerImpl::WhiteBoardSetSharedData(
+    const std::shared_ptr<lynx::devtool::MessageSender>& sender,
+    const Json::Value& message) {
+  HANDLE_WHITE_BOARD_METHOD(SetSharedData, WhiteBoardSetSharedData);
+}
+
+void InspectorJavaScriptDebuggerImpl::WhiteBoardGetSharedData(
+    const std::shared_ptr<lynx::devtool::MessageSender>& sender,
+    const Json::Value& message) {
+  HANDLE_WHITE_BOARD_METHOD(GetSharedData, WhiteBoardGetSharedData);
+}
+
+void InspectorJavaScriptDebuggerImpl::WhiteBoardRemoveSharedData(
+    const std::shared_ptr<lynx::devtool::MessageSender>& sender,
+    const Json::Value& message) {
+  HANDLE_WHITE_BOARD_METHOD(RemoveSharedData, WhiteBoardRemoveSharedData);
+}
+
+void InspectorJavaScriptDebuggerImpl::WhiteBoardClear(
+    const std::shared_ptr<lynx::devtool::MessageSender>& sender,
+    const Json::Value& message) {
+  HANDLE_WHITE_BOARD_METHOD(Clear, WhiteBoardClear);
 }
 
 }  // namespace devtool

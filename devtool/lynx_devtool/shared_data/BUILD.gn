@@ -1,0 +1,43 @@
+# Copyright 2025 The Lynx Authors. All rights reserved.
+# Licensed under the Apache License Version 2.0 that can be found in the
+# LICENSE file in the root directory of this source tree.
+import("../../../testing/test.gni")
+import("../devtool.gni")
+
+devtool_source_set("shared_data") {
+  sources = [
+    "white_board_inspector_delegate.cc",
+    "white_board_inspector_delegate.h",
+    "white_board_inspector_impl.cc",
+    "white_board_inspector_impl.h",
+    "white_board_inspector_runtime_delegate.cc",
+    "white_board_inspector_runtime_delegate.h",
+    "white_board_inspector_tasm_delegate.cc",
+    "white_board_inspector_tasm_delegate.h",
+  ]
+}
+
+unittest_set("shared_data_testset") {
+  public_configs = [
+    "../../../core:lynx_public_config",
+    "../:devtool_common_config",
+  ]
+  sources = [
+    "white_board_inspector_delegate_unittest.cc",
+    "white_board_inspector_impl_unittest.cc",
+    "white_board_inspector_runtime_delegate_unittest.cc",
+    "white_board_inspector_tasm_delegate_unittest.cc",
+  ]
+  public_deps = [
+    ":shared_data",
+    "../../../core/shared_data:shared_data",
+    "../../base_devtool/native:base_devtool",
+    "../../testing/mock:devtool_mock",
+  ]
+  include_dirs = [ "//third_party/googletest/googletest/include" ]
+}
+
+unittest_exec("shared_data_unittest_exec") {
+  sources = []
+  deps = [ ":shared_data_testset" ]
+}

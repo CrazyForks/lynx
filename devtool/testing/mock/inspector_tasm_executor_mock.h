@@ -12,7 +12,8 @@ namespace testing {
 
 class InspectorTasmExecutorMock : public lynx::devtool::InspectorTasmExecutor {
  public:
-  InspectorTasmExecutorMock() : lynx::devtool::InspectorTasmExecutor(nullptr) {}
+  InspectorTasmExecutorMock()
+      : lynx::devtool::InspectorTasmExecutor(nullptr, 1) {}
 };
 
 }  // namespace testing

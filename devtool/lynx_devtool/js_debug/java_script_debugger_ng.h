@@ -48,15 +48,6 @@ class JavaScriptDebuggerNG
     }
   }
 
-  void SendMessage(const std::string& message) {
-    auto sp = devtool_mediator_wp_.lock();
-    CHECK_NULL_AND_LOG_RETURN(sp, "js debug: devtool_mediator_ is null");
-    Json::Value mes;
-    Json::Reader reader;
-    reader.parse(message, mes, false);
-    sp->SendCDPEvent(mes);
-  }
-
   void OnAttached() {
     std::lock_guard<std::mutex> lock(mutex_);
     attached_ = true;
@@ -74,6 +65,15 @@ class JavaScriptDebuggerNG
                                  bool run_now = true) = 0;
 
  protected:
+  void SendMessage(const std::string& message) {
+    auto sp = devtool_mediator_wp_.lock();
+    CHECK_NULL_AND_LOG_RETURN(sp, "js debug: devtool_mediator_ is null");
+    Json::Value mes;
+    Json::Reader reader;
+    reader.parse(message, mes, false);
+    sp->SendCDPEvent(mes);
+  }
+
   std::weak_ptr<LynxDevToolMediator> devtool_mediator_wp_;
   std::weak_ptr<DevToolPlatformFacade> devtool_platform_facade_wp_;
 

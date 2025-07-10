@@ -27,6 +27,7 @@
 #include "devtool/lynx_devtool/agent/domain_agent/inspector_testbench_replay_agent.h"
 #include "devtool/lynx_devtool/agent/domain_agent/inspector_tracing_agent.h"
 #include "devtool/lynx_devtool/agent/domain_agent/inspector_ui_tree_agent.h"
+#include "devtool/lynx_devtool/agent/domain_agent/inspector_white_board_agent.h"
 #include "devtool/lynx_devtool/agent/domain_agent/system_info_agent.h"
 #include "devtool/lynx_devtool/agent/lynx_devtool_mediator.h"
 
@@ -154,6 +155,8 @@ void LynxDevToolNG::RegisterInstanceDomainAgents() {
                 std::make_unique<InspectorLayerTreeAgentNG>(devtool_mediator_));
   RegisterAgent("UITree",
                 std::make_unique<InspectorUITreeAgent>(devtool_mediator_));
+  RegisterAgent("WhiteBoard",
+                std::make_unique<InspectorWhiteBoardAgent>(devtool_mediator_));
 }
 
 void LynxDevToolNG::RegisterInstanceDomainAgents(
@@ -217,6 +220,9 @@ void LynxDevToolNG::RegisterInstanceDomainAgents(
   } else if (!domain_key.compare(domain_key_prefix + "layertree")) {
     RegisterAgent("LayerTree", std::make_unique<InspectorLayerTreeAgentNG>(
                                    devtool_mediator_));
+  } else if (!domain_key.compare(domain_key_prefix + "whiteboard")) {
+    RegisterAgent("WhiteBoard", std::make_unique<InspectorWhiteBoardAgent>(
+                                    devtool_mediator_));
   }
 }
 

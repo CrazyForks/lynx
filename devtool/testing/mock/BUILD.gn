@@ -19,6 +19,7 @@ source_set("devtool_mock") {
     "lynx_devtool_mediator_mock.h",
     "lynx_devtool_ng_mock.cc",
     "lynx_devtool_ng_mock.h",
+    "white_board_inspector_delegate_mock.h",
   ]
 
   public_deps = [
@@ -31,6 +32,7 @@ source_set("devtool_mock") {
     "../../lynx_devtool/config:config",
     "../../lynx_devtool/element:element",
     "../../lynx_devtool/js_debug:js_debug",
+    "../../lynx_devtool/shared_data:shared_data",
     "//third_party/zlib",
   ]
 
