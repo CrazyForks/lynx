@@ -12,6 +12,8 @@ import com.lynx.tasm.behavior.ui.text.AbsInlineImageSpan;
 public final class InlineImageSpan extends AbsInlineImageSpan {
   LynxImageManager mLynxImageManager;
 
+  private boolean mAttached = false;
+
   public InlineImageSpan(int width, int height, int[] margins, LynxImageManager lynxImageManager) {
     super(width, height, margins);
     mLynxImageManager = lynxImageManager;
@@ -32,9 +34,6 @@ public final class InlineImageSpan extends AbsInlineImageSpan {
   @Override
   public void setCallback(Drawable.Callback callback) {
     super.setCallback(callback);
-    if (getWidth() > 0 && getHeight() > 0) {
-      mLynxImageManager.updateNodeProps();
-    }
   }
 
   @Nullable
@@ -43,17 +42,34 @@ public final class InlineImageSpan extends AbsInlineImageSpan {
     return mLynxImageManager.getSrcImageDrawable();
   }
 
-  @Override
-  public void onDetachedFromWindow() {}
+  private void attachIfNeeded() {
+    if (!mAttached) {
+      mAttached = true;
+      if (getWidth() > 0 && getHeight() > 0) {
+        mLynxImageManager.updateNodeProps();
+      }
+    }
+  }
 
   @Override
-  public void onStartTemporaryDetach() {}
+  public void onDetachedFromWindow() {
+    mAttached = false;
+  }
 
   @Override
-  public void onAttachedToWindow() {}
+  public void onStartTemporaryDetach() {
+    mAttached = false;
+  }
 
   @Override
-  public void onFinishTemporaryDetach() {}
+  public void onAttachedToWindow() {
+    attachIfNeeded();
+  }
+
+  @Override
+  public void onFinishTemporaryDetach() {
+    attachIfNeeded();
+  }
 
   @Override
   public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y,
