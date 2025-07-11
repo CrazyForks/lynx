@@ -26,9 +26,7 @@ target(lynx_harmony_type, "lynx_harmony") {
     ":native",
     "../../../base/trace/native:trace",
     "../../../core:lynx_native",
-    "../../../core/runtime/bindings/napi:napi_binding_jsvm",
     "../../../core/runtime/bindings/napi:napi_binding_quickjs",
-    "../../../core/runtime/jsi/jsvm",
     "../../../third_party/quickjs",
     "../lynx_xelement",
   ]
@@ -40,6 +38,13 @@ target(lynx_harmony_type, "lynx_harmony") {
     "napi_adapter",
     "quick",
   ]
+
+  if (enable_jsvm) {
+    public_deps += [
+      "../../../core/runtime/bindings/napi:napi_binding_jsvm",
+      "../../../core/runtime/jsi/jsvm",
+    ]
+  }
 
   public_configs = [ ":harmony_public_config" ]
   if (enable_testbench_replay) {

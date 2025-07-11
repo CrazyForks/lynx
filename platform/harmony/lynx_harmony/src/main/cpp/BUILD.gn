@@ -208,9 +208,12 @@ lynx_core_source_set("cpp") {
     "ohfileuri",
     "native_image",
     "pixelmap",
-    "jsvm",
     "image_packer",
   ]
+
+  if (enable_jsvm) {
+    libs += [ "jsvm" ]
+  }
 }
 
 config("harmony_public_config") {
