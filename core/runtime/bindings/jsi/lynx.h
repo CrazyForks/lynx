@@ -28,6 +28,8 @@ class LynxProxy : public HostObject {
 
   piper::Value GetCustomSectionSync(Runtime& rt, const char* prop_name);
   piper::Value LoadScript(Runtime& rt);
+
+  piper::Value FetchBundle(Runtime& rt);
 };
 }  // namespace piper
 }  // namespace lynx

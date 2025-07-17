@@ -153,6 +153,26 @@ void RuntimeMediator::AddFont(const lepus::Value& font,
       });
 }
 
+void RuntimeMediator::FetchBundle(
+    std::string&& bundle_url,
+    std::promise<tasm::BundleResourceInfo>&& promise) {
+  if (runtime_standalone_mode_) {
+    // TODO(nihao.royal): to support `fetchBundle` in runtime standalone mode.
+    REPORT_JSI_NATIVE_EXCEPTION(
+        "FetchBundle not supported on runtime standalone mode.");
+    promise.set_value(
+        {.url = std::move(bundle_url),
+         .code = tasm::LYNX_BUNDLE_RESOURCE_INFO_REQUEST_FAILED,
+         .error_msg = "FetchBundle not supported on runtime standalone mode."});
+    return;
+  }
+  engine_actor_->ActAsync(
+      [bundle_url = std::move(bundle_url), promise = std::move(promise)](
+          const std::unique_ptr<LynxEngine>& engine) mutable {
+        engine->FetchBundle(std::move(bundle_url), std::move(promise));
+      });
+}
+
 void RuntimeMediator::OnRuntimeReady() {
   DCHECK(!runtime_standalone_mode_);
   facade_actor_->ActAsync([](auto& facade) { facade->OnRuntimeReady(); });

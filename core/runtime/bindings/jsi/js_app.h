@@ -18,6 +18,7 @@
 #include "core/renderer/data/template_data.h"
 #include "core/renderer/dom/vdom/radon/node_select_options.h"
 #include "core/renderer/template_entry.h"
+#include "core/resource/lazy_bundle/bundle_resource_info.h"
 #include "core/runtime/bindings/jsi/api_call_back.h"
 #include "core/runtime/bindings/jsi/event/context_proxy_in_js.h"
 #include "core/runtime/bindings/jsi/js_task_adapter.h"
@@ -212,6 +213,9 @@ class App : public std::enable_shared_from_this<App> {
 
   base::expected<Value, JSINativeException> LoadCustomSectionScript(
       const std::string& key, const std::string& bundle_name);
+
+  void FetchBundle(std::string&& bundle_url,
+                   std::promise<tasm::BundleResourceInfo>&& promise);
 
   // For fiber
   void CallLepusMethod(const std::string& method_name, lepus::Value args,

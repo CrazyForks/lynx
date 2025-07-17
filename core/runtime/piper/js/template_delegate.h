@@ -3,6 +3,7 @@
 // LICENSE file in the root directory of this source tree.
 #ifndef CORE_RUNTIME_PIPER_JS_TEMPLATE_DELEGATE_H_
 #define CORE_RUNTIME_PIPER_JS_TEMPLATE_DELEGATE_H_
+#include <future>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -14,6 +15,7 @@
 #include "core/public/prop_bundle.h"
 #include "core/public/vsync_observer_interface.h"
 #include "core/renderer/dom/vdom/radon/node_select_options.h"
+#include "core/resource/lazy_bundle/bundle_resource_info.h"
 #include "core/runtime/bindings/common/event/context_proxy.h"
 #include "core/runtime/bindings/jsi/api_call_back.h"
 #include "core/runtime/bindings/jsi/modules/module_delegate.h"
@@ -95,6 +97,9 @@ class TemplateDelegate : public ContextProxy::Delegate,
 
   virtual void AddFont(const lepus::Value& font,
                        const piper::ApiCallBack& callback) = 0;
+
+  virtual void FetchBundle(
+      std::string&& url, std::promise<tasm::BundleResourceInfo>&& promise) = 0;
 
   virtual void OnRuntimeReady() = 0;
 

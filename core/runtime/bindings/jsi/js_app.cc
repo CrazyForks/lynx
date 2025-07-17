@@ -3544,6 +3544,17 @@ base::expected<Value, JSINativeException> App::LoadCustomSectionScript(
   }
 }
 
+void App::FetchBundle(std::string&& bundle_url,
+                      std::promise<tasm::BundleResourceInfo>&& promise) {
+  auto rt = rt_.lock();
+  if (!rt) {
+    promise.set_value({.url = std::move(bundle_url),
+                       .code = tasm::LYNX_BUNDLE_RESOURCE_INFO_REQUEST_FAILED});
+    return;
+  }
+  delegate_->FetchBundle(std::move(bundle_url), std::move(promise));
+}
+
 void App::SetSourceMapRelease(common::JSErrorInfo error_info) {
   js_error_reporter_.SetSourceMapRelease(std::move(error_info));
 }

@@ -16,6 +16,7 @@
 #include "core/base/threading/vsync_monitor.h"
 #include "core/renderer/dom/vdom/radon/node_select_options.h"
 #include "core/resource/external_resource/external_resource_loader.h"
+#include "core/resource/lazy_bundle/bundle_resource_info.h"
 #include "core/runtime/bindings/common/event/message_event.h"
 #include "core/runtime/piper/js/template_delegate.h"
 #include "core/runtime/piper/js/update_data_type.h"
@@ -81,6 +82,10 @@ class RuntimeMediator : public runtime::TemplateDelegate {
                        piper::ApiCallBack callback) override;
   void AddFont(const lepus::Value& font,
                const piper::ApiCallBack& callback) override;
+
+  void FetchBundle(std::string&& bundle_url,
+                   std::promise<tasm::BundleResourceInfo>&& promise) override;
+
   void OnRuntimeReady() override;
   void OnErrorOccurred(base::LynxError error) override;
 

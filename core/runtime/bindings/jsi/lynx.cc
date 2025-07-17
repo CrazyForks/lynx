@@ -361,6 +361,10 @@ Value LynxProxy::get(lynx::piper::Runtime *rt,
     return LoadScript(*rt);
   }
 
+  if (methodName == tasm::kFetchBundle) {
+    return FetchBundle(*rt);
+  }
+
   return piper::Value::undefined();
 }
 
@@ -435,30 +439,72 @@ piper::Value LynxProxy::LoadScript(Runtime &rt) {
       });
 }
 
+piper::Value LynxProxy::FetchBundle(Runtime &rt) {
+  return Function::createFromHostFunction(
+      rt, PropNameID::forAscii(rt, tasm::kFetchBundle), 1,
+      [this](Runtime &rt, const piper::Value &thisVal, const piper::Value *args,
+             size_t count) -> base::expected<Value, JSINativeException> {
+        auto native_app = native_app_.lock();
+        if (!native_app || native_app->IsDestroying()) {
+          return piper::Value::undefined();
+        }
+
+        if (count < 1) {
+          return base::unexpected(
+              BUILD_JSI_NATIVE_EXCEPTION(std::string(tasm::kFetchBundle) +
+                                         "'s args must has 'url' argument."));
+        }
+
+        if (!args[0].isString()) {
+          return base::unexpected(
+              BUILD_JSI_NATIVE_EXCEPTION(std::string(tasm::kFetchBundle) +
+                                         "'s first param must be a string."));
+        }
+
+        auto bundle_url = args[0].getString(rt).utf8(rt);
+        lepus::Value options;
+        if (count > 1 && args[1].isObject()) {
+          auto lepus_value_opt = native_app->ParseJSValueToLepusValue(
+              std::move(args[1]), PAGE_GROUP_ID);
+          if (!lepus_value_opt) {
+            return base::unexpected(BUILD_JSI_NATIVE_EXCEPTION(
+                "ParseJSValueToLepusValue error in FetchBundle."));
+          }
+          options = std::move(*lepus_value_opt);
+        }
+
+        std::promise<tasm::BundleResourceInfo> promise;
+        std::future<tasm::BundleResourceInfo> future = promise.get_future();
+        native_app->FetchBundle(std::move(bundle_url), std::move(promise));
+
+        // TODO(nihao.royal): warp future as piper::Value
+        return piper::Value::undefined();
+      });
+}
+
 void LynxProxy::set(Runtime *, const PropNameID &name, const Value &value) {}
 
 std::vector<PropNameID> LynxProxy::getPropertyNames(Runtime &rt) {
-  static const char *kProps[] = {
-      "__globalProps",
-      "__presetData",
-      "getI18nResource",
-      "getComponentContext",
-      "createElement",
-      "fetchDynamicComponent",
-      "reload",
-      "QueryComponent",
-      "addFont",
-      tasm::kGetTextInfo,
-      runtime::kGetDevTool,
-      runtime::kGetJSContext,
-      runtime::kGetCoreContext,
-      runtime::kGetUIContext,
-      runtime::kGetNative,
-      runtime::kGetEngine,
-      runtime::kGetCustomSectionSync,
-      runtime::kQueueMicrotask,
-      tasm::kLoadScript,
-  };
+  static const char *kProps[] = {"__globalProps",
+                                 "__presetData",
+                                 "getI18nResource",
+                                 "getComponentContext",
+                                 "createElement",
+                                 "fetchDynamicComponent",
+                                 "reload",
+                                 "QueryComponent",
+                                 "addFont",
+                                 tasm::kGetTextInfo,
+                                 runtime::kGetDevTool,
+                                 runtime::kGetJSContext,
+                                 runtime::kGetCoreContext,
+                                 runtime::kGetUIContext,
+                                 runtime::kGetNative,
+                                 runtime::kGetEngine,
+                                 runtime::kGetCustomSectionSync,
+                                 runtime::kQueueMicrotask,
+                                 tasm::kLoadScript,
+                                 tasm::kFetchBundle};
   static constexpr size_t kPropsCount = sizeof(kProps) / sizeof(kProps[0]);
 
   std::vector<PropNameID> vec;

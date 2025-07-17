@@ -53,6 +53,9 @@ class MockTemplateDelegate : public runtime::TemplateDelegate {
   void AddFont(const lepus::Value& font,
                const piper::ApiCallBack& callback) override {}
 
+  void FetchBundle(std::string&& url,
+                   std::promise<tasm::BundleResourceInfo>&& promise) override{};
+
   void OnRuntimeReady() override {}
   void OnRuntimeGC(
       std::unordered_map<std::string, std::string> mem_info) override {}

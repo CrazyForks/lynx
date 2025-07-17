@@ -2511,6 +2511,25 @@ std::string TemplateAssembler::GetTargetUrl(const std::string& current,
   return url;
 }
 
+void TemplateAssembler::FetchBundle(
+    std::string&& bundle_url, std::promise<BundleResourceInfo>&& promise) {
+  // TODO(nihao.royal): replacing with bundle manager.
+  auto entry = FindTemplateEntry(bundle_url);
+  if (entry) {
+    // bundle already loaded;
+    promise.set_value(
+        {.url = bundle_url, .code = LYNX_BUNDLE_RESOURCE_INFO_SUCCESS});
+  } else {
+    base::TaskRunnerManufactor::PostTaskToConcurrentLoop(
+        [&bundle_url, promise = std::move(promise)]() mutable {
+          // TODO(@nihao.royal): invoke LazyBundleLoader to retrieve result.
+          promise.set_value(
+              {.url = bundle_url, .code = LYNX_BUNDLE_RESOURCE_INFO_SUCCESS});
+        },
+        base::ConcurrentTaskType::NORMAL_PRIORITY);
+  }
+}
+
 std::shared_ptr<TemplateEntry> TemplateAssembler::RequireTemplateEntry(
     RadonLazyComponent* lazy_bundle, const std::string& url,
     const lepus::Value& callback) {

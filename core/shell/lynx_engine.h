@@ -248,6 +248,9 @@ class LynxEngine {
 
   void AddFont(const lepus::Value& font, piper::ApiCallBack callback);
 
+  void FetchBundle(std::string&& url,
+                   std::promise<tasm::BundleResourceInfo>&& options);
+
 #if ENABLE_TESTBENCH_RECORDER
   void SetRecordID(int64_t record_id);
 #endif

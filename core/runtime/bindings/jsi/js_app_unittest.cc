@@ -1460,6 +1460,27 @@ TEST_P(AppTest, LoadCustomSectionScriptTest) {
   }
 }
 
+TEST_P(AppTest, FetchBundleTest) {
+  EXPECT_TRUE(app);
+  // call loadApp
+  tasm::TasmRuntimeBundle card_bundle;
+  app->loadApp(std::move(card_bundle), lepus::Value(),
+               tasm::PackageInstanceDSL::TT,
+               tasm::PackageInstanceBundleModuleMode::EVAL_REQUIRE_MODE, "url");
+
+  auto lynx_proxy = std::make_shared<piper::LynxProxy>(app);
+  auto fetch_bundle = [this, &rt = this->rt, &lynx_proxy]() {
+    Object obj = Object::createFromHostObject(rt, lynx_proxy);
+    std::string get_load_script_call =
+        "function(lynx) { return lynx.fetchBundle('url'); }";
+    return function(get_load_script_call).call(rt, obj);
+  };
+
+  auto res = fetch_bundle();
+  // TODO(nihao.royal): add more test case when ready.
+  EXPECT_TRUE(res->isUndefined());
+}
+
 // TODO(liyanbo.monster): open this when pub value support this.
 // TEST_P(AppTest, ModuleGetCircleObject) {
 //   auto native_app = Object::createFromHostObject(
