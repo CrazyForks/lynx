@@ -46,9 +46,9 @@ namespace runtime {
  */
 template <typename T>
 class ResponsePromise {
+ public:
   using ResponsePromiseCallback = base::MoveOnlyClosure<void, T>;
 
- public:
   ResponsePromise() : future_(promise_.get_future()) {}
 
   void AddCallback(ResponsePromiseCallback callback) {

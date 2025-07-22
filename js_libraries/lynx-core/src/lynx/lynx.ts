@@ -459,6 +459,8 @@ export class Lynx {
 
   loadScript = this.getNativeLynx().loadScript;
 
+  fetchBundle = this.getNativeLynx().fetchBundle;
+
   __addReporterCustomInfo = (info: Record<string, string>): void => {
     this.getNativeApp().__addReporterCustomInfo(info);
   };

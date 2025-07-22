@@ -1477,10 +1477,25 @@ TEST_P(AppTest, FetchBundleTest) {
   };
 
   auto res = fetch_bundle();
-  // TODO(nihao.royal): add more test case when ready.
   EXPECT_TRUE(res->isObject());
   EXPECT_TRUE(res->getObject(rt).hasProperty(rt, "then"));
   EXPECT_TRUE(res->getObject(rt).hasProperty(rt, "wait"));
+
+  auto fetch_bundle_and_wait = [this, &rt = this->rt, &lynx_proxy]() {
+    Object obj = Object::createFromHostObject(rt, lynx_proxy);
+    std::string get_load_script_call =
+        "function(lynx) { let res = lynx.fetchBundle('testing_url'); return "
+        "res.wait(0); }";
+    return function(get_load_script_call).call(rt, obj);
+  };
+
+  auto res1 = fetch_bundle_and_wait();
+  EXPECT_TRUE(res1->isObject());
+  EXPECT_TRUE(res1->getObject(rt).hasProperty(rt, "url"));
+  EXPECT_TRUE(res1->getObject(rt).hasProperty(rt, "code"));
+  EXPECT_EQ(res1->getObject(rt).getProperty(rt, "url")->getString(rt).utf8(rt),
+            "testing_url");
+  EXPECT_EQ(res1->getObject(rt).getProperty(rt, "code")->getNumber(), 0);
 }
 
 // TODO(liyanbo.monster): open this when pub value support this.

@@ -101,7 +101,9 @@ class TemplateDelegate : public ContextProxy::Delegate,
                        const piper::ApiCallBack& callback) = 0;
 
   virtual void FetchBundle(
-      std::string&& url, std::promise<tasm::BundleResourceInfo>&& promise) = 0;
+      const std::string& url,
+      const std::shared_ptr<runtime::ResponsePromise<tasm::BundleResourceInfo>>&
+          response_promise) = 0;
 
   virtual void OnRuntimeReady() = 0;
 
@@ -151,7 +153,7 @@ class TemplateDelegate : public ContextProxy::Delegate,
                                       std::string method_name,
                                       lepus::Value args,
                                       piper::ApiCallBack callback) = 0;
-  virtual void RunOnJSThread(base::closure closure) override = 0;
+  virtual void RunOnJSThread(base::closure closure) = 0;
   virtual void RunOnJSThreadWhenIdle(base::closure closure) = 0;
   virtual void SetTiming(tasm::Timing timing) = 0;
   virtual void SetTimingWithTimingFlag(

@@ -610,9 +610,11 @@ void LynxEngine::AddFont(const lepus::Value& font,
   delegate_->CallJSApiCallback(std::move(callback));
 }
 
-void LynxEngine::FetchBundle(std::string&& url,
-                             std::promise<tasm::BundleResourceInfo>&& promise) {
-  tasm_->FetchBundle(std::move(url), std::move(promise));
+void LynxEngine::FetchBundle(
+    const std::string& bundle_url,
+    const std::shared_ptr<runtime::ResponsePromise<tasm::BundleResourceInfo>>&
+        response_promise) {
+  tasm_->FetchBundle(bundle_url, response_promise);
 }
 
 void LynxEngine::InvokeUIMethod(const tasm::NodeSelectRoot& root,

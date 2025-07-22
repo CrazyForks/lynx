@@ -479,9 +479,9 @@ piper::Value LynxProxy::FetchBundle(Runtime &rt) {
         auto response_promise = std::make_shared<
             runtime::ResponsePromise<tasm::BundleResourceInfo>>();
         // invoke fetchBundle & passing ResponsePromise to retrieve result.
-        native_app->FetchBundle(std::move(bundle_url), response_promise);
+        native_app->FetchBundle(bundle_url, response_promise);
         auto promise = std::make_shared<ResponseHandlerInJS>(
-            native_app->GetDelegate(), std::move(response_promise),
+            native_app->GetDelegate(), bundle_url, std::move(response_promise),
             native_app_);
         return piper::Object::createFromHostObject(rt, promise);
       });

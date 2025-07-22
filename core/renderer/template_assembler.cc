@@ -2512,19 +2512,23 @@ std::string TemplateAssembler::GetTargetUrl(const std::string& current,
 }
 
 void TemplateAssembler::FetchBundle(
-    std::string&& bundle_url, std::promise<BundleResourceInfo>&& promise) {
+    const std::string& bundle_url,
+    const std::shared_ptr<runtime::ResponsePromise<BundleResourceInfo>>&
+        response_promise) {
+  TRACE_EVENT(LYNX_TRACE_CATEGORY_VITALS, TEMPLATE_ASSEMBLER_FETCH_BUNDLE,
+              "bundle_url", bundle_url);
   // TODO(nihao.royal): replacing with bundle manager.
   auto entry = FindTemplateEntry(bundle_url);
   if (entry) {
     // bundle already loaded;
-    promise.set_value(
+    response_promise->SetValue(
         {.url = bundle_url, .code = LYNX_BUNDLE_RESOURCE_INFO_SUCCESS});
   } else {
     base::TaskRunnerManufactor::PostTaskToConcurrentLoop(
-        [&bundle_url, promise = std::move(promise)]() mutable {
+        [bundle_url, promise = std::move(response_promise)]() mutable {
           // TODO(@nihao.royal): invoke LazyBundleLoader to retrieve result.
-          promise.set_value(
-              {.url = bundle_url, .code = LYNX_BUNDLE_RESOURCE_INFO_SUCCESS});
+          promise->SetValue({.url = std::move(bundle_url),
+                             .code = LYNX_BUNDLE_RESOURCE_INFO_SUCCESS});
         },
         base::ConcurrentTaskType::NORMAL_PRIORITY);
   }

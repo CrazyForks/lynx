@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 3.4.2
+- And `lynx.fetchBundle` api defines.
+- And `ResponseHandler` defines.
+
 ## 3.4.1
 
 - Add the following properties: `custom-context-menu`, `custom-text-selection`, `text-selection`.

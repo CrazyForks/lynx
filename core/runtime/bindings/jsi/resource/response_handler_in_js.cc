@@ -5,6 +5,7 @@
 #include "core/runtime/bindings/jsi/resource/response_handler_in_js.h"
 
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -16,12 +17,11 @@ namespace lynx {
 namespace piper {
 
 ResponseHandlerInJS::ResponseHandlerInJS(
-    Delegate& delegate,
+    Delegate& delegate, const std::string& url,
     const std::shared_ptr<runtime::ResponsePromise<tasm::BundleResourceInfo>>&
         promise,
     std::weak_ptr<App> native_app)
-    : runtime::ResponseHandlerProxy(promise),
-      delegate_(delegate),
+    : runtime::ResponseHandlerProxy(delegate, url, promise),
       native_app_(native_app) {}
 
 Value ResponseHandlerInJS::get(Runtime* rt, const PropNameID& name) {
@@ -58,14 +58,8 @@ Value ResponseHandlerInJS::WaitingForResponse(Runtime& rt) {
           }
 
           long timeout = static_cast<long>(args[0].getNumber());
-          auto result = promise_->Wait(timeout);
-          piper::Value value = piper::Value::undefined();
-          if (result.has_value()) {
-            // convert result to PiperValue;
-          } else {
-            // timeout. convert result to PiperValue;
-          }
-          return value;
+          auto result = WaitAndGetResource(timeout);
+          return ConvertBundleInfoToPiperValue(result);
         }
         return piper::Value::undefined();
       });
@@ -89,21 +83,40 @@ Value ResponseHandlerInJS::AddListenerForResponse(Runtime& rt) {
           }
 
           piper::Function func = args[0].getObject(rt).getFunction(rt);
-          promise_->AddCallback(
-              [this, func = std::move(func)](tasm::BundleResourceInfo) mutable {
-                delegate_.RunOnJSThread([this]() {
+          AddResourceListener([this, func = std::move(func)](
+                                  tasm::BundleResourceInfo info) mutable {
+            delegate_.InvokeResponsePromiseCallback(
+                [this, func = std::move(func), info]() {
                   auto ptr = native_app_.lock();
                   if (ptr && !ptr->IsDestroying()) {
                     auto rt = ptr->GetRuntime();
                     if (rt != nullptr) {
-                      // TODO(nihao.royal): invoke piper function here;
+                      func.call(*rt, ConvertBundleInfoToPiperValue(info));
                     }
                   }
                 });
-              });
+          });
         }
         return piper::Value::undefined();
       });
+}
+
+piper::Value ResponseHandlerInJS::ConvertBundleInfoToPiperValue(
+    const tasm::BundleResourceInfo& bundle_info) {
+  auto app = native_app_.lock();
+  std::shared_ptr<Runtime> rt = nullptr;
+  if (app && !app->IsDestroying()) {
+    rt = app->GetRuntime();
+  }
+  if (rt == nullptr || app == nullptr) {
+    return piper::Value::undefined();
+  }
+  piper::Object obj(*rt);
+  obj.setProperty(*rt, tasm::kBundleResourceInfoKeyUrl, bundle_info.url);
+  obj.setProperty(*rt, tasm::kBundleResourceInfoKeyCode, bundle_info.code);
+  obj.setProperty(*rt, tasm::kBundleResourceInfoKeyError,
+                  bundle_info.error_msg);
+  return piper::Value(*rt, obj);
 }
 
 void ResponseHandlerInJS::set(Runtime* rt, const PropNameID& name,

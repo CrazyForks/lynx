@@ -8,6 +8,7 @@
 #include <future>
 #include <memory>
 #include <optional>
+#include <string>
 #include <vector>
 
 #include "core/runtime/bindings/common/resource/response_handler_proxy.h"
@@ -21,7 +22,7 @@ class App;
 class ResponseHandlerInJS : public HostObject,
                             public runtime::ResponseHandlerProxy {
  public:
-  ResponseHandlerInJS(Delegate&,
+  ResponseHandlerInJS(Delegate&, const std::string& url,
                       const std::shared_ptr<
                           runtime::ResponsePromise<tasm::BundleResourceInfo>>&,
                       std::weak_ptr<App>);
@@ -37,7 +38,9 @@ class ResponseHandlerInJS : public HostObject,
   Value WaitingForResponse(Runtime& rt);
   Value AddListenerForResponse(Runtime& rt);
 
-  Delegate& delegate_;
+  piper::Value ConvertBundleInfoToPiperValue(
+      const tasm::BundleResourceInfo& bundle_info);
+
   std::weak_ptr<App> native_app_;
 };
 

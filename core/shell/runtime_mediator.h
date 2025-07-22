@@ -83,8 +83,12 @@ class RuntimeMediator : public runtime::TemplateDelegate {
   void AddFont(const lepus::Value& font,
                const piper::ApiCallBack& callback) override;
 
-  void FetchBundle(std::string&& bundle_url,
-                   std::promise<tasm::BundleResourceInfo>&& promise) override;
+  void InvokeResponsePromiseCallback(base::closure closure) override;
+
+  void FetchBundle(
+      const std::string& bundle_url,
+      const std::shared_ptr<runtime::ResponsePromise<tasm::BundleResourceInfo>>&
+          response_promise) override;
 
   void OnRuntimeReady() override;
   void OnErrorOccurred(base::LynxError error) override;

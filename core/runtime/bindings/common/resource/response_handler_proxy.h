@@ -8,6 +8,8 @@
 #include <future>
 #include <memory>
 #include <optional>
+#include <string>
+#include <utility>
 
 #include "core/resource/lazy_bundle/bundle_resource_info.h"
 #include "core/runtime/bindings/common/resource/response_promise.h"
@@ -21,17 +23,49 @@ class ResponseHandlerProxy {
    public:
     Delegate() = default;
     virtual ~Delegate() = default;
-    virtual void RunOnJSThread(base::closure closure) = 0;
+    virtual void InvokeResponsePromiseCallback(base::closure closure) = 0;
   };
 
   ResponseHandlerProxy(
+      Delegate& delegate, const std::string& url,
       const std::shared_ptr<runtime::ResponsePromise<tasm::BundleResourceInfo>>&
           promise)
-      : promise_(promise) {}
+      : delegate_(delegate), url_(url), promise_(promise) {}
 
   virtual ~ResponseHandlerProxy() = default;
 
+  /**
+   * Retrieve the result of promise
+   * if promise get a std::nullopt, it will return with code
+   * `LYNX_BUNDLE_RESOURCE_INFO_TIMEOUT`
+   */
+  tasm::BundleResourceInfo WaitAndGetResource(long timeout) {
+    auto result = promise_->Wait(timeout);
+    if (result.has_value()) {
+      return *result;
+    }
+    return tasm::BundleResourceInfo(
+        {.url = url_, .code = tasm::LYNX_BUNDLE_RESOURCE_INFO_TIMEOUT});
+  }
+
+  /**
+   * Add Listener for ResponsePromise
+   */
+  virtual void AddResourceListener(
+      base::MoveOnlyClosure<void, tasm::BundleResourceInfo> closure) {
+    promise_->AddCallback(
+        [this, &closure](tasm::BundleResourceInfo bundle_info) {
+          delegate_.InvokeResponsePromiseCallback(
+              [bundle_info, closure = std::move(closure)]() {
+                closure(bundle_info);
+              });
+        });
+  };
+
  protected:
+  Delegate& delegate_;
+
+  std::string url_;
   std::shared_ptr<runtime::ResponsePromise<tasm::BundleResourceInfo>> promise_;
 };
 

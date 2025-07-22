@@ -36,6 +36,7 @@
 #include "core/renderer/ui_wrapper/layout/list_node.h"
 #include "core/resource/lazy_bundle/bundle_resource_info.h"
 #include "core/resource/lazy_bundle/lazy_bundle_loader.h"
+#include "core/runtime/bindings/common/resource/response_promise.h"
 #include "core/runtime/bindings/lepus/event/context_proxy_in_lepus.h"
 #include "core/runtime/piper/js/template_delegate.h"
 #include "core/runtime/piper/js/update_data_type.h"
@@ -669,8 +670,10 @@ class TemplateAssembler final : public TemplateEntryHolder,
       RadonLazyComponent* lazy_bundle, const std::string& url,
       const lepus::Value& callback = lepus::Value());
 
-  void FetchBundle(std::string&& bundle_url,
-                   std::promise<BundleResourceInfo>&& promise);
+  void FetchBundle(
+      const std::string& bundle_url,
+      const std::shared_ptr<runtime::ResponsePromise<BundleResourceInfo>>&
+          response_promise);
 
   void OnDynamicJSSourcePrepared(const std::string& component_url);
 

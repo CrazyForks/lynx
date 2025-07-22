@@ -54,6 +54,17 @@ export interface ContextProxy {
   ): void;
 }
 
+export interface BundleInfo {
+  url: string;
+  code: number;
+  error_msg: string;
+}
+
+export interface ResponseHandler {
+  wait: (timeout: number) => BundleInfo;
+  then: (info: BundleInfo) => {}
+}
+
 /*
  *@description Common Lynx type
  */
@@ -80,4 +91,5 @@ export interface CommonLynx {
   getUIContext(): ContextProxy;
   getNative(): ContextProxy;
   getEngine(): ContextProxy;
+  fetchBundle(url: string, options?: {}): ResponseHandler;
 }

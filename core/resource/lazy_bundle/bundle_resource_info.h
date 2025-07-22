@@ -7,8 +7,16 @@
 
 #include <string>
 
+#include "base/include/value/base_string.h"
+#include "base/include/value/base_value.h"
+#include "base/include/value/table.h"
+
 namespace lynx {
 namespace tasm {
+
+static constexpr const char kBundleResourceInfoKeyUrl[] = "url";
+static constexpr const char kBundleResourceInfoKeyCode[] = "code";
+static constexpr const char kBundleResourceInfoKeyError[] = "error_msg";
 
 const int32_t LYNX_BUNDLE_RESOURCE_INFO_SUCCESS = 0;
 const int32_t LYNX_BUNDLE_RESOURCE_INFO_REQUEST_FAILED = -1;
@@ -32,6 +40,15 @@ struct BundleResourceInfo {
    * error message if the bundle load failed;
    */
   std::string error_msg;
+
+  lepus::Value ConvertToLepusValue() {
+    auto result = lepus::Dictionary::Create();
+    result->SetValue(BASE_STATIC_STRING(kBundleResourceInfoKeyUrl), url);
+    result->SetValue(BASE_STATIC_STRING(kBundleResourceInfoKeyCode), code);
+    result->SetValue(BASE_STATIC_STRING(kBundleResourceInfoKeyError),
+                     error_msg);
+    return lepus::Value(result);
+  }
 };
 }  // namespace tasm
 }  // namespace lynx

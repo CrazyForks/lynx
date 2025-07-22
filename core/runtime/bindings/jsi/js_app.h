@@ -216,7 +216,7 @@ class App : public std::enable_shared_from_this<App> {
       const std::string& key, const std::string& bundle_name);
 
   void FetchBundle(
-      std::string&& bundle_url,
+      const std::string& bundle_url,
       const std::shared_ptr<runtime::ResponsePromise<tasm::BundleResourceInfo>>&
           promise);
 

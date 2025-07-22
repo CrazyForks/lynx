@@ -154,22 +154,23 @@ void RuntimeMediator::AddFont(const lepus::Value& font,
 }
 
 void RuntimeMediator::FetchBundle(
-    std::string&& bundle_url,
-    std::promise<tasm::BundleResourceInfo>&& promise) {
+    const std::string& bundle_url,
+    const std::shared_ptr<runtime::ResponsePromise<tasm::BundleResourceInfo>>&
+        response_promise) {
   if (runtime_standalone_mode_) {
     // TODO(nihao.royal): to support `fetchBundle` in runtime standalone mode.
     REPORT_JSI_NATIVE_EXCEPTION(
         "FetchBundle not supported on runtime standalone mode.");
-    promise.set_value(
+    response_promise->SetValue(
         {.url = std::move(bundle_url),
          .code = tasm::LYNX_BUNDLE_RESOURCE_INFO_REQUEST_FAILED,
          .error_msg = "FetchBundle not supported on runtime standalone mode."});
     return;
   }
   engine_actor_->ActAsync(
-      [bundle_url = std::move(bundle_url), promise = std::move(promise)](
-          const std::unique_ptr<LynxEngine>& engine) mutable {
-        engine->FetchBundle(std::move(bundle_url), std::move(promise));
+      [bundle_url,
+       response_promise](const std::unique_ptr<LynxEngine>& engine) mutable {
+        engine->FetchBundle(std::move(bundle_url), std::move(response_promise));
       });
 }
 
@@ -362,6 +363,10 @@ void RuntimeMediator::TriggerWorkletFunction(std::string component_id,
 
 void RuntimeMediator::RunOnJSThread(base::closure closure) {
   return js_runner_->PostTask(std::move(closure));
+}
+
+void RuntimeMediator::InvokeResponsePromiseCallback(base::closure closure) {
+  RunOnJSThread(std::move(closure));
 }
 
 void RuntimeMediator::RunOnJSThreadWhenIdle(base::closure closure) {
