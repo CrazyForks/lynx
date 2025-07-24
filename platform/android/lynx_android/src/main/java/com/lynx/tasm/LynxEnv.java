@@ -932,6 +932,19 @@ public class LynxEnv {
     return getStringFromExternalEnv(LynxEnvKey.MEMORY_ACQUISITION_DELAY_SEC);
   }
 
+  public long getMemoryReportIntervalSec() {
+    String value = getStringFromExternalEnv(LynxEnvKey.MEMORY_ACQUISITION_DELAY_SEC);
+    // default is 20 min.
+    long delay = 20 * 60;
+    if (value != null && !value.isEmpty()) {
+      try {
+        delay = Long.parseLong(value);
+      } catch (NumberFormatException ignored) {
+      }
+    }
+    return delay;
+  }
+
   public boolean getVsyncAlignedFlushGlobalSwitch() {
     return mVsyncAlignedFlushGlobalSwitch;
   }
