@@ -993,6 +993,14 @@ public class LynxImageManager implements Drawable.Callback {
   }
 
   public void invalidate() {
+    // TODO(songshourui.null): The invalidate method is only called asynchronously (on a non-main
+    // thread) when generating ViewInfo asynchronously. Therefore, the code checks whether the
+    // current thread is the main thread. If it is not the main thread, the invalidate execution is
+    // skipped directly.
+    if (!UIThreadUtils.isOnUiThread()) {
+      return;
+    }
+
     if (mUI != null) {
       mUI.invalidate();
     }
