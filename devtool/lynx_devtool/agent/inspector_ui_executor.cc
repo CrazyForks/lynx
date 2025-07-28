@@ -112,8 +112,15 @@ void InspectorUIExecutor::StartScreencast(
     lynx::devtool::DevToolStatus::GetInstance().SetStatus(
         lynx::devtool::DevToolStatus::kDevToolStatusKeyScreenShotMode, mode);
   }
-  CHECK_NULL_AND_LOG_RETURN(devtool_platform_facade_,
-                            "devtool_platform_facade_ is null");
+  if (devtool_platform_facade_ == nullptr) {
+    LOGE("devtool_platform_facade_ is null");
+    tasm::report::EventTracker::OnEvent([](tasm::report::MoveOnlyEvent& event) {
+      event.SetName("lynxsdk_screencast_start_failed");
+      event.SetProps(
+          "reason", "devtool_platform_facade_ is nullptr when StartScreencast");
+    });
+    return;
+  }
   devtool_platform_facade_->StartScreenCast(std::move(screen_request));
 
   response["result"] = content;

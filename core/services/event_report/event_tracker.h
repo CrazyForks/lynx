@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 
+#include "base/include/base_export.h"
 #include "base/include/closure.h"
 #include "core/template_bundle/template_codec/binary_decoder/page_config.h"
 
@@ -147,8 +148,9 @@ class EventTracker {
   /// @param instance_id The unique id of template instance.
   /// @param key key of the generic info
   /// @param value string value of the generic info
-  static void UpdateGenericInfo(int32_t instance_id, std::string key,
-                                std::string value);
+  BASE_EXPORT_FOR_DEVTOOL static void UpdateGenericInfo(int32_t instance_id,
+                                                        std::string key,
+                                                        std::string value);
   /// Update the generic info of template instance.
   /// @param instance_id The unique id of template instance.
   /// @param key key of the generic info
