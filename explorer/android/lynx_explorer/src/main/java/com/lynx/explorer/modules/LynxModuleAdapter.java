@@ -3,7 +3,6 @@
 // LICENSE file in the root directory of this source tree.
 package com.lynx.explorer.modules;
 
-import android.app.Instrumentation;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,7 +11,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import android.view.KeyEvent;
 import com.lynx.devtoolwrapper.LynxDevtoolCardListener;
 import com.lynx.devtoolwrapper.LynxDevtoolGlobalHelper;
 import com.lynx.explorer.LynxViewShellActivity;
@@ -95,19 +93,6 @@ public class LynxModuleAdapter {
     map.putBoolean("debugMenu", info.enableDebugMenu);
 
     return map;
-  }
-
-  void pageBack() {
-    new Thread() {
-      public void run() {
-        try {
-          Instrumentation inst = new Instrumentation();
-          inst.sendKeyDownUpSync(KeyEvent.KEYCODE_BACK);
-        } catch (Exception e) {
-          Log.e("Exception when onBack", e.toString());
-        }
-      }
-    }.start();
   }
 
   private void startQRScanActivity() {

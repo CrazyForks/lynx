@@ -47,11 +47,6 @@ public class ExplorerModule extends LynxModule {
     return LynxModuleAdapter.getInstance().getSettingInfo();
   }
 
-  @LynxMethod
-  public void navigateBack() {
-    LynxModuleAdapter.getInstance().pageBack();
-  }
-
   @Deprecated
   @LynxMethod
   public void openDevtoolSwitchPage() {
