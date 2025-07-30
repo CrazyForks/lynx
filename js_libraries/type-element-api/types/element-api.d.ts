@@ -2,7 +2,7 @@
 // Licensed under the Apache License Version 2.0 that can be found in the
 // LICENSE file in the root directory of this source tree.
 
-export interface ElementRef {}
+export interface ElementRef extends Record<string, unknown> {}
 
 export interface ComponentElementRef extends ElementRef {}
 
@@ -34,6 +34,11 @@ export interface StyleObjectRef extends ElementRef {}
 
 export type ElementInfo = Record<string, any>;
 
+export interface PipelineOptions {
+  pipelineID: string
+  needTimestamps: boolean
+}
+
 export interface SelectorParams {
   onlyCurrentComponent?: boolean;
 }
@@ -48,6 +53,31 @@ export interface DynamicComponentResult {
     };
   };
 }
+
+export type ComponentAtIndexCallback = (
+  listRef: ElementNode,
+  listElementId: number,
+  cellIndex: number,
+  opId: number,
+  enableReuseNotification?: boolean,
+  enableBatchRender?: boolean,
+  asyncFlush?: boolean,
+) => number | undefined
+
+export type ComponentAtIndexesCallback = (
+  listRef: ElementNode,
+  listElementId: number,
+  cellIndexes: number[],
+  opIds: number[],
+  enableReuseNotification: boolean,
+  asyncFlush: boolean,
+) => void
+
+export type EnqueueComponentCallback = (
+  listRef: ElementNode,
+  listId: number,
+  eleId: number,
+) => void
 
 declare global {
   function __CreatePage(componentId: string, cssId: number, info?: ElementInfo): PageElementRef;
@@ -84,15 +114,17 @@ declare global {
 
   function __CreateList(
     parentComponentUniId: number,
-    componentAtIndex: (listRef: ListElementRef, listId: number, cellIndex: number, opId: number) => number | undefined,
-    enqueueComponent: (listRef: ListElementRef, listId: number, eleId: number) => void,
-    info?: ElementInfo
+    componentAtIndex: ComponentAtIndexCallback,
+    enqueueComponent: EnqueueComponentCallback,
+    info?: ElementInfo,
+    componentAtIndexes?: ComponentAtIndexesCallback,
   ): ListElementRef;
 
   function __UpdateListCallbacks(
     node: ListElementRef,
-    componentAtIndex: (listRef: ListElementRef, listId: number, cellIndex: number, opId: number) => number | undefined,
-    enqueueComponent: (listRef: ListElementRef, listId: number, eleId: number) => void
+    componentAtIndex: ComponentAtIndexCallback,
+    enqueueComponent: EnqueueComponentCallback,
+    componentAtIndexes: ComponentAtIndexesCallback,
   ): void;
 
   function __CreateElement(tag: string, comParentUniID: number, info?: ElementInfo): ElementRef;
@@ -175,6 +207,7 @@ declare global {
       path?: string;
       entry?: string;
       cssID?: number;
+      config?: Record<string, unknown>;
     }
   ): void;
 
@@ -190,10 +223,16 @@ declare global {
       reloadTemplate?: boolean;
       listID?: number;
       pipelineOptions?: Record<string, any>;
+      elementIDs?: number[];
+      operationIDs?: number[];
+      asyncFlush?: boolean;
+      onLayoutReady?: () => void;
     }
   ): void;
 
   function __AsyncResolveElement(element: ElementRef): void;
+
+  function __AsyncResolveSubtree(node: ElementRef): void
 
   function __OnLifecycleEvent(args: any[]): void;
 
