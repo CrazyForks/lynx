@@ -24,6 +24,8 @@ android_target_dir_deprecated = os.path.join(
     root_dir, "platform/android/lynx_devtool/src/main/assets/devtool_switch")
 ios_target_dir = os.path.join(root_dir,
                               "platform/darwin/ios/lynx_devtool/assets")
+harmony_target_dir = os.path.join(root_dir,
+                              "platform/harmony/lynx_devtool/src/main/resources/rawfile")
 switch_page_dir = "switchPage/"
 
 # Get command-line arguments
@@ -50,19 +52,24 @@ if output:
 android_switch_page_path = os.path.join(android_target_dir, switch_page_dir)
 android_switch_page_path_deprecated = os.path.join(android_target_dir_deprecated, switch_page_dir)
 ios_switch_page_path = os.path.join(ios_target_dir, switch_page_dir)
+harmony_switch_page_path = os.path.join(harmony_target_dir, switch_page_dir)
 if os.path.exists(android_switch_page_path):
     shutil.rmtree(android_switch_page_path)
 if os.path.exists(android_switch_page_path_deprecated):
     shutil.rmtree(android_switch_page_path_deprecated)
 if os.path.exists(ios_switch_page_path):
     shutil.rmtree(ios_switch_page_path)
+if os.path.exists(harmony_switch_page_path):
+    shutil.rmtree(harmony_switch_page_path)
 
 # Create the new target directory
 os.makedirs(android_switch_page_path, exist_ok=True)
 os.makedirs(android_switch_page_path_deprecated, exist_ok=True)
 os.makedirs(ios_switch_page_path, exist_ok=True)
+os.makedirs(harmony_switch_page_path, exist_ok=True)
 
 # Copy the file to the target directory
 shutil.copy(bundle_path, android_switch_page_path)
 shutil.copy(bundle_path, android_switch_page_path_deprecated)
 shutil.copy(bundle_path, ios_switch_page_path)
+shutil.copy(bundle_path, harmony_switch_page_path)

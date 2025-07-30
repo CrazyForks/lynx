@@ -22,8 +22,6 @@ export class LynxInitProcessor {
     options.set('App', 'LynxExplorer');
     options.set('AppVersion', '0.0.1');
     LynxEnv.setAppInfo(options);
-    LynxEnv.setLogBoxEnabled(true);
-    LynxEnv.enableDevtool(true);
   }
 
   public initLynxService(): void {
