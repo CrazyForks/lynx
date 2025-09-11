@@ -5,7 +5,6 @@
 #import <Lynx/DevToolLogLevel.h>
 #import <Lynx/LynxEnv.h>
 #import <Lynx/LynxLog.h>
-#import <Lynx/LynxNestedScrollHelper.h>
 #import <Lynx/LynxRootUI.h>
 #import <Lynx/LynxTouchHandler.h>
 #import <Lynx/LynxUI+Internal.h>
@@ -255,7 +254,6 @@
   if (self) {
     _rootView = rootView;
     _rootUI = rootUI;
-    _nestedScrollHelper = [[LynxNestedScrollHelper alloc] initWithEventHandler:self];
     _touchRecognizer = [[LynxTouchHandler alloc] initWithEventHandler:self];
     _tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self
                                                              action:@selector(dispatchTapEvent:)];
@@ -574,7 +572,6 @@
     _rootUI = (LynxUI*)_uiOwner.rootUI;
   }
   _touchTarget = [self hitTestInner:point withEvent:event];
-  [self.nestedScrollHelper generateScrollTargetChain];
 
   LynxRootUI* childLynxPage =
       _touchTarget.childrenLynxPageUI[[NSString stringWithFormat:@"%p", _touchTarget]];

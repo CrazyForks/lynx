@@ -13,7 +13,6 @@ NS_ASSUME_NONNULL_BEGIN
 @class LynxUIOwner;
 @class LynxUI;
 @class LynxGestureArenaManager;
-@class LynxNestedScrollHelper;
 
 @interface LynxEventHandler : NSObject
 
@@ -25,7 +24,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, weak, readonly) LynxGestureArenaManager *_Nullable gestureArenaManager;
 @property(nonatomic, assign) BOOL enableSimultaneousTap;
 @property(nonatomic, assign) BOOL disableEndEditing;
-@property(nonatomic, strong) LynxNestedScrollHelper *nestedScrollHelper;
 
 - (instancetype)initWithRootView:(UIView *)rootView;
 - (instancetype)initWithRootView:(UIView *)rootView withRootUI:(nullable LynxUI *)rootUI;
