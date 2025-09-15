@@ -25,7 +25,6 @@ import com.lynx.tasm.base.trace.TraceEventDef;
 import com.lynx.tasm.behavior.shadow.ShadowNodeType;
 import com.lynx.tasm.behavior.shadow.TextLayout;
 import com.lynx.tasm.behavior.ui.LynxBaseUI;
-import com.lynx.tasm.behavior.ui.PropBundle;
 import com.lynx.tasm.behavior.ui.list.container.UIListContainer;
 import com.lynx.tasm.behavior.ui.view.UIComponent;
 import com.lynx.tasm.behavior.utils.LynxUIMethodsExecutor;
@@ -140,19 +139,17 @@ public final class PaintingContext implements IPaintingContext {
    *
    * @param sign The unique identifier of the LynxUI node.
    * @param tendToFlatten Indicates if the LynxUI tends to flatten its layout.
-   * @param bundle The properties to update, including props, styles, eventListeners,
-   *     gestureDetectors.
+   * @param props The properties to update, represented as a StylesDiffMap.
+   * @param eventListeners Event listeners associated with the LynxUI node.
+   * @param gestureDetectors Gesture detectors associated with the LynxUI node.
    */
   @CalledByNative
-  public void updateProps(
-      int sign, boolean tendToFlatten, PropBundle bundle, ReadableMapBuffer styles) {
+  public void updateProps(int sign, boolean tendToFlatten, ReadableMap props,
+      ReadableMapBuffer styles, ReadableArray eventListeners, ReadableArray gestureDetectors) {
     // Convert event listeners and gesture detectors to appropriate data structures.
-    ReadableMap props = bundle != null ? bundle.getProps() : null;
-    Map<String, EventsListener> listeners =
-        EventsListener.convertEventListeners(bundle != null ? bundle.getEventHandlers() : null);
+    Map<String, EventsListener> listeners = EventsListener.convertEventListeners(eventListeners);
     Map<Integer, GestureDetector> detectors =
-        GestureDetector.convertGestureDetectors(bundle != null ? bundle.getGestures() : null);
-
+        GestureDetector.convertGestureDetectors(gestureDetectors);
     // Update properties of the UI node through the UI owner.
     mUIOwner.updateProperties(sign, tendToFlatten,
         props != null ? new StylesDiffMap(props, styles) : null, listeners, detectors);
@@ -160,14 +157,11 @@ public final class PaintingContext implements IPaintingContext {
 
   // TODO(zhouzhitao): Control group logic, will be removed once the experiment yields results
   @CalledByNative
-  public Object createNode(final int sign, String tagName, final PropBundle bundle,
-      ReadableMapBuffer initialStyles, final boolean isFlatten, int nodeIndex) {
+  public Object createNode(final int sign, String tagName, final ReadableMap initialProps,
+      final ReadableMapBuffer initialStyles, final ReadableArray eventListeners,
+      final boolean isFlatten, int nodeIndex, final ReadableArray gestureDetectors) {
     String finalTagName = tagName;
-
     if (needCreateNodeAsync(finalTagName, nodeIndex)) {
-      ReadableMap initialProps = bundle != null ? bundle.getProps() : null;
-      ReadableArray eventListeners = bundle != null ? bundle.getEventHandlers() : null;
-      ReadableArray gestureDetectors = bundle != null ? bundle.getGestures() : null;
       final Future<Runnable> future = createNodeAsync(sign, finalTagName, initialProps,
           initialStyles, eventListeners, isFlatten, nodeIndex, gestureDetectors);
       return new Runnable() {
@@ -182,7 +176,8 @@ public final class PaintingContext implements IPaintingContext {
       return new Runnable() {
         @Override
         public void run() {
-          createPaintingNodeSync(sign, finalTagName, bundle, initialStyles, isFlatten, nodeIndex);
+          createPaintingNodeSync(sign, finalTagName, initialProps, initialStyles, eventListeners,
+              isFlatten, nodeIndex, gestureDetectors);
         }
       };
     }
@@ -221,12 +216,9 @@ public final class PaintingContext implements IPaintingContext {
   }
 
   @CalledByNative
-  public void createPaintingNodeSync(int sign, String tagName, PropBundle bundle,
-      ReadableMapBuffer initialStyles, boolean isFlatten, int nodeIndex) {
-    ReadableMap initialProps = bundle != null ? bundle.getProps() : null;
-    ReadableArray eventListeners = bundle != null ? bundle.getEventHandlers() : null;
-    ReadableArray gestureDetectors = bundle != null ? bundle.getGestures() : null;
-
+  public void createPaintingNodeSync(int sign, String tagName, ReadableMap initialProps,
+      ReadableMapBuffer initialStyles, ReadableArray eventListeners, boolean isFlatten,
+      int nodeIndex, ReadableArray gestureDetectors) {
     mUIOwner.createView(sign, tagName, initialProps, initialStyles, eventListeners, isFlatten,
         nodeIndex, gestureDetectors);
     mUIOwner.reportCreateViewConfig(sign, tagName, false);
@@ -249,12 +241,9 @@ public final class PaintingContext implements IPaintingContext {
   }
 
   @CalledByNative
-  public Object createPaintingNodeAsync(int sign, String tagName, PropBundle bundle,
-      ReadableMapBuffer initialStyles, boolean isFlatten, int nodeIndex) {
-    ReadableMap initialProps = bundle != null ? bundle.getProps() : null;
-    ReadableArray eventListeners = bundle != null ? bundle.getEventHandlers() : null;
-    ReadableArray gestureDetectors = bundle != null ? bundle.getGestures() : null;
-
+  public Object createPaintingNodeAsync(int sign, String tagName, ReadableMap initialProps,
+      ReadableMapBuffer initialStyles, ReadableArray eventListeners, boolean isFlatten,
+      int nodeIndex, ReadableArray gestureDetectors) {
     return mUIOwner.createViewAsyncRunnable(sign, tagName, initialProps, initialStyles,
         eventListeners, isFlatten, nodeIndex, gestureDetectors);
   }
@@ -432,13 +421,9 @@ public final class PaintingContext implements IPaintingContext {
   }
 
   @CalledByNative
-  public void setKeyframes(PropBundle bundle) {
-    if (bundle == null || bundle.getProps() == null) {
-      return;
-    }
-
-    mUIOwner.getContext().removeAnimationKeyframe(bundle.getProps().getString("removeKeyframe"));
-    mUIOwner.getContext().setKeyframes(bundle.getProps().getMap("keyframes"));
+  public void setKeyframes(ReadableMap props) {
+    mUIOwner.getContext().removeAnimationKeyframe(props.getString("removeKeyframe"));
+    mUIOwner.getContext().setKeyframes(props.getMap("keyframes"));
   }
 
   /**

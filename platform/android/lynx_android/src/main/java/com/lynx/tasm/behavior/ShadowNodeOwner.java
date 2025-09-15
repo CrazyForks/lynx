@@ -12,7 +12,6 @@ import com.lynx.tasm.behavior.shadow.LayoutTick;
 import com.lynx.tasm.behavior.shadow.NativeLayoutNodeRef;
 import com.lynx.tasm.behavior.shadow.ShadowNode;
 import com.lynx.tasm.behavior.shadow.ShadowNodeType;
-import com.lynx.tasm.behavior.ui.PropBundle;
 import com.lynx.tasm.event.EventsListener;
 
 /**
@@ -51,13 +50,6 @@ public class ShadowNodeOwner extends LayoutContext {
   }
 
   @Override
-  public int createNode(int signature, String tagName, PropBundle bundle, ReadableMapBuffer styles,
-      boolean allowInline) {
-    ReadableMap props = bundle != null ? bundle.getProps() : null;
-    ReadableArray eventListener = bundle != null ? bundle.getEventHandlers() : null;
-    return createNode(signature, tagName, props, styles, eventListener, allowInline);
-  }
-
   public int createNode(int signature, String tagName, ReadableMap props, ReadableMapBuffer styles,
       ReadableArray eventListener, boolean allowInline) {
     Behavior viewManager = mBehaviorRegistry.get(tagName);
@@ -150,12 +142,6 @@ public class ShadowNodeOwner extends LayoutContext {
   }
 
   @Override
-  public void updateProps(int signature, PropBundle bundle, ReadableMapBuffer styles) {
-    ReadableMap props = bundle != null ? bundle.getProps() : null;
-    ReadableArray eventListeners = bundle != null ? bundle.getEventHandlers() : null;
-    updateProps(signature, props, styles, eventListeners);
-  }
-
   public void updateProps(
       int signature, ReadableMap props, ReadableMapBuffer styles, ReadableArray eventListeners) {
     ShadowNode cssNode = mShadowNodeRegistry.getNode(signature);
