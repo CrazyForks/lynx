@@ -388,4 +388,4 @@ function hookTestContext(appendTarget, context, idGen) {
 
 }
 
-export default hookTestContext;
+export { hookTestContext };
