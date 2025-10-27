@@ -13,4 +13,3 @@ NSString* const kTimingContainerInitStart = @"containerInitStart";
 NSString* const kTimingContainerInitEnd = @"containerInitEnd";
 NSString* const kTimingOpenTime = @"openTime";
 NSString* const kTimingPaintEnd = @"paintEnd";
-NSString* const kTimingPipelineEnd = @"pipelineEnd";

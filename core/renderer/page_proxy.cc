@@ -1206,9 +1206,6 @@ void PageProxy::HydrateOnFirstScreenIfPossible(
     tasm::TimingCollector::Instance()->Mark(
         tasm::timing::kLayoutUiOperationExecuteEnd);
     tasm::TimingCollector::Instance()->Mark(tasm::timing::kPaintEnd);
-    // The rendering pipeline is considerd to be complete after the kPaintEnd
-    // phase, so we mark pipelineEnd here
-    tasm::TimingCollector::Instance()->Mark(tasm::timing::kPipelineEnd);
   }
 }
 

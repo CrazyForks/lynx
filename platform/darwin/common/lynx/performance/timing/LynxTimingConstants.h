@@ -17,4 +17,3 @@ FOUNDATION_EXTERN NSString* const kTimingContainerInitStart;
 FOUNDATION_EXTERN NSString* const kTimingContainerInitEnd;
 FOUNDATION_EXTERN NSString* const kTimingOpenTime;
 FOUNDATION_EXTERN NSString* const kTimingPaintEnd;
-FOUNDATION_EXTERN NSString* const kTimingPipelineEnd;

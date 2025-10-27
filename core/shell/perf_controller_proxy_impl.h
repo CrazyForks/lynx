@@ -6,7 +6,6 @@
 #define CORE_SHELL_PERF_CONTROLLER_PROXY_IMPL_H_
 
 #include <memory>
-#include <string>
 
 #include "core/public/perf_controller_proxy.h"
 #include "core/public/performance_controller_platform_impl.h"
@@ -23,17 +22,10 @@ class PerfControllerProxyImpl : public PerfControllerProxy {
       : perf_actor_(actor) {}
   ~PerfControllerProxyImpl() = default;
 
-  void SetHostPlatformType(const std::string& type) override;
-
   void MarkTiming(tasm::TimingKey timing_key,
                   const tasm::PipelineID& pipeline_id) override;
-  void SetTiming(tasm::TimingKey timing_key, uint64_t timestamp_us,
-                 const tasm::PipelineID& pipeline_id) override;
-  void SetHostPlatformTiming(tasm::TimingKey timing_key, uint64_t timestamp_us,
-                             const tasm::PipelineID& pipeline_id) override;
-  std::string GetPlatform() const override;
-
-  void RunTaskInReportThread(base::closure task) override;
+  void SetTiming(uint64_t timestamp_us, tasm::TimingKey timing_key,
+                 const tasm::PipelineID& pipeline_id) const override;
 
  protected:
   std::shared_ptr<shell::LynxActor<tasm::performance::PerformanceController>>
