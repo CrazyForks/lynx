@@ -6187,7 +6187,7 @@ static void ParseSimpleStyleValueToMap(const lepus::Value& key,
     if (value.IsJsNull() || value.IsNil()) {
       map[id] = CSSValue();
     } else {
-      UnitHandler::Process(id, value, map,
+      UnitHandler::Process(id, value.ToLepusValue(), map,
                            tasm->GetPageConfig()->GetCSSParserConfigs());
     }
   }
