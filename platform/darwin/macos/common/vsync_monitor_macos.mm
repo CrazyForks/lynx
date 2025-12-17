@@ -49,6 +49,24 @@ using VSyncCallback = std::function<void(fml::TimePoint, fml::TimePoint)>;
 namespace lynx {
 namespace base {
 
+template <typename Block>
+void ExecuteOnMainThreadAsync(Block block) {
+  if ([NSThread isMainThread]) {
+    block();
+  } else {
+    dispatch_async(dispatch_get_main_queue(), block);
+  }
+}
+
+template <typename Block>
+void ExecuteOnMainThreadSync(Block block) {
+  if ([NSThread isMainThread]) {
+    block();
+  } else {
+    dispatch_sync(dispatch_get_main_queue(), block);
+  }
+}
+
 std::shared_ptr<VSyncMonitor> VSyncMonitor::Create(bool is_on_ui_thread) {
   if (@available(macOS 14.0, *)) {
     return std::make_shared<lynx::base::VSyncMonitorMacOS>();
@@ -65,26 +83,39 @@ std::shared_ptr<VSyncMonitor> VSyncMonitor::Create(bool is_on_ui_thread) {
 void VSyncMonitorMacOS::Init() {
   std::weak_ptr<VSyncMonitorMacOS> weak_this =
       std::static_pointer_cast<VSyncMonitorMacOS>(shared_from_this());
-  impl_ = [[DisplayLinkImpl alloc]
-      initWith:[weak_this](fml::TimePoint start_time, fml::TimePoint target_time) {
-        if (auto vsync_monitor = weak_this.lock()) {
-          vsync_monitor->OnVSync(start_time.ToEpochDelta().ToNanoseconds(),
-                                 target_time.ToEpochDelta().ToNanoseconds());
-        }
-      }];
+
+  ExecuteOnMainThreadSync(^{
+    impl_ = [[DisplayLinkImpl alloc]
+        initWith:[weak_this](fml::TimePoint start_time, fml::TimePoint target_time) {
+          if (auto vsync_monitor = weak_this.lock()) {
+            vsync_monitor->OnVSync(start_time.ToEpochDelta().ToNanoseconds(),
+                                   target_time.ToEpochDelta().ToNanoseconds());
+          }
+        }];
+  });
 }
 
 VSyncMonitorMacOS::~VSyncMonitorMacOS() {
-  if (impl_) {
-    [impl_ destroy];
-    impl_ = nil;
-  }
+  destroying_.store(true);
+
+  auto impl = impl_;
+  ExecuteOnMainThreadAsync(^{
+    if (impl) {
+      [impl destroy];
+    }
+  });
 }
 
 void VSyncMonitorMacOS::RequestVSync() {
-  if (impl_) {
-    impl_.displayLink.paused = NO;
+  if (destroying_.load()) {
+    return;
   }
+  auto impl = impl_;
+  ExecuteOnMainThreadAsync(^{
+    if (impl) {
+      impl.displayLink.paused = NO;
+    }
+  });
 }
 
 }  // namespace base
