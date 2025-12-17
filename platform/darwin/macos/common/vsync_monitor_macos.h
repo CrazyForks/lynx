@@ -27,10 +27,6 @@ class API_AVAILABLE(macos(14.0)) VSyncMonitorMacOS : public VSyncMonitor {
   void RequestVSync() override;
 
  private:
-  template <typename Block>
-  void ExecuteOnMainThread(Block block);
-  std::atomic<bool> destroying_{false};
-
   DisplayLinkImpl* impl_ = nil;
 };
 

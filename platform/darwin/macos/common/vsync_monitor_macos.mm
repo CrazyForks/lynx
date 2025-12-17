@@ -62,48 +62,29 @@ std::shared_ptr<VSyncMonitor> VSyncMonitor::Create(bool is_on_ui_thread) {
       fml::TimeDelta::FromSecondsF(1.0 / framesPerSecond));
 }
 
-template <typename Block>
-void VSyncMonitorMacOS::ExecuteOnMainThread(Block block) {
-  if ([NSThread isMainThread]) {
-    block();
-  } else {
-    dispatch_async(dispatch_get_main_queue(), block);
-  }
-}
-
 void VSyncMonitorMacOS::Init() {
   std::weak_ptr<VSyncMonitorMacOS> weak_this =
       std::static_pointer_cast<VSyncMonitorMacOS>(shared_from_this());
-
-  ExecuteOnMainThread(^{
-    impl_ = [[DisplayLinkImpl alloc]
-        initWith:[weak_this](fml::TimePoint start_time, fml::TimePoint target_time) {
-          if (auto vsync_monitor = weak_this.lock()) {
-            vsync_monitor->OnVSync(start_time.ToEpochDelta().ToNanoseconds(),
-                                   target_time.ToEpochDelta().ToNanoseconds());
-          }
-        }];
-  });
+  impl_ = [[DisplayLinkImpl alloc]
+      initWith:[weak_this](fml::TimePoint start_time, fml::TimePoint target_time) {
+        if (auto vsync_monitor = weak_this.lock()) {
+          vsync_monitor->OnVSync(start_time.ToEpochDelta().ToNanoseconds(),
+                                 target_time.ToEpochDelta().ToNanoseconds());
+        }
+      }];
 }
 
 VSyncMonitorMacOS::~VSyncMonitorMacOS() {
-  destroying_.store(true);
-  ExecuteOnMainThread(^{
-    if (impl_) {
-      [impl_ destroy];
-    }
-  });
+  if (impl_) {
+    [impl_ destroy];
+    impl_ = nil;
+  }
 }
 
 void VSyncMonitorMacOS::RequestVSync() {
-  if (destroying_.load()) {
-    return;
+  if (impl_) {
+    impl_.displayLink.paused = NO;
   }
-  ExecuteOnMainThread(^{
-    if (impl_) {
-      impl_.displayLink.paused = NO;
-    }
-  });
 }
 
 }  // namespace base
