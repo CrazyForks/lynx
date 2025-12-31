@@ -218,7 +218,6 @@ class LayoutContext : public std::enable_shared_from_this<LayoutContext>,
   void DestroyPlatformNodesIfNeeded();
   bool SetViewportSizeToRootNode();
   int GetIndexForChild(LayoutNode* parent, LayoutNode* child);
-  void UnlinkNodeFromParent(LayoutNode* node);
   inline void UpdateLayoutNodePropsInner(LayoutNode* node,
                                          const fml::RefPtr<PropBundle>& props);
   inline void UpdateLayoutNodeFontSizeInner(LayoutNode* node,
