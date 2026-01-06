@@ -227,7 +227,6 @@ void ShadowNode::CreateTextInfo(txt::Paragraph* paragraph) {
     TextInfo info;
     info.id = child->id();
     info.parent_id = this->id();
-    auto last_glyph = paragraph->GetLineMetrics().back().end_index;
     if (child->IsInlineTextShadowNode()) {
       info.range_ =
           static_cast<InlineTextShadowNode*>(child)->range_in_paragraph_;
@@ -237,9 +236,7 @@ void ShadowNode::CreateTextInfo(txt::Paragraph* paragraph) {
     if (child->IsInlineImageShadowNode()) {
       auto placeholder_index =
           static_cast<InlineImageShadowNode*>(child)->placeholder_index();
-      if (placeholder_index < 0 ||
-          static_cast<InlineImageShadowNode*>(child)->StartGlyph() >
-              last_glyph) {
+      if (placeholder_index < 0) {
         info.need_mount = false;
         return;
       }
@@ -269,8 +266,7 @@ void ShadowNode::CreateTextInfo(txt::Paragraph* paragraph) {
     if (child->IsInlineViewShadowNode()) {
       info.placeholder_index =
           static_cast<InlineViewShadowNode*>(child)->placeholder_index();
-      if (info.placeholder_index.value_or(-1) >= 0 &&
-          static_cast<InlineViewShadowNode*>(child)->EndGlyph() <= last_glyph) {
+      if (info.placeholder_index.value_or(-1) >= 0) {
         info.need_mount = true;
         child->CreateTextInfo(paragraph);
       } else {
