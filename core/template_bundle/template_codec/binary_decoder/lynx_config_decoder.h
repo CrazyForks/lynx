@@ -836,12 +836,6 @@ class LynxConfigDecoder final {
       page_config->SetEnableBatchLayoutTaskWithSyncLayout(
           LynxEnv::GetInstance().EnableBatchLayoutTaskWithSyncLayout());
     }
-
-    if (doc.HasMember(config::kEnableiOSAnimationLayerForExposure) &&
-        doc[config::kEnableiOSAnimationLayerForExposure].IsBool()) {
-      page_config->SetEnableiOSAnimationLayerForExposure(
-          doc[config::kEnableiOSAnimationLayerForExposure].GetBool());
-    }
   };
 };
 }  // namespace tasm

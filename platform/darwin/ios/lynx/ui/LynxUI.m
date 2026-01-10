@@ -1106,11 +1106,8 @@ static const CGFloat OFFSET_ROTATE_AUTO = -1024.f;
 }
 
 - (CGRect)getBoundingClientRectToScreen {
-  if (_context.enableiOSAnimationLayerForExposure) {
-    CALayer* layer = self.view.layer.presentationLayer ?: self.view.layer.modelLayer;
-    return [layer convertRect:layer.bounds toLayer:nil];
-  }
-  return [self.view convertRect:self.view.bounds toView:nil];
+  CALayer* layer = self.view.layer.presentationLayer ?: self.view.layer.modelLayer;
+  return [layer convertRect:layer.bounds toLayer:nil];
 }
 
 - (void)removeChildrenExposureUI {

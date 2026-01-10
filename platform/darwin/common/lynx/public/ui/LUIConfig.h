@@ -32,5 +32,4 @@
 - (bool)enableTextLayoutCache;
 - (bool)enableTextGradientOpt;
 - (bool)enableExposureWhenReload;
-- (bool)enableiOSAnimationLayerForExposure;
 @end

@@ -300,7 +300,6 @@
   [self setEnableTextLayoutCache:config.enableTextLayoutCache];
   [self setEnableTextGradientOpt:config.enableTextGradientOpt];
   [self setEnableExposureWhenReload:config.enableExposureWhenReload];
-  [self setEnableiOSAnimationLayerForExposure:config.enableiOSAnimationLayerForExposure];
 }
 
 - (void)setDefaultOverflowVisible:(BOOL)enable {
@@ -401,10 +400,6 @@
 
 - (void)setEnableExposureWhenReload:(BOOL)enable {
   _enableExposureWhenReload = enable;
-}
-
-- (void)setEnableiOSAnimationLayerForExposure:(BOOL)enable {
-  _enableiOSAnimationLayerForExposure = enable;
 }
 
 - (int32_t)instanceId {
