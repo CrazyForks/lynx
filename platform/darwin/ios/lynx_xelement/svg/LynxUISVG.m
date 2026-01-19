@@ -82,8 +82,10 @@ LYNX_PROP_SETTER("content", setContent, NSString *) {
 
     [self fetchSVGImage:href
                complete:^(UIImage *_Nullable uiImage, NSError *_Nullable error) {
-                 [weakSelf.imageHolder setObject:image forKey:href];
-                 [weakSelf.view invalidate];
+                 if (uiImage) {
+                   [weakSelf.imageHolder setObject:uiImage forKey:href];
+                   [weakSelf.view invalidate];
+                 }
                }];
   }
   if ((NSNull *)image != [NSNull null]) {
