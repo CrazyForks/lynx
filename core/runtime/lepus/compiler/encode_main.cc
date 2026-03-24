@@ -13,7 +13,6 @@
 #include "core/runtime/lepus/bytecode_generator.h"
 #include "core/runtime/lepus/context_binary_writer.h"
 #include "core/runtime/lepus/exception.h"
-#include "core/runtime/lepus/js_object.h"
 #include "core/runtime/lepus/json_parser.h"
 #include "core/runtime/lepus/lepus_date.h"
 #include "core/runtime/lepus/vm_context.h"
@@ -75,19 +74,19 @@ static lepus::Value EmptyFunc(runtime::MTSContext* context, lepus::Value*,
   return lepus::Value();
 }
 
-static void PrintValue(lepus::Value* val, std::ostream& output);
+static void Print_Value(lepus::Value* val, std::ostream& output);
 
 static void Dump_Table(lepus::Value* val, std::ostream& output) {
   auto it = val->Table()->begin();
   output << "{ " << std::endl;
   for (; it != val->Table()->end(); it++) {
     output << it->first.str() << " : ";
-    PrintValue(&(it->second), output);
+    Print_Value(&(it->second), output);
     output << "\n";
   }
   output << "} " << std::endl;
 }
-static void PrintValue(lepus::Value* val, std::ostream& output) {
+static void Print_Value(lepus::Value* val, std::ostream& output) {
   switch (val->Type()) {
     case lepus::ValueType::Value_Nil:
       output << "null";
@@ -122,7 +121,7 @@ static void PrintValue(lepus::Value* val, std::ostream& output) {
     case lepus::ValueType::Value_Array:
       output << "[";
       for (size_t i = 0; i < val->Array()->size(); i++) {
-        PrintValue(const_cast<lepus::Value*>(&(val->Array()->get(i))), output);
+        Print_Value(const_cast<lepus::Value*>(&(val->Array()->get(i))), output);
         if (i != (val->Array()->size() - 1)) {
           output << ", ";
         }
@@ -130,8 +129,7 @@ static void PrintValue(lepus::Value* val, std::ostream& output) {
       output << "]";
       break;
     case lepus::ValueType::Value_CDate:
-      lynx::fml::static_ref_ptr_cast<lepus::CDate>(val->RefCounted())
-          ->print(output);
+      val->Date()->print(output);
       break;
     case lepus::ValueType::Value_Closure:
     case lepus::ValueType::Value_CFunction:
@@ -141,41 +139,30 @@ static void PrintValue(lepus::Value* val, std::ostream& output) {
       break;
     case lepus::ValueType::Value_RegExp:
       output << "regexp" << std::endl;
-      output << "pattern: "
-             << lynx::fml::static_ref_ptr_cast<lepus::RegExp>(val->RefCounted())
-                    ->get_pattern()
-                    .str()
-             << std::endl;
-      output << "flags: "
-             << lynx::fml::static_ref_ptr_cast<lepus::RegExp>(val->RefCounted())
-                    ->get_flags()
-                    .str()
-             << std::endl;
+      output << "pattern: " << val->RegExp()->get_pattern().str() << std::endl;
+      output << "flags: " << val->RegExp()->get_flags().str() << std::endl;
       break;
     case lepus::ValueType::Value_NaN:
       output << "NaN";
       break;
     case lepus::ValueType::Value_JSObject:
-      output << "LEPUSObject id="
-             << lynx::fml::static_ref_ptr_cast<lepus::LEPUSObject>(
-                    val->RefCounted())
-                    ->JSIObjectID();
+      output << "LEPUSObject id=" << val->LEPUSObject()->JSIObjectID();
       break;
   }
 }
 
-lepus::Value Print(runtime::MTSContext* context, lepus::Value* argv, int argc) {
+lepus::Value Print(runtime::MTSContext* context) {
   long params_count = static_cast<lepus::VMContext*>(context)->GetParamsSize();
   for (long i = 0; i < params_count; i++) {
-    lepus::Value v(static_cast<lepus::VMContext*>(context)->GetParam(i));
+    lepus::Value* v = static_cast<lepus::VMContext*>(context)->GetParam(i);
     std::ostringstream s;
-    PrintValue(&v, s);
+    Print_Value(v, s);
     LOGE(s.str());
   }
   return lepus::Value();
 }
-static lepus::Value Assert(runtime::MTSContext* context, lepus::Value* val,
-                           int argc) {
+static lepus::Value Assert(runtime::MTSContext* context) {
+  lepus::Value* val = static_cast<lepus::VMContext*>(context)->GetParam(0);
   if (val->IsTrue()) {
     return lepus::Value();
   } else {
@@ -183,8 +170,8 @@ static lepus::Value Assert(runtime::MTSContext* context, lepus::Value* val,
     abort();
   }
 }
-static lepus::Value Typeof(runtime::MTSContext* context, lepus::Value* val,
-                           int argc) {
+static lepus::Value Typeof(runtime::MTSContext* context) {
+  lepus::Value* val = static_cast<lepus::VMContext*>(context)->GetParam(0);
   switch (val->Type()) {
     case lepus::ValueType::Value_Nil:
       val->SetString("null");
@@ -220,8 +207,8 @@ static lepus::Value Typeof(runtime::MTSContext* context, lepus::Value* val,
   return *val;
 }
 
-static lepus::Value SetFlag(runtime::MTSContext* context, lepus::Value* parm1,
-                            int argc) {
+static lepus::Value SetFlag(runtime::MTSContext* context) {
+  lepus::Value* parm1 = static_cast<lepus::VMContext*>(context)->GetParam(0);
   if (parm1->String().IsEqual("lepusNullPropAsUndef")) {
     static_cast<lepus::VMContext*>(context)->SetNullPropAsUndef(
         static_cast<lepus::VMContext*>(context)->GetParam(1)->Bool());
@@ -229,16 +216,17 @@ static lepus::Value SetFlag(runtime::MTSContext* context, lepus::Value* parm1,
   return lepus::Value();
 }
 
-static lepus::Value CheckArgs(runtime::MTSContext* context,
-                              lepus::Value* param1, int argc) {
+static lepus::Value CheckArgs(runtime::MTSContext* context) {
+  lepus::Value* param1 = static_cast<lepus::VMContext*>(context)->GetParam(0);
+
   if (!param1->IsString()) {
     return context->ReportFatalError("arg is not string", false,
-                                     error::E_MTS_RENDERER_FUNCTION_FATAL);
+                                     kTestErrorCode);
   }
   return *param1;
 }
 
-void RegisterBuiltinFunc(lepus::VMContext* context) {
+void RegisterBuiltin(lepus::VMContext* context) {
   lepus::RegisterCFunction(context, kCFuncCreatePage, &EmptyFunc);
   lepus::RegisterCFunction(context, kCFuncAttachPage, &EmptyFunc);
   lepus::RegisterCFunction(context, kCFuncCreateVirtualComponent, &EmptyFunc);
@@ -276,19 +264,17 @@ class TestLepus {
  public:
   TestLepus() {}
   ~TestLepus() {}
-  void Run(const char* input, const char* source, bool opt_bytecode,
-           const char* ir_dump_path = nullptr) {
+  void Run(const char* input, const char* source) {
     std::string lepus_resource = source;
     if (lepus_resource == "") {
       lepus_resource = lepus::readFile(input);
     }
     lepus::VMContext context;
     context.Initialize();
-    RegisterBuiltinFunc(&context);
+    RegisterBuiltin(&context);
     context.SetClosureFix(true);
-    context.SetOptBytecode(opt_bytecode);
     auto error = lynx::lepus::BytecodeGenerator::GenerateBytecode(
-        &context, lepus_resource, "2.6", "");
+        &context, lepus_resource, "2.6");
 
     if (!error.empty()) {
       LOGE("error: compile  failed:" << error << "\n");
@@ -325,13 +311,17 @@ class TestLepus {
 #define PRIM_CFUNCTION(name)                                          \
   static LEPUSValue name(LEPUSContext* ctx, LEPUSValueConst this_val, \
                          int argc, LEPUSValueConst* argv)
-#define CONVERT_ARG(name, index)                                   \
-  lepus::Value __##name##__ = MK_JS_LEPUS_VALUE(ctx, argv[index]); \
+#define RUNTIME_FUNCTION_DATA(name)                                   \
+  static LEPUSValue name(LEPUSContext* ctx, LEPUSValueConst this_val, \
+                         int argc, LEPUSValueConst* argv, int magic,  \
+                         LEPUSValue* func_data)
+#define CONVERT_ARG(name, index)               \
+  lepus::Value __##name##__(ctx, argv[index]); \
   lepus::Value* name = &__##name##__;
-#define CONVERT_ARG_AND_CHECK(name, index, Type, FunName)          \
-  lepus::Value __##name##__ = MK_JS_LEPUS_VALUE(ctx, argv[index]); \
-  lepus::Value* name = &__##name##__;                              \
-  RenderFatal(name->Is##Type(),                                    \
+#define CONVERT_ARG_AND_CHECK(name, index, Type, FunName) \
+  lepus::Value __##name##__(ctx, argv[index]);            \
+  lepus::Value* name = &__##name##__;                     \
+  RenderFatal(name->Is##Type(),                           \
               #FunName " params " #index " type should use " #Type)
 #define CHECK_ARGC_EQ(name, count) \
   RenderFatal(argc == count, #name " params size should == " #count);
@@ -350,13 +340,13 @@ class TestLepus {
   }
 
 PRIM_CFUNCTION(Console_Log) {
-  lepus::Value value = MK_JS_LEPUS_VALUE(ctx, argv[0]);
+  lepus::Value value(ctx, argv[0]);
   std::cout << value.ToString() << std::endl;
   return LEPUS_UNDEFINED;
 }
 
 PRIM_CFUNCTION(Test_val) {
-  lepus::Value v = MK_JS_LEPUS_VALUE(ctx, argv[0]);
+  lepus::Value v(ctx, argv[0]);
   if (v.IsInt64()) {
     std::cout << v.Int64() << std::endl;
   } else if (v.IsString()) {
@@ -369,21 +359,21 @@ PRIM_CFUNCTION(Test_val) {
 }
 
 PRIM_CFUNCTION(Test_eq) {
-  lepus::Value left = MK_JS_LEPUS_VALUE(ctx, argv[0]);
-  lepus::Value right = MK_JS_LEPUS_VALUE(ctx, argv[1]);
+  lepus::Value left(ctx, argv[0]);
+  lepus::Value right(ctx, argv[1]);
 
   std::cout << left.IsEqual(right) << std::endl;
 }
 
 PRIM_CFUNCTION(Test_valueEq) {
-  lepus::Value v = MK_JS_LEPUS_VALUE(ctx, argv[0]);
+  lepus::Value v(ctx, argv[0]);
   std::cout << v.IsEqual(v.ToLepusValue()) << std::endl;
 }
 
 PRIM_CFUNCTION(Test_set) {
-  lepus::Value obj = MK_JS_LEPUS_VALUE(ctx, argv[0]);
-  lepus::Value key = MK_JS_LEPUS_VALUE(ctx, argv[1]);
-  lepus::Value val = MK_JS_LEPUS_VALUE(ctx, argv[2]);
+  lepus::Value obj(ctx, argv[0]);
+  lepus::Value key(ctx, argv[1]);
+  lepus::Value val(ctx, argv[2]);
 
   if (key.IsString()) {
     obj.SetProperty(key.String(), val);
@@ -393,8 +383,8 @@ PRIM_CFUNCTION(Test_set) {
 }
 
 PRIM_CFUNCTION(Test_Contains) {
-  lepus::Value obj = MK_JS_LEPUS_VALUE(ctx, argv[0]);
-  lepus::Value key = MK_JS_LEPUS_VALUE(ctx, argv[1]);
+  lepus::Value obj(ctx, argv[0]);
+  lepus::Value key(ctx, argv[1]);
 
   base::String s_key = key.String();
   std::cout << "contains " << s_key.c_str() << " : " << obj.Contains(s_key)
@@ -417,12 +407,11 @@ PRIM_CFUNCTION(UpdateComponentInfo) {
 PRIM_CFUNCTION(TestArgcNG) {
   CONVERT_ARG(arg1, 0);
   if (!arg1->IsString()) {
-    return lepus::LEPUSValueHelper::ToJsValue(
-        ctx,
-        lepus::QuickContext::GetFromJsContext(ctx)->ReportFatalError(
-            "arg is not string", false, error::E_MTS_RENDERER_FUNCTION_FATAL));
+    return lepus::QuickContext::GetFromJsContext(ctx)
+        ->ReportFatalError("arg is not string", false, kTestErrorCode)
+        .ToJSValue(ctx);
   }
-  return lepus::LEPUSValueHelper::ToJsValue(ctx, *arg1);
+  return arg1->ToJSValue(ctx);
 }
 
 void RegisteQuickCFun(lepus::QuickContext* ctx, LEPUSValue obj,
@@ -474,41 +463,14 @@ std::vector<uint8_t> ReadBinary(std::string full_path) {
 }
 
 int main(int argc, char** argv) {
-  if (argc < 2) {
-    std::cerr << "Usage: " << argv[0]
-              << " <input.js> [opt_bytecode] [ir_dump_path]" << std::endl;
-    std::cerr << "  input.js: input JavaScript file" << std::endl;
-    std::cerr << "  opt_bytecode: enable bytecode optimization (true/false)"
-              << std::endl;
-    std::cerr << "  ir_dump_path: directory path to dump IR files (optional)"
-              << std::endl;
-    return 1;
-  }
-
   TestLepus t;
-  bool opt_bytecode = false;
-  const char* ir_dump_path = nullptr;
-
-  // Parse opt_bytecode parameter
-  if (argc > 2) {
-    opt_bytecode = strcmp(argv[2], "true") == 0;
-  }
-
-  // Parse ir_dump_path parameter
-  if (argc > 3) {
-#ifdef LEPUS_TEST
-    ir_dump_path = argv[3];
-#endif
-  }
-
-  t.Run(argv[1], "", opt_bytecode, ir_dump_path);
+  t.Run(argv[1], "");
 }
-
 extern "C" {
 const char* execScript(const char* str, int flag) {
   if (flag == 0) {
     TestLepus t;
-    t.Run("", str, true);
+    t.Run("", str);
   } else {
     TestLepusNG ngt;
     ngt.Run("", str);

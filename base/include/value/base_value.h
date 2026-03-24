@@ -505,7 +505,7 @@ class BASE_EXPORT Value {
   bool IsFalse() const {
     return value_.type == lynx_value_null || value_.type == lynx_value_nan ||
            value_.type == lynx_value_undefined ||
-           (value_.type == lynx_value_bool && !value_.val_bool) ||
+           (value_.type == lynx_value_bool && !Bool()) ||
            (IsNumber() && Number() == 0) ||
            (value_.type == lynx_value_string && StringView().empty()) ||
            IsJSFalse();

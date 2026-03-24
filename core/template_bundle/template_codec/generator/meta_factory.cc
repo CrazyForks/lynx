@@ -86,7 +86,6 @@ constexpr const char* kCustomSections = "customSections";
 constexpr const char* kEnableLepusChunkAsyncDecode =
     "enableLepusChunkAsyncDecode";
 constexpr const char* kContextType = "contextType";
-constexpr const char* kEnableOptLepusBytecode = "enableOptLepusBytecode";
 
 #define GET_VALUE_FROM_JSON(Doc, Key, Type, Var)   \
   if (Doc.HasMember(Key) && Doc[Key].Is##Type()) { \
@@ -767,10 +766,6 @@ EncoderOptions MetaFactory::GetEncoderOptions(rapidjson::Document& document) {
     enable_css_parser = true;
   }
 
-  bool enable_opt_lepus_bytecode = true;
-  GET_VALUE_FROM_JSON(options, kEnableOptLepusBytecode, Bool,
-                      enable_opt_lepus_bytecode);
-
   CompileOptions compile_options{
       enable_css_parser,
       encoder_options.compile_options_.enable_trial_options_,
@@ -814,7 +809,6 @@ EncoderOptions MetaFactory::GetEncoderOptions(rapidjson::Document& document) {
       encode_quickjs_bytecode,
       enable_async_lepus_chunk,
       enable_simple_styling,
-      enable_opt_lepus_bytecode,
       context_type};
 
   // Set compile_options_
