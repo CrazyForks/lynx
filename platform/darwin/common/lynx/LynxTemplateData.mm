@@ -72,12 +72,6 @@ typedef NS_ENUM(NSInteger, LynxTemplateDataActionType) {
   return self;
 }
 
-- (void)materializeValueForJSThreadIfNeeded {
-  if (value_for_js_.IsNil() && _nativeTemplateData != nullptr) {
-    value_for_js_ = lynx::lepus::Value::Clone(_nativeTemplateData->GetValue());
-  }
-}
-
 - (void)addObjectToUpdateActions:(id)obj {
   @synchronized(_updateActions) {
     if (_updateActions == nil) {
@@ -377,9 +371,8 @@ std::shared_ptr<lynx::tasm::TemplateData> LynxGetNativeTemplateDataFromTemplateD
   return _processorName;
 }
 
-// GetTemplateDataForJSThread copies current JS-thread state and pending updateActions.
+// GetTemplateDataForJSThread just needs to copy the updateActions.
 - (LynxTemplateData*)getTemplateDataForJSThread {
-  [self materializeValueForJSThreadIfNeeded];
   LynxTemplateData* data = [[LynxTemplateData alloc] init];
   data->value_for_js_ = lynx::lepus::Value::Clone(value_for_js_);
   [data addObjectToUpdateActions:[self copyUpdateActions]];
@@ -387,7 +380,6 @@ std::shared_ptr<lynx::tasm::TemplateData> LynxGetNativeTemplateDataFromTemplateD
 }
 
 - (lynx::lepus::Value)getDataForJSThread {
-  [self materializeValueForJSThreadIfNeeded];
   NSArray* array = [self obtainUpdateActions];
 
   // Init value_for_js_ or update _updateActions to value_for_js_.

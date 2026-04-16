@@ -104,7 +104,6 @@ public final class TemplateData {
 
   private volatile long mNativeData;
   private volatile long mNativeTemplateDataPtr;
-  private volatile long mJsNativeTemplateDataPtr;
   private volatile Map<String, Object> mData;
   private String mProcessorName;
   private final AtomicBoolean mIsConcurrent = new AtomicBoolean(false);
@@ -121,7 +120,6 @@ public final class TemplateData {
   private final Object mJsNativeDataLock = new Object();
   private final Object mNativeDataLock = new Object();
   private final Object mNativeTemplateDataPtrLock = new Object();
-  private final Object mJsNativeTemplateDataPtrLock = new Object();
 
   enum ActionType {
     STRING_DATA,
@@ -169,7 +167,11 @@ public final class TemplateData {
 
   @RestrictTo(RestrictTo.Scope.LIBRARY)
   public static TemplateData fromNativeTemplateDataPtr(long nativePtr) {
-    return new TemplateData(nativePtr);
+    TemplateData result = TemplateData.empty();
+    result.mNativeTemplateDataPtr = nativePtr;
+    result.readOnly = true;
+    result.mProcessorName = null;
+    return result;
   }
 
   public long getNativeTemplateDataPtr() {
@@ -468,16 +470,13 @@ public final class TemplateData {
   }
 
   private void releaseJsData() {
+    if (mJsNativeData == 0) {
+      return;
+    }
     synchronized (mJsNativeDataLock) {
       if (checkIfEnvPrepared() && mJsNativeData != 0) {
         nativeReleaseData(mJsNativeData);
         mJsNativeData = 0;
-      }
-    }
-    synchronized (mJsNativeTemplateDataPtrLock) {
-      if (checkIfEnvPrepared() && mJsNativeTemplateDataPtr != 0) {
-        nativeReleaseTemplateData(mJsNativeTemplateDataPtr);
-        mJsNativeTemplateDataPtr = 0;
       }
     }
   }
@@ -614,17 +613,6 @@ public final class TemplateData {
     addUpdateAction(UpdateAction.buildStringAction(str));
   }
 
-  private TemplateData(long nativeTemplateData) {
-    mNativeTemplateDataPtr = nativeTemplateData;
-    readOnly = true;
-    mProcessorName = null;
-    if (mEnableJSData && nativeTemplateData != 0 && checkIfEnvPrepared()) {
-      synchronized (mJsNativeTemplateDataPtrLock) {
-        mJsNativeTemplateDataPtr = nativeRetainTemplateDataPtr(nativeTemplateData);
-      }
-    }
-  }
-
   /**
    * check whether templateData is valid.
    * @return valid.
@@ -755,42 +743,33 @@ public final class TemplateData {
     nativeReleaseTemplateData(ptr);
   }
 
-  @RestrictTo(RestrictTo.Scope.LIBRARY)
-  public static void releaseNativeTemplateDataPtr(long ptr) {
-    nativeReleaseTemplateData(ptr);
-  }
-
   @CalledByNative
   private void consumeUpdateActions() {
     LynxThreadPool.getAsyncServiceExecutor().execute(new Runnable() {
       @Override
       public void run() {
-        getDataForJSThreadInner(false);
+        getDataForJSThreadInner();
       }
     });
   }
 
-  long getDataForJSThreadInner(boolean materializeNativeTemplateDataForJs) {
+  long getDataForJSThreadInner() {
     if (!mEnableJSData) {
       return 0;
     }
 
     List<UpdateAction> actions = obtainUpdateActions();
+    if (actions.isEmpty()) {
+      // If there are no update actions, check and return mJsNativeData
+      synchronized (mJsNativeDataLock) {
+        return mJsNativeData;
+      }
+    }
+
+    // Update mJsNativeData inside the lock, but minimize operations within the lock
     synchronized (mJsNativeDataLock) {
       if (mJsNativeData == 0) {
-        long jsTemplateDataPtr;
-        synchronized (mJsNativeTemplateDataPtrLock) {
-          jsTemplateDataPtr = mJsNativeTemplateDataPtr;
-        }
-        if (materializeNativeTemplateDataForJs && jsTemplateDataPtr != 0) {
-          mJsNativeData = nativeCloneDataFromTemplateDataPtr(jsTemplateDataPtr);
-        } else if (!actions.isEmpty()) {
-          mJsNativeData = nativeCreateObject();
-        }
-      }
-
-      if (actions.isEmpty()) {
-        return mJsNativeData;
+        mJsNativeData = nativeCreateObject();
       }
 
       for (UpdateAction action : actions) {
@@ -838,7 +817,7 @@ public final class TemplateData {
 
   @CalledByNative
   long getDataForJSThread() {
-    return getDataForJSThreadInner(true);
+    return getDataForJSThreadInner();
   }
 
   // Used to copy a new templateData that contains updateActions only.
@@ -846,17 +825,8 @@ public final class TemplateData {
   TemplateData getTemplateDataForJSThread() {
     TemplateData data = TemplateData.empty();
     data.mEnableJSData = true;
-    synchronized (mJsNativeDataLock) {
-      if (mJsNativeData != 0) {
-        data.mJsNativeData = nativeClone(mJsNativeData);
-      }
-    }
-    if (data.mJsNativeData == 0) {
-      synchronized (mJsNativeTemplateDataPtrLock) {
-        if (mJsNativeTemplateDataPtr != 0) {
-          data.mJsNativeTemplateDataPtr = nativeRetainTemplateDataPtr(mJsNativeTemplateDataPtr);
-        }
-      }
+    if (mJsNativeData != 0) {
+      data.mJsNativeData = nativeClone(mJsNativeData);
     }
     data.addUpdateActions(getUpdateActionsWithJsNativeData());
     return data;
@@ -884,8 +854,6 @@ public final class TemplateData {
   private static native long nativeClone(long nativePtr);
   private static native long nativeShallowCopy(long nativePtr);
   private static native long nativeCreateObject();
-  private static native long nativeRetainTemplateDataPtr(long nativeTemplateDataPtr);
-  private static native long nativeCloneDataFromTemplateDataPtr(long nativeTemplateDataPtr);
   static native void nativeMergeTemplateData(long destPtr, long srcPtr);
 
   private static native long nativeCreateTemplateData(
