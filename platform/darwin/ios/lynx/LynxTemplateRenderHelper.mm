@@ -231,10 +231,6 @@
 
   [self setUpLynxContextWithLastInstanceId:lastInstanceId];
 
-  if (!_enableJSRuntime) {
-    return;
-  }
-
   auto native_module_manager = [self setUpModuleManager];
 
   // Attach runtime
