@@ -941,8 +941,7 @@ public class LynxImageManager implements Drawable.Callback {
     }
 
     if (isDirty(SRC_CHANGED) || isDirty(BLUR_RADIUS_CHANGED) || isDirty(DOWN_SAMPLING_SCALE_CHANGED)
-        || isDirty(REGION_TO_DECODE_CHANGED)
-        || (isDirty(LAYOUT_CHANGED) && mCurImageRequest == null)) {
+        || isDirty(REGION_TO_DECODE_CHANGED)) {
       if (!mDeferInvalidation) {
         releaseImage(mCurImageRequest); // TODO(linxs:) to be removed!
         releaseDrawable(mImageDrawable); // TODO(linxs:) it's better to move to ImageContent to do
