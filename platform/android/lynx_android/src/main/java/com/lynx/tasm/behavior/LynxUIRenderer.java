@@ -249,9 +249,6 @@ public class LynxUIRenderer implements ILynxUIRenderer {
     if ((mLynxUIOwner != null) && (mLynxUIOwner.getRootUI() != null)) {
       mLynxUIOwner.getRootUI().onPageConfigDecoded(config);
     }
-    if (config.getSyncXElementRegistry() && mLynxUIOwner != null) {
-      mLynxUIOwner.setEnableSyncXElementRegistry();
-    }
   }
 
   @Override

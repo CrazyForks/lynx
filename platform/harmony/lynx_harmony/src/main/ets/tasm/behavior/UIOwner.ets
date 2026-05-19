@@ -73,13 +73,6 @@ export class UIOwner {
     return this.behaviors.get(tag)?.type ?? NodeType.UNKNOWN;
   }
 
-  setEnableSyncXElementRegistry(): void {
-    const behavior = this.behaviors.get('x-webview');
-    if (behavior !== undefined) {
-      this.behaviors.set('webview', behavior);
-    }
-  }
-
   attachPageRoot(nativeContent: NativeContent) {
     this.native.attachPageRoot(nativeContent);
   }

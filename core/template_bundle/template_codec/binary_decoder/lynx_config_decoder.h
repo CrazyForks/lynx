@@ -925,12 +925,6 @@ class LynxConfigDecoder final {
       page_config->SetEnableFrameNativeData(
           LynxEnv::GetInstance().EnableFrameNativeData());
     }
-
-    if (doc.HasMember(config::kSyncXElementRegistry) &&
-        doc[config::kSyncXElementRegistry].IsBool()) {
-      page_config->SetSyncXElementRegistry(
-          doc[config::kSyncXElementRegistry].GetBool());
-    }
   };
 };
 }  // namespace tasm
