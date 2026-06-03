@@ -34,16 +34,18 @@ struct LynxCSSSelectorTuple {
 };
 
 struct LynxStyleRuleBase {
-  explicit LynxStyleRuleBase(tasm::CSSRuleType t) : type(t) {}
+  using RuleType = tasm::CSSRuleType;
+
+  explicit LynxStyleRuleBase(RuleType t) : type(t) {}
   virtual ~LynxStyleRuleBase() = default;
-  tasm::CSSRuleType type = tasm::CSSRuleType::kUnknown;
+  RuleType type = RuleType::kUnknown;
 };
 
 struct LynxStyleRule : LynxStyleRuleBase {
   LynxStyleRule(size_t size, size_t pos,
                 std::unique_ptr<css::LynxCSSSelector[]> arr,
                 fml::RefPtr<tasm::CSSParseToken> properties)
-      : LynxStyleRuleBase(tasm::CSSRuleType::kStyle),
+      : LynxStyleRuleBase(RuleType::kStyle),
         flattened_size(size),
         position(pos),
         selector_arr(std::move(arr)),
@@ -57,34 +59,22 @@ struct LynxStyleRule : LynxStyleRuleBase {
 
 struct LynxStyleRuleGroup : LynxStyleRuleBase {
   std::vector<std::unique_ptr<LynxStyleRuleBase>> child_rules;
-  explicit LynxStyleRuleGroup(tasm::CSSRuleType t) : LynxStyleRuleBase(t) {}
+  explicit LynxStyleRuleGroup(RuleType t) : LynxStyleRuleBase(t) {}
 };
 
 struct LynxStyleRuleCondition : LynxStyleRuleGroup {
-  explicit LynxStyleRuleCondition(tasm::CSSRuleType t)
-      : LynxStyleRuleGroup(t) {}
+  explicit LynxStyleRuleCondition(RuleType t) : LynxStyleRuleGroup(t) {}
   std::string condition;
 };
 
-struct LynxStyleRuleLayer : LynxStyleRuleGroup {
-  explicit LynxStyleRuleLayer(tasm::CSSRuleType t) : LynxStyleRuleGroup(t) {}
-  std::vector<std::string> name;
-  // `layer_position` is the **document position** assigned by the parser as
-  // it walks @layer rules in source order (per fragment). It is NOT the
-  // CSS cascade priority.
-  size_t layer_position = 0;
-};
-
 struct LynxStyleRuleFontFace : LynxStyleRuleBase {
-  explicit LynxStyleRuleFontFace()
-      : LynxStyleRuleBase(tasm::CSSRuleType::kFontFace) {}
+  explicit LynxStyleRuleFontFace() : LynxStyleRuleBase(RuleType::kFontFace) {}
   std::string family;
   std::vector<std::shared_ptr<tasm::CSSFontFaceToken>> properties;
 };
 
 struct LynxStyleRuleKeyframes : LynxStyleRuleBase {
-  explicit LynxStyleRuleKeyframes()
-      : LynxStyleRuleBase(tasm::CSSRuleType::kKeyframes) {}
+  explicit LynxStyleRuleKeyframes() : LynxStyleRuleBase(RuleType::kKeyframes) {}
   std::string name;
   fml::RefPtr<CSSKeyframesToken> properties;
 };

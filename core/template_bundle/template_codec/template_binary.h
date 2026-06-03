@@ -96,8 +96,6 @@ enum class CSSRuleType : uint8_t {
   kFontFeature,
   kProperty,
   kKeyframes,
-  kLayerBlock,
-  kLayerStatement,
   kNestedDeclarations,
   kFunctionDeclarations,
   kNamespace,

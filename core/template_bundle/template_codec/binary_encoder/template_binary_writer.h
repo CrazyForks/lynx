@@ -136,7 +136,6 @@ class TemplateBinaryWriter : public CSRElementBinaryWriter {
   void EncodeCSSRules(encoder::SharedCSSFragment* fragment);
   void EncodeCSSStyleRule(const encoder::LynxStyleRule& rule);
   void EncodeCSSConditionRule(const encoder::LynxStyleRuleCondition& rule);
-  void EncodeCSSLayerRule(const encoder::LynxStyleRuleLayer& rule);
   void EncodeCSSKeyframesRule(const encoder::LynxStyleRuleKeyframes& rule);
   void EncodeCSSFontFaceRule(const encoder::LynxStyleRuleFontFace& rule);
 
