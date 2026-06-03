@@ -55,7 +55,7 @@ class ScrollView : public WithTypeInfo<ScrollView, NestedScrollable>,
   }
 
   bool OnScrollToVisible() override;
-  bool OnScrollToMiddle(BaseView* target_view);
+  bool OnScrollToMiddle(BaseView* target_view) override;
 
   void DoScrollFromRaster(float scroll_offset, bool ignore_repaint);
   // Scroller::Delegate
@@ -108,8 +108,9 @@ class ScrollView : public WithTypeInfo<ScrollView, NestedScrollable>,
   Scroller* GetScroller() { return scroller_.get(); }
 
 #ifdef ENABLE_ACCESSIBILITY
-  int32_t GetSemanticsActions() const;
-  int32_t GetSemanticsFlags() const;
+  int32_t GetSemanticsActions() const override;
+  int32_t GetSemanticsFlags() const override;
+  int32_t GetA11yScrollChildren() const override;
 #endif
 
 #ifndef NDEBUG
