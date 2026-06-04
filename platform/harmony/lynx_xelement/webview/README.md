@@ -10,7 +10,7 @@ Lynx XElement WebView provides `<webview>` on harmony.
 ## Installation
 
 ```bash
-ohpm install @lynx/xelement-webview
+ohpm install @lynx/xelement_webview
 ```
 
 ## How to use
