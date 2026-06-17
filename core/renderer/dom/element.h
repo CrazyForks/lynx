@@ -780,6 +780,7 @@ class Element : public lepus::RefCounted,
 
   // Declared platform node tag
   const base::String& GetTag() const { return tag_; }
+  bool IsOverlay() const { return is_overlay_; }
 
   // The actual platform node tag, which is typically the same as the declared
   // platform node tag, except in one case:
@@ -1494,6 +1495,7 @@ class Element : public lepus::RefCounted,
   }
 
   base::String tag_;
+  bool is_overlay_{false};
 
   int32_t id_;
   /**
