@@ -187,6 +187,7 @@ TEST_F(FragmentTest, ReusedEventTargetTreeRefreshesScrollOffsetForHitTest) {
   platform_ref.renderers_.insert_or_assign(1, scroll_renderer);
   platform_ref.scrollable_signs.insert(1);
   platform_ref.scroll_offsets[1] = {0.f, 0.f};
+  platform_ref.need_reconstruct_event_target_tree_ = true;
 
   auto root_target = platform_ref.ReconstructEventTargetTreeRecursively();
   ASSERT_NE(root_target, nullptr);
@@ -197,8 +198,11 @@ TEST_F(FragmentTest, ReusedEventTargetTreeRefreshesScrollOffsetForHitTest) {
   EXPECT_EQ(hit_target->Sign(), 1);
 
   platform_ref.scroll_offsets[1] = {0.f, 30.f};
-  auto reused_root = platform_ref.ReconstructEventTargetTreeRecursively();
+  bool did_reconstruct = true;
+  auto reused_root =
+      platform_ref.ReconstructEventTargetTreeRecursively(&did_reconstruct);
 
+  EXPECT_FALSE(did_reconstruct);
   EXPECT_EQ(root_target.get(), reused_root.get());
   hit_target = reused_root->HitTest(point);
   ASSERT_NE(hit_target, nullptr);

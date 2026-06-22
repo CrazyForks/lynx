@@ -5,7 +5,6 @@
 #ifndef CORE_RENDERER_DOM_FRAGMENT_EVENT_PLATFORM_EVENT_TARGET_H_
 #define CORE_RENDERER_DOM_FRAGMENT_EVENT_PLATFORM_EVENT_TARGET_H_
 
-#include <array>
 #include <cstdint>
 #include <string>
 #include <unordered_map>
@@ -68,22 +67,9 @@ class PlatformEventTarget
       base::InlineVector<fml::RefPtr<PlatformEventTarget>, 4>;
 
  public:
-  struct EventThroughSizeValue {
-    enum class Type {
-      kDevicePx,
-      kPercentage,
-    };
-
-    Type type{Type::kDevicePx};
-    float value{0.f};
-  };
-  using EventThroughRegion = std::array<EventThroughSizeValue, 4>;
-
-  PlatformEventTarget(PlatformEventTargetHelper* target_helper, int32_t root_id,
-                      int32_t sign, float left, float top, float width,
-                      float height)
-      : root_id_(root_id),
-        sign_(sign),
+  PlatformEventTarget(PlatformEventTargetHelper* target_helper, int32_t sign,
+                      float left, float top, float width, float height)
+      : sign_(sign),
         left_(left),
         top_(top),
         width_(width),
@@ -99,7 +85,6 @@ class PlatformEventTarget
     return !(*this == other);
   }
 
-  int32_t RootId() const { return root_id_; }
   int32_t Sign() const { return sign_; }
   float Left() const { return left_; }
   float Top() const { return top_; }
@@ -120,8 +105,7 @@ class PlatformEventTarget
     return enable_exposure_ui_clip_;
   }
   bool IsScrollable() const { return is_scroll_container_; }
-  bool IsRoot() const { return sign_ == root_id_; }
-  bool IsPageRoot() const { return IsRoot() && root_id_ == kRootId; }
+  bool IsRoot() const { return sign_ == kRootId; }
   const base::Vector<PlatformEventName>& EventSet() const { return event_set_; }
   bool UserInteractionEnabled() const { return user_interaction_enabled_; }
   bool NativeInteractionEnabled() const { return native_interaction_enabled_; }
@@ -148,7 +132,7 @@ class PlatformEventTarget
   void GetExposureTargetRect(float rect[4]) const;
   void GetExposureWindowRect(float rect[4]) const;
 
-  fml::RefPtr<PlatformEventTarget> ParentTarget() const {
+  fml::RefPtr<PlatformEventTarget> ParentTarget() {
     return parent_ ? fml::RefPtr<PlatformEventTarget>(parent_.get()) : nullptr;
   }
   void SetParentTarget(fml::RefPtr<PlatformEventTarget> parent) {
@@ -238,22 +222,9 @@ class PlatformEventTarget
   void SetScrollContainer(bool is_scroll_container) {
     is_scroll_container_ = is_scroll_container;
   }
-  void SetEventThrough(LynxEventPropStatus value) { event_through_ = value; }
-  void SetEventThroughActiveRegions(
-      std::vector<EventThroughRegion> event_through_active_regions) {
-    event_through_active_regions_ = std::move(event_through_active_regions);
-  }
-  void SetEventsPassThrough(LynxEventPropStatus value) {
-    events_pass_through_ = value;
-  }
 
  private:
   void UpdateScrollOffsetIfNeeded();
-  bool EventThroughInternal(float point[2],
-                            bool include_events_pass_through) const;
-  bool HitEventThroughActiveRegions(float point[2]) const;
-  float ConvertEventThroughSizeValue(const EventThroughSizeValue& value,
-                                     bool is_horizontal) const;
 
   void GetOrUpdateTargetScreenRect(
       std::unordered_map<int32_t, CommonAncestorRect>& common_ancestor_rect_map,
@@ -261,7 +232,6 @@ class PlatformEventTarget
       float root_view_origin_on_screen[2]) const;
 
   // target props
-  int32_t root_id_;
   int32_t sign_;
   float left_{0.f};
   float top_{0.f};
@@ -287,9 +257,6 @@ class PlatformEventTarget
   float exposure_ui_margin_bottom_{0.f};
   float exposure_area_ratio_{0.f};
   LynxEventPropStatus enable_exposure_ui_clip_{LynxEventPropStatus::kUndefined};
-  LynxEventPropStatus event_through_{LynxEventPropStatus::kUndefined};
-  LynxEventPropStatus events_pass_through_{LynxEventPropStatus::kUndefined};
-  std::vector<EventThroughRegion> event_through_active_regions_;
   std::string id_selector_;
   std::string exposure_id_;
   std::string exposure_scene_;

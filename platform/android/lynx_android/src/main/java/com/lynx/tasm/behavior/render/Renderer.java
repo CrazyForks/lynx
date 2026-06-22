@@ -111,11 +111,7 @@ public class Renderer {
     for (int i = 0; i < viewGroup.getChildCount(); i++) {
       View child = viewGroup.getChildAt(i);
       if (child instanceof IRendererHost) {
-        Renderer childRenderer = ((IRendererHost) child).getRenderer();
-        if (childRenderer == null) {
-          continue;
-        }
-        Rect childFrame = childRenderer.getLynxFrame();
+        Rect childFrame = ((IRendererHost) child).getRenderer().getLynxFrame();
         child.measure(
             View.MeasureSpec.makeMeasureSpec(childFrame.width(), View.MeasureSpec.EXACTLY),
             View.MeasureSpec.makeMeasureSpec(childFrame.height(), View.MeasureSpec.EXACTLY));
@@ -138,11 +134,7 @@ public class Renderer {
     for (int i = 0; i < viewGroup.getChildCount(); i++) {
       View child = viewGroup.getChildAt(i);
       if (child instanceof IRendererHost) {
-        Renderer childRenderer = ((IRendererHost) child).getRenderer();
-        if (childRenderer == null) {
-          continue;
-        }
-        Rect childFrame = childRenderer.getLynxFrame();
+        Rect childFrame = ((IRendererHost) child).getRenderer().getLynxFrame();
         child.layout(childFrame.left, childFrame.top, childFrame.right, childFrame.bottom);
       }
     }

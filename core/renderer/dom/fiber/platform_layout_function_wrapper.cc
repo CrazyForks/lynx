@@ -23,8 +23,8 @@ PlatformLayoutFunctionWrapper::PlatformLayoutFunctionWrapper(
 FloatSize PlatformLayoutFunctionWrapper::MeasureCallback(
     void* context, const starlight::Constraints& constraints,
     bool final_measure) {
-  auto* wrapper = static_cast<PlatformLayoutFunctionWrapper*>(context);
-  MeasureFunc* measure = wrapper->measure_func_.get();
+  MeasureFunc* measure = (static_cast<PlatformLayoutFunctionWrapper*>(context))
+                             ->measure_func_.get();
   DCHECK(measure);
   SLMeasureMode width_mode = constraints[starlight::kHorizontal].Mode();
   SLMeasureMode height_mode = constraints[starlight::kVertical].Mode();
@@ -41,13 +41,6 @@ FloatSize PlatformLayoutFunctionWrapper::MeasureCallback(
   return FloatSize(result.width_, result.height_, result.baseline_);
 }
 
-void PlatformLayoutFunctionWrapper::AlignmentCallback(void* context) {
-  auto* wrapper = static_cast<PlatformLayoutFunctionWrapper*>(context);
-  MeasureFunc* measure = wrapper->measure_func_.get();
-  DCHECK(measure);
-  measure->Alignment();
-}
-
 void PlatformLayoutFunctionWrapper::SetMeasureFunc(
     std::unique_ptr<MeasureFunc> measure_func) {
   measure_func_ = std::move(measure_func);
@@ -56,7 +49,6 @@ void PlatformLayoutFunctionWrapper::SetMeasureFunc(
   }
   layout_object_->SetContext(this);
   layout_object_->SetSLMeasureFunc(MeasureCallback);
-  layout_object_->SetSLAlignmentFunc(AlignmentCallback);
 }
 
 void PlatformLayoutFunctionWrapper::MarkDirty() {

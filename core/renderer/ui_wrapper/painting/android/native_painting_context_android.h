@@ -7,7 +7,6 @@
 
 #include <jni.h>
 
-#include <atomic>
 #include <memory>
 #include <string>
 #include <utility>
@@ -143,8 +142,6 @@ class NativePaintingCtxAndroid : public PaintingCtxPlatformImpl,
   }
 
   bool has_first_screen_ = false;
-  std::shared_ptr<std::atomic_bool> event_target_tree_update_enqueued_ =
-      std::make_shared<std::atomic_bool>(false);
   std::unique_ptr<PlatformRendererContext> view_manager_;
   std::shared_ptr<shell::DynamicUIOperationQueue> queue_;
 };

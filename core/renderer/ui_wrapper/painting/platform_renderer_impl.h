@@ -49,7 +49,6 @@ class PlatformRendererImpl : public PlatformRenderer {
 
   int GetId() const override { return id_; }
   const base::String& GetTagName() const { return tag_name_; }
-  bool IsOverlay() const { return is_overlay_; }
   PlatformRendererType GetPlatformRendererType() const { return type_; }
 
   base::String GetExtendedRendererTagName() const override;
@@ -89,7 +88,6 @@ class PlatformRendererImpl : public PlatformRenderer {
   DisplayList display_list_;
   ChildVecT children_;
   bool is_platform_extended_renderer_ = false;
-  bool is_overlay_ = false;
 };
 
 }  // namespace lynx::tasm

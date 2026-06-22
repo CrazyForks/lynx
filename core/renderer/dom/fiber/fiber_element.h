@@ -687,8 +687,7 @@ class FiberElement : public Element {
   virtual ParallelFlushReturn PrepareForCreateOrUpdate();
 
   void InsertLayoutNode(FiberElement* child, FiberElement* ref);
-  void RemoveLayoutNode(FiberElement* child,
-                        int layout_in_element_platform_index = -1);
+  void RemoveLayoutNode(FiberElement* child);
 
   void StoreLayoutNode(FiberElement* child, FiberElement* ref);
   void RestoreLayoutNode(FiberElement* child);
@@ -889,8 +888,6 @@ class FiberElement : public Element {
   void MarkLayoutDirtyLite() override;
 
   void EnsureSLNode();
-  bool HasLayoutInElementPlatformNode();
-  int GetLayoutInElementPlatformChildIndex(FiberElement* child);
 
   virtual void DispatchLayoutBefore();
 

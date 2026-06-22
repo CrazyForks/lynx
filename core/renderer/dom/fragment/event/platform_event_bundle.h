@@ -186,9 +186,6 @@ enum class PlatformEventPropName : int32_t {
   kExposureId = 13,
   kExposureScene = 14,
   kDataset = 15,
-  kEventThrough = 16,
-  kEventThroughActiveRegions = 17,
-  kEventsPassThrough = 18,
 };
 
 inline PlatformEventPropName PlatformEventPropNameFromString(
@@ -240,15 +237,6 @@ inline PlatformEventPropName PlatformEventPropNameFromString(
   }
   if (name == "dataset") {
     return PlatformEventPropName::kDataset;
-  }
-  if (name == "event-through") {
-    return PlatformEventPropName::kEventThrough;
-  }
-  if (name == "event-through-active-regions") {
-    return PlatformEventPropName::kEventThroughActiveRegions;
-  }
-  if (name == "events-pass-through") {
-    return PlatformEventPropName::kEventsPassThrough;
   }
   return PlatformEventPropName::kUnknown;
 }
@@ -303,20 +291,11 @@ inline std::string_view PlatformEventPropNameToString(
   if (name == PlatformEventPropName::kDataset) {
     return "dataset";
   }
-  if (name == PlatformEventPropName::kEventThrough) {
-    return "event-through";
-  }
-  if (name == PlatformEventPropName::kEventThroughActiveRegions) {
-    return "event-through-active-regions";
-  }
-  if (name == PlatformEventPropName::kEventsPassThrough) {
-    return "events-pass-through";
-  }
   return "";
 }
 
 using PlatformEventPropMap =
-    base::InlineOrderedFlatMap<PlatformEventPropName, lepus::Value, 16>;
+    base::InlineOrderedFlatMap<PlatformEventPropName, lepus::Value, 12>;
 
 class PlatformEventBundle {
  public:
